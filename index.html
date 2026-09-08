@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شذى | SHATHA - زهور • هدايا • لحظات لا تُنسى</title>
+  
+  <!-- تحسين محركات البحث SEO -->
+  <meta name="description" content="متجر شذى للهدايا والورد الستان الهاندميد وبوكيهات الفلوس وحلوى اللولي بوب. اختار حاجه تعيش معاك العمر كلووو، صناعة يدوية عالية الجودة تدوم للأبد. واتساب: 01102541236">
+  <meta name="keywords" content="شذى, ورد ستان, بوكيه ورد ستان, بوكيه فلوس, بوكيه نقود, هدايا هاندميد, بوكيه لولي بوب, شذى ستان">
+  <meta property="og:title" content="شذى | SHATHA - اختار حاجه تعيش معاك العمر كلووو">
+  <meta property="og:description" content="شذى.. اختار حاجه تعيش معاك العمر كلووو. باقات ورد ستان هاندميد وبوكيهات فلوس وحلويات مشغولة يدوياً بأعلى معايير الإتقان.">
+  <meta property="og:image" content="assets/images/logo.jpg">
+  
+  <!-- أيقونة الموقع (Favicon) من شعار شذى -->
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
+  
+  <!-- أيقونات Font Awesome الحديثة -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- ملف التنسيقات الفاخر لشذى -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- شريط الإعلانات العلوي وكوبون الخصم الترحيبي -->
+  <aside class="top-announcement-bar" aria-label="شريط العروض الترويجية">
+    <div class="container">
+      <div class="bar-content">
+        <span>🌸 مرحباً بك في <strong>شذى</strong> - خصم 10% لأول طلب بكود:</span>
+        <div class="coupon-pill" id="couponPill" title="اضغط لنسخ كود الخصم وتطبيقه">
+          <i class="fas fa-ticket-alt"></i>
+          <span class="coupon-code-text">SHATHA10</span>
+          <i class="far fa-copy"></i>
+        </div>
+        <span>| شغل يدوي عالي الجودة يدوم للأبد |</span>
+        <a href="https://wa.me/201102541236" target="_blank" class="bar-phone-link">
+          <i class="fab fa-whatsapp"></i> 01102541236
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ترويسة الموقع الرئيسية (Header & Nav) -->
+  <header class="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- الشعار الرسمي لشذى -->
+        <a href="#home" class="brand-logo-wrap">
+          <img src="assets/images/logo.jpg" alt="شعار شذى SHATHA" class="brand-logo-img">
+          <div class="brand-names">
+            <h1 class="brand-title">شَـذى</h1>
+            <span class="brand-subtitle">HANDMADE FLOWERS & GIFTS</span>
+          </div>
+        </a>
+
+        <!-- قائمة التصفح -->
+        <nav>
+          <ul class="nav-menu" id="navMenu">
+            <li><a href="#home" class="nav-link active">الرئيسية</a></li>
+            <li><a href="#products" class="nav-link">الباقات والمنتجات</a></li>
+            <li><a href="#about" class="nav-link">عن شذى</a></li>
+            <li><a href="#testimonials" class="nav-link">آراء العملاء</a></li>
+            <li><a href="checkout.html" class="nav-link" style="color: var(--primary-pink); font-weight: 700;">صفحة إتمام الطلب والدفع</a></li>
+          </ul>
+        </nav>
+
+        <!-- أدوات الهيدر والسلة -->
+        <div class="header-actions">
+          <button class="action-btn" id="headerSearchBtn" onclick="document.getElementById('productSearchInput').focus(); document.getElementById('products').scrollIntoView({behavior: 'smooth'});" title="بحث في المنتجات" aria-label="بحث في المنتجات">
+            <i class="fas fa-search"></i>
+          </button>
+          
+          <button class="action-btn" id="cartTriggerBtn" title="سلة المشتريات" aria-label="سلة المشتريات">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="cart-count-badge" id="cartCountBadge">0</span>
+          </button>
+
+          <button class="action-btn mobile-menu-toggle" id="mobileToggle" aria-label="فتح القائمة">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- قسم الهيرو الترحيبي (Hero Section) -->
+  <section class="hero-section" id="home">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="hero-tag">
+            <i class="fas fa-sparkles"></i>
+            <span>صناعة يدوية فاخرة عالية الجودة 100%</span>
+          </div>
+          <h2 class="hero-title">
+            شَـذى.. <br>
+            <span>اختار حاجه تعيش معاك العمر كلووو</span>
+          </h2>
+          <p class="hero-desc">
+            باقات ورد ستان هاندميد، وبوكيهات فلوس ونقود للمناسبات، وبوكيهات حلويات مشغولة يدوياً بأعلى معايير الإتقان.. تعيش معاك العمر كلو وتفضل ذكرى حقيقية لا تذبل أبداً.
+          </p>
+          <div class="hero-cta-group">
+            <a href="#products" class="btn-primary">
+              <i class="fas fa-sparkles"></i>
+              <span>استعرض جميع الباقات</span>
+            </a>
+            <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%F0%9F%8C%B8%20%D8%A3%D9%88%D8%AF%20%D8%AA%D9%86%D8%B3%D9%8A%D9%82%20%D8%A8%D9%88%D9%83%D9%8A%D9%87%20%D8%AE%D8%A7%D8%B5" target="_blank" class="btn-secondary">
+              <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+              <span>تنسيق خاص عبر واتساب</span>
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <h4>100%</h4>
+              <p>شغل يدوي عالي الجودة</p>
+            </div>
+            <div class="stat-item">
+              <h4>3-5 س</h4>
+              <p>توصيل سريع بنفس اليوم</p>
+            </div>
+            <div class="stat-item">
+              <h4>+2500</h4>
+              <p>لحظة فرح صَنَعناها</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-main-card">
+            <img src="../../.gemini/antigravity/brain/dfe6b8d2-cc57-42a7-9078-a02977a9ee0d/.user_uploaded/media_1788902357259.jpg" alt="بوكيه شذى الستان الملكي الهاندميد">
+          </div>
+          <div class="floating-badge badge-top">
+            <div class="badge-icon"><i class="fas fa-gift"></i></div>
+            <div>
+              <h5>كارت إهداء مجاناً</h5>
+              <p>مطبوع بخط أنيق مع كل باقة</p>
+            </div>
+          </div>
+          <div class="floating-badge badge-bottom">
+            <div class="badge-icon"><i class="fas fa-truck-fast"></i></div>
+            <div>
+              <h5>توصيل مبرّد وآمن</h5>
+              <p>يحافظ على نضارة الزهور حتى بابك</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- شريط الثقة والمميزات (Trust Features) -->
+  <section class="trust-bar-section">
+    <div class="container">
+      <div class="trust-features-grid">
+        <div class="trust-card">
+          <div class="trust-icon-box"><i class="fas fa-hand-sparkles"></i></div>
+          <div class="trust-text">
+            <h4>صناعة يدوية 100%</h4>
+            <p>شغل يدوي متقن وخامات أصلية فاخرة</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon-box"><i class="fas fa-infinity"></i></div>
+          <div class="trust-text">
+            <h4>يدوم للأبد ولا يذبل</h4>
+            <p>ورد ستان فاخر وتنسيقات نقود استثنائية</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon-box"><i class="fas fa-envelope-open-text"></i></div>
+          <div class="trust-text">
+            <h4>كارت إهداء مذهب</h4>
+            <p>تجهيز وطباعة رسالتك الخاصة مجاناً</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon-box"><i class="fas fa-shield-halved"></i></div>
+          <div class="trust-text">
+            <h4>ضمان الجودة والإتقان</h4>
+            <p>تنفيذ مطابق للصور ومراعاة أدق التفاصيل</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- قسم المنتجات والبحث والفرز (جميع المنتجات معاً بدون فئات) -->
+  <section class="products-section" id="products">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 25px;">
+        <span class="section-subtitle">إبداعات شذى اليدوية</span>
+        <h2 class="section-title">تشكيلة الباقات والتنسيقات المصنوعة يدوياً</h2>
+        <p class="section-desc">جميع الباقات مشغولة يدوياً بحرفية عالية؛ بوكيهات ورد ستان تدوم للأبد، وبوكيهات فلوس للمناسبات، وبوكيهات سكاكر مبهجة.</p>
+      </div>
+
+      <!-- شريط البحث والفرز -->
+      <div class="products-filter-bar">
+        <div class="filter-search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="productSearchInput" placeholder="ابحث بالاسم أو الخامات (ستان، فلوس، لولي بوب)..." aria-label="بحث في المنتجات">
+        </div>
+
+        <div class="filter-sort-group">
+          <label for="sortSelect" class="sort-label">الترتيب حسب:</label>
+          <select id="sortSelect" class="sort-select">
+            <option value="default">المقترحة لشذى</option>
+            <option value="bestseller">الأكثر طلباً ومبيعاً</option>
+            <option value="price-low">السعر: من الأقل للأعلى</option>
+            <option value="price-high">السعر: من الأعلى للأقل</option>
+            <option value="rating">الأعلى تقييماً</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- شبكة المنتجات -->
+      <div class="products-grid" id="productsGrid">
+        <!-- يتم توليد كروت المنتجات ديناميكياً بواسطة JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- قسم قصة البراند (About SHATHA Section) -->
+  <section class="about-section" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image-composition">
+          <img src="../../.gemini/antigravity/brain/dfe6b8d2-cc57-42a7-9078-a02977a9ee0d/.user_uploaded/media_1788903555534.jpg" alt="بوكيه النقود الملكي بالورود البيضاء من شذى" class="about-img-main">
+          <div class="about-logo-overlay">
+            <img src="assets/images/logo.jpg" alt="لوجو شذى">
+          </div>
+        </div>
+
+        <div class="about-content">
+          <span class="section-subtitle">إبداع شذى - SHATHA</span>
+          <h2 class="section-title">حرفية يدوية تصنع هدايا استثنائية تدوم للأبد</h2>
+          <p class="about-text">
+            تتخصص علامة <strong>"شذى"</strong> في ابتكار وتنسيق أرقى الهدايا المصنوعة يدوياً؛ فنحن نحوّل خامات الستان التركي الفاخر إلى ورود جوري تضاهي الطبيعة ببريقها وتدوم مدى الحياة دون أن تذبل أو تفقد رونقها.
+          </p>
+          <p class="about-text">
+            كما نبتكر أحدث أشكال بوكيهات النقود والفلوس الملكية بأسلوب هندسي دقيق وآمن يحافظ على العملات، إلى جانب باقات السكاكر والحلوى المرحة، وكلها تخرج بتغليف كوري راقٍ مختوم بفيونكات الستان وشعار شذى المميز.
+          </p>
+          <div class="about-values-list">
+            <div class="value-item"><i class="fas fa-check-circle"></i> شغل يدوي هاندميد 100%</div>
+            <div class="value-item"><i class="fas fa-check-circle"></i> ورد ستان أبدي لا يذبل</div>
+            <div class="value-item"><i class="fas fa-check-circle"></i> تنسيق نقود آمن ومحكم</div>
+            <div class="value-item"><i class="fas fa-check-circle"></i> تغليف كوري وفيونكات ستان فاخرة</div>
+          </div>
+          <a href="https://wa.me/201102541236" target="_blank" class="btn-primary">
+            <i class="fab fa-whatsapp"></i>
+            <span>تنسيق طلب خاص عبر واتساب</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- قسم آراء وتقييمات العملاء الحقيقية (Testimonials) -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-subtitle">ثقة عملائنا سر تميزنا</span>
+        <h2 class="section-title">ماذا يقول عملاء "شذى"؟</h2>
+        <p class="section-desc">تجارب حقيقية لعملاء وثقوا بلمسات شذى في أجمل مناسباتهم.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">
+            "بوكيه الورد الستان طلع في الحقيقة خيال! لمعة الستان والتغليف الأسود مع الأحمر مدي شياكة مش طبيعية، وأجمل حاجة إنه هيفضل ذكرى دايمة مش بيذبل خالص."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">ن.ح</div>
+            <div class="author-info">
+              <h5>نورهان حسين</h5>
+              <span>القاهرة • بوكيه ورد ستان أحمر ملكي</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">
+            "طلبت بوكيه الفلوس الملكي في خطوبة أختي وكان مفاجأة الحفلة كلها! لف الفلوس متقن جداً ونظيف ومن غير ما تتجرح، ذوق عالي والتزام في الميعاد."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">م.ع</div>
+            <div class="author-info">
+              <h5>محمود عبد العزيز</h5>
+              <span>التجمع الخامس • بوكيه النقود الملكي الضخم</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">
+            "بوكيهات اللولي بوب كانت كيوت ومبهجة جداً! أصحابي في حفلة التخرج طاروا بيها من الفرحة، والتعامل على الواتساب راقي وسريع جداً."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">س.م</div>
+            <div class="author-info">
+              <h5>سارة منصور</h5>
+              <span>الشيخ زايد • بوكيه حلوى اللولي بوب</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- صندوق النشرة البريدية والعرض الترحيبي -->
+  <section class="newsletter-cta-section">
+    <div class="container">
+      <div class="newsletter-box">
+        <div class="newsletter-text">
+          <h3>انضمي لعالم "شذى" الزهري 🌸</h3>
+          <p>سجلي بريدك الآن للحصول على كود خصم فوري 10%، مع نصائح مجانية دورية للعناية بالزهور وإشعار بأحدث التشكيلات الموسمية.</p>
+        </div>
+        <form class="newsletter-form" id="newsletterForm">
+          <input type="email" id="newsletterEmail" placeholder="أدخلي بريدك الإلكتروني..." required aria-label="البريد الإلكتروني للنشرة البريدية">
+          <button type="submit">انضمام</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- تذييل الموقع (Footer) -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- معلومات البراند -->
+        <div class="footer-brand">
+          <div class="brand-logo-wrap">
+            <img src="assets/images/logo.jpg" alt="لوجو شذى" class="brand-logo-img">
+            <div class="brand-names">
+              <span class="brand-title">شَـذى</span>
+              <span class="brand-subtitle">FLOWERS • GIFTS • MOMENTS</span>
+            </div>
+          </div>
+          <p class="footer-bio">
+            علامتكِ الأولى للزهور الطبيعية الفاخرة والهدايا الراقية في مصر. نعتني بأدق التفاصيل لتصل هديتك كلوحة فنية مفعمة بالحب والرقي.
+          </p>
+          <div class="footer-social-links">
+            <a href="https://instagram.com" target="_blank" class="social-link" title="إنستغرام"><i class="fab fa-instagram"></i></a>
+            <a href="https://facebook.com" target="_blank" class="social-link" title="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://tiktok.com" target="_blank" class="social-link" title="تيك توك"><i class="fab fa-tiktok"></i></a>
+            <a href="https://wa.me/201102541236" target="_blank" class="social-link" title="واتساب"><i class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+
+        <!-- روابط سريعة -->
+        <div class="footer-col">
+          <h4>روابط سريعة</h4>
+          <ul class="footer-links-list">
+            <li><a href="#home"><i class="fas fa-angle-left"></i> الرئيسية</a></li>
+            <li><a href="#products"><i class="fas fa-angle-left"></i> تشكيلة الزهور</a></li>
+            <li><a href="#about"><i class="fas fa-angle-left"></i> عن براند شذى</a></li>
+            <li><a href="#testimonials"><i class="fas fa-angle-left"></i> آراء العملاء</a></li>
+            <li><a href="javascript:void(0)" onclick="openCartDrawer()"><i class="fas fa-angle-left"></i> سلة المشتريات</a></li>
+          </ul>
+        </div>
+
+        <!-- السياسات والثقة -->
+        <div class="footer-col">
+          <h4>السياسات والثقة</h4>
+          <ul class="footer-links-list">
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('guarantee')"><i class="fas fa-angle-left"></i> ضمان نضارة الورد</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('delivery')"><i class="fas fa-angle-left"></i> سياسة الشحن والتوصيل</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('refund')"><i class="fas fa-angle-left"></i> الاستبدال والاسترجاع</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('terms')"><i class="fas fa-angle-left"></i> الشروط والأحكام</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('privacy')"><i class="fas fa-angle-left"></i> سياسة الخصوصية</a></li>
+          </ul>
+        </div>
+
+        <!-- تواصل معنا -->
+        <div class="footer-col">
+          <h4>خدمة العملاء</h4>
+          <div class="footer-contact-items">
+            <div class="contact-item">
+              <i class="fab fa-whatsapp"></i>
+              <div>
+                <strong>الواتساب والطلبات السريعة:</strong>
+                <a href="https://wa.me/201102541236" target="_blank" style="color: #25D366; font-weight: bold; direction: ltr; display: inline-block;">01102541236</a>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-clock"></i>
+              <div>
+                <strong>ساعات العمل وتلقي الطلبات:</strong>
+                <span>يومياً من 9:00 ص حتى 12:00 منتصف الليل</span>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-location-dot"></i>
+              <div>
+                <strong>التغطية الجغرافية:</strong>
+                <span>القاهرة، الجيزة، الإسكندرية، وكافة المحافظات</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 جميع الحقوق محفوظة لعلامة <strong>شَـذى (SHATHA)</strong> للزهور والهدايا.</p>
+        <div class="payment-methods-icons" title="طرق الدفع المتاحة">
+          <i class="fas fa-money-bill-wave" title="كاش عند الاستلام"></i>
+          <i class="fab fa-cc-visa" title="فيزا"></i>
+          <i class="fab fa-cc-mastercard" title="ماستركارد"></i>
+          <i class="fas fa-mobile-alt" title="فودافون كاش ومحافظ إلكترونية"></i>
+          <i class="fas fa-bolt" title="إنستاباي InstaPay"></i>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- زر الواتساب العائم الدائم (Floating Sticky WhatsApp) -->
+  <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%81%D8%B1%D9%8A%D9%82%20%D8%B4%D8%B0%D9%89%20%F0%9F%8C%B8%20%D8%A3%D8%AD%D8%AA%D8%A7%D8%AC%20%D9%85%D8%B3%D8%A7%D8%B9%D8%AF%D8%A9%20%D9%81%D9%8A%20%D8%A7%D8%AE%D8%AA%D9%8A%D8%A7%D8%B1%20%D8%A8%D8%A7%D9%82%D8%A9" 
+     target="_blank" 
+     class="floating-whatsapp-btn" 
+     id="floatingWhatsappBtn"
+     title="تواصلي معنا عبر واتساب 01102541236">
+    <div class="whatsapp-icon-circle">
+      <i class="fab fa-whatsapp"></i>
+    </div>
+    <span class="whatsapp-btn-text">طلبات واستفسارات الواتساب</span>
+  </a>
+
+  <!-- خلفية التعتيم العامة للمودال -->
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+
+  <!-- درج السلة الجانبي السريع (Slide-over Cart Drawer) -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="سلة المشتريات">
+    <div class="cart-drawer-header">
+      <h3>
+        <i class="fas fa-shopping-bag" style="color: var(--primary-pink);"></i>
+        <span>سلة التسوق</span>
+      </h3>
+      <button class="close-drawer-btn" id="closeDrawerBtn" aria-label="إغلاق السلة">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- شريط تقدم التوصيل المجاني -->
+    <div class="cart-free-shipping-meter">
+      <div class="meter-text" id="freeShippingMeterText">
+        أضيفي بـ <strong>350 ج.م</strong> إضافية للحصول على توصيل مجاني!
+      </div>
+      <div class="meter-bar">
+        <div class="meter-fill" id="freeShippingMeterFill"></div>
+      </div>
+    </div>
+
+    <!-- قائمة منتجات السلة -->
+    <div class="cart-drawer-items" id="cartDrawerItems">
+      <!-- يتم تعبئة المنتجات ديناميكياً بواسطة JS -->
+    </div>
+
+    <!-- حالة السلة الفارغة -->
+    <div class="cart-empty-state" id="cartEmptyState" style="display: none;">
+      <div class="cart-empty-icon"><i class="fas fa-shopping-basket"></i></div>
+      <h4>سلتك فارغة حالياً</h4>
+      <p>لم تقومي بإضافة أي باقة ورد بعد.. دعينا نساعدك في اختيار باقة ساحرة!</p>
+      <button class="btn-primary" onclick="closeCartDrawer(); document.getElementById('products').scrollIntoView({behavior:'smooth'});">
+        استعرضي الباقات الآن
+      </button>
+    </div>
+
+    <!-- بطاقة كارت الإهداء المجاني داخل السلة -->
+    <div style="padding: 0 24px;">
+      <div class="cart-gift-card-addon">
+        <label class="gift-card-toggle-label">
+          <input type="checkbox" id="giftCardToggle">
+          <span>💌 إرفاق كارت إهداء مجاني مطبوع</span>
+        </label>
+        <div id="giftCardMsgWrapper" style="display: none;">
+          <textarea class="gift-message-input" id="giftCardMsgInput" rows="2" placeholder="اكتبي نص الإهداء وسنقوم بطباعته على كارت مذهب فاخر..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- تذييل السلة وحساب الإجمالي -->
+    <div class="cart-drawer-footer">
+      <div class="coupon-input-group">
+        <input type="text" id="couponInput" placeholder="كود الخصم (SHATHA10)" aria-label="كود الخصم">
+        <button type="button" id="applyCouponBtn">تطبيق</button>
+      </div>
+
+      <div class="cart-summary-lines">
+        <div class="summary-line">
+          <span>المجموع الفرعي:</span>
+          <strong id="cartSubtotalVal">0 ج.م</strong>
+        </div>
+        <div class="summary-line discount-applied" id="cartDiscountRow" style="display: none;">
+          <span>خصم الكوبون:</span>
+          <strong id="cartDiscountVal">-0 ج.م</strong>
+        </div>
+        <div class="summary-line total-line">
+          <span>الإجمالي المتوقع:</span>
+          <strong id="cartTotalVal">0 ج.م</strong>
+        </div>
+      </div>
+
+      <button class="btn-proceed-checkout" id="proceedCheckoutBtn">
+        <span>موافق على الطلب (الانتقال لصفحة كتابة البيانات والدفع)</span>
+        <i class="fas fa-arrow-left"></i>
+      </button>
+
+      <button type="button" class="btn-cart-whatsapp-all" id="cartDirectWhatsappBtn" title="إرسال قائمة السلة مباشرة إلى محادثة واتساب">
+        <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i>
+        <span>إرسال السلة بالكامل عبر واتساب (01102541236)</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- نافذة تفاصيل المنتج المتقدمة (Product Details Modal) -->
+  <section class="product-modal" id="productDetailsModal" aria-label="تفاصيل المنتج">
+    <button class="product-modal-close" id="closeProductModal" aria-label="إغلاق النافذة">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="modal-grid">
+      <!-- المعرض والصور المتعددة -->
+      <div class="modal-gallery-wrap">
+        <div class="modal-main-img-box">
+          <img src="" alt="صورة الباقة" id="modalMainImg">
+        </div>
+        <div class="modal-thumbnails" id="modalThumbnailsContainer">
+          <!-- مصغرات الزوايا -->
+        </div>
+      </div>
+
+      <!-- معلومات الباقة وتحديد المقاس -->
+      <div class="modal-details">
+        <span class="modal-category-tag" style="background: var(--primary-soft); color: var(--primary-dark); padding: 4px 14px; border-radius: var(--radius-full); display: inline-block; width: fit-content;">
+          <i class="fas fa-hand-sparkles" style="color: var(--primary-pink);"></i> شغل يدوي هاندميد • تصميم شذى الحصري
+        </span>
+        <h2 class="modal-title" id="modalProductTitle" style="margin-top: 8px;">اسم الباقة</h2>
+        
+        <div class="modal-rating-row">
+          <span>★★★★★</span>
+          <strong id="modalProductRating">5.0</strong>
+          <span style="color: var(--text-light);" id="modalProductReviewsCount">(40 تقييم)</span>
+          <span class="modal-stock-badge"><i class="fas fa-infinity"></i> يدوم للأبد ولا يذبل</span>
+        </div>
+
+        <div class="modal-price-wrap">
+          <span class="modal-current-price" id="modalCurrentPrice">480 ج.م</span>
+        </div>
+
+        <p class="modal-desc" id="modalProductDesc">
+          وصف الباقة وتفاصيلها...
+        </p>
+
+        <!-- الخامات وطريقة الصنع اليدوي -->
+        <div style="background: var(--bg-body); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+          <h5 style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px;">
+            <i class="fas fa-layer-group" style="color: var(--primary-pink);"></i> الخامات المستخدمة:
+          </h5>
+          <p id="modalMaterialsText" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px;"></p>
+          
+          <h5 style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px;">
+            <i class="fas fa-hand-sparkles" style="color: var(--primary-pink);"></i> طريقة الصنع والإتقان:
+          </h5>
+          <p id="modalCraftText" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;"></p>
+        </div>
+
+        <!-- اختيار الحجم والمقاس (Size Selector) -->
+        <div class="size-selector-wrap">
+          <h5>
+            <span>اختر حجم وتنسيق الباقة:</span>
+            <small style="color: var(--primary-pink); font-weight: normal;">(يحدد عدد الأزهار أو الأوراق النقدية)</small>
+          </h5>
+          <div class="size-options-grid" id="modalSizesContainer">
+            <!-- يتم تعبئتها بواسطة JS -->
+          </div>
+        </div>
+
+        <!-- أزرار الإجراء السريع -->
+        <div class="modal-actions-row">
+          <button class="btn-primary" id="modalAddToCartBtn">
+            <i class="fas fa-shopping-bag"></i>
+            <span>إضافة إلى السلة</span>
+          </button>
+          <button class="btn-whatsapp-order" id="modalWhatsappBtn" title="طلب مباشر عبر واتساب">
+            <i class="fab fa-whatsapp"></i>
+            <span>طلب فوري عبر واتساب</span>
+          </button>
+        </div>
+
+        <!-- أكورديون إرشادات العناية ومراجعات العملاء -->
+        <div class="modal-accordion">
+          <div class="accordion-item">
+            <button class="accordion-header" onclick="this.nextElementSibling.classList.toggle('active')">
+              <span>✨ مميزات وجودة هذا التنسيق</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="accordion-body active">
+              <ul class="care-tip-list" id="modalAdvantagesList">
+                <!-- الميزات -->
+              </ul>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header" onclick="this.nextElementSibling.classList.toggle('active')">
+              <span>⭐ تقييمات وتجارب العملاء</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="accordion-body">
+              <div id="modalReviewsList">
+                <!-- المراجعات -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- نافذة إتمام الطلب وتأكيد الدفع والواتساب (Checkout Modal) -->
+  <section class="checkout-modal" id="checkoutModal" aria-label="إتمام الطلب">
+    <div class="checkout-modal-header">
+      <h3>
+        <i class="fas fa-clipboard-check" style="color: var(--primary-pink);"></i>
+        <span>تأكيد بيانات التوصيل والطلب</span>
+      </h3>
+      <button class="close-drawer-btn" id="closeCheckoutModal" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form id="checkoutForm" onsubmit="return false;">
+      <div class="checkout-form-grid">
+        <div class="form-group">
+          <label for="checkoutName">اسم العميل بالكامل *</label>
+          <input type="text" id="checkoutName" placeholder="مثال: ياسمين أحمد" required>
+        </div>
+
+        <div class="form-group">
+          <label for="checkoutPhone">رقم هاتف الواتساب للتواصل *</label>
+          <input type="tel" id="checkoutPhone" placeholder="01xxxxxxxxx" required>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="checkoutGovernorate">المحافظة والمنطقة (لتحديد مدة وتكلفة التوصيل) *</label>
+          <select id="checkoutGovernorate">
+            <!-- يتم تعبئتها بواسطة JS -->
+          </select>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="checkoutAddress">العنوان التفصيلي (الشارع، رقم العمارة، الشقة، علامة مميزة) *</label>
+          <textarea id="checkoutAddress" rows="2" placeholder="اكتب العنوان بدقة ليصل مندوبنا سريعاً..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="checkoutDate">تاريخ التوصيل المطلوب</label>
+          <input type="date" id="checkoutDate">
+        </div>
+
+        <div class="form-group">
+          <label for="checkoutTime">الفترة الزمنية المفضلة</label>
+          <select id="checkoutTime">
+            <option value="في أسرع وقت اليوم (عاجل)">في أسرع وقت اليوم (عاجل 3-5 ساعات)</option>
+            <option value="الفترة الصباحية (10 ص - 2 ظ)">الفترة الصباحية (10:00 ص - 2:00 ظ)</option>
+            <option value="الفترة المسائية (3 ظ - 7 م)">الفترة المسائية (3:00 ظ - 7:00 م)</option>
+            <option value="فترة المساء والسهرة (7 م - 11 م)">فترة المساء والسهرة (7:00 م - 11:00 م)</option>
+          </select>
+        </div>
+
+        <!-- بيانات كارت الإهداء (اختياري) -->
+        <div class="form-group">
+          <label for="checkoutGiftSender">من (اسم المهدي - اختياري):</label>
+          <input type="text" id="checkoutGiftSender" placeholder="مثال: أحمد">
+        </div>
+
+        <div class="form-group">
+          <label for="checkoutGiftRecipient">إلى (اسم المستلم - اختياري):</label>
+          <input type="text" id="checkoutGiftRecipient" placeholder="مثال: ياسمين">
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="checkoutGiftMessage">نص كارت الإهداء المطبوع مجاناً:</label>
+          <textarea id="checkoutGiftMessage" rows="2" placeholder="اكتب عبارة الإهداء التي تحب أن نطبعها على الكارت المذهب..."></textarea>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label for="checkoutNotes">ملاحظات إضافية للمندوب أو المنسق:</label>
+          <input type="text" id="checkoutNotes" placeholder="مثال: يرجي عدم الاتصال قبل الوصول / مفاجأة">
+        </div>
+      </div>
+
+      <!-- تحديد طريقة الدفع -->
+      <div class="payment-methods-selector">
+        <h5>طريقة الدفع المفضلة:</h5>
+        <div class="payment-options-grid">
+          <div class="payment-option-card selected" data-method="cod">
+            <i class="fas fa-money-bill-wave"></i>
+            <h6>كاش عند الاستلام</h6>
+          </div>
+          <div class="payment-option-card" data-method="instapay">
+            <i class="fas fa-bolt"></i>
+            <h6>InstaPay / فودافون كاش</h6>
+          </div>
+          <div class="payment-option-card" data-method="visa">
+            <i class="fab fa-cc-visa"></i>
+            <h6>فيزا / ماستركارد</h6>
+          </div>
+        </div>
+      </div>
+
+      <!-- ملخص الفاتورة النهائية -->
+      <div class="order-final-summary-box" id="checkoutOrderSummaryBox">
+        <!-- يتم تحديث الحسابات بواسطة JS -->
+      </div>
+
+      <button type="button" class="btn-confirm-order" id="confirmOrderBtn">
+        <i class="fab fa-whatsapp" style="font-size: 1.4rem;"></i>
+        <span>تأكيد الطلب وإرسال الفاتورة عبر واتساب (01102541236)</span>
+      </button>
+    </form>
+  </section>
+
+  <!-- نافذة نجاح الطلب (Success Modal) -->
+  <section class="checkout-modal success-modal" id="successModal" aria-label="تم استلام الطلب">
+    <div class="success-icon-wrap">
+      <i class="fas fa-check"></i>
+    </div>
+    <h3>شكراً لاختياركِ شذى! 🌸</h3>
+    <p>
+      تم تجهيز فاتورة طلبك برقم مرجعي: <strong id="successOrderId" style="color: var(--primary-pink);">SH-000000</strong><br>
+      وقد تم فتح محادثة الواتساب الرسمية برقم <strong>01102541236</strong> لتأكيد تفاصيل التوصيل مباشرة مع منسق الزهور.
+    </p>
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <a href="https://wa.me/201102541236" target="_blank" class="btn-primary">
+        <i class="fab fa-whatsapp"></i> فتح محادثة الواتساب الآن
+      </a>
+      <button class="btn-secondary" onclick="closeSuccessModal()">
+        العودة للمتجر
+      </button>
+    </div>
+  </section>
+
+  <!-- مودالات السياسات والشروط -->
+  <!-- 1. ضمان الجودة والإتقان -->
+  <section class="policy-modal" id="policyModal-guarantee" aria-label="ضمان الجودة والإتقان">
+    <button class="product-modal-close" onclick="closePolicyModal('guarantee')"><i class="fas fa-times"></i></button>
+    <h3>🌸 ضمان الجودة والإتقان التام من شذى</h3>
+    <div class="policy-content">
+      <h5>صناعة يدوية عالية الجودة 100%:</h5>
+      <p>نضمن لعملائنا الكرام في "شذى" أن كافة الباقات مصنوعة يدوياً بحرفية ودقة متناهية من أجود أشرطة الستان التركي الأصلي وخامات التغليف الكورية الفاخرة.</p>
+      <h5>تعيش معاك العمر كلو:</h5>
+      <p>ورد الستان لا يذبل ولا يتلف ولا يحتاج إلى ماء أو شمس، ليظل تذكاراً دائماً يحتفظ ببريقه وجماله لسنوات طويلة.</p>
+      <h5>أمان الأوراق النقدية في بوكيهات الفلوس:</h5>
+      <p>نتبع تقنية طي هندسية دقيقة تحافظ على الأوراق النقدية دون استخدام أي مواد لاصقة ضارة، مما يتيح فك النقود لاحقاً بكل سهولة وأمان تام.</p>
+    </div>
+  </section>
+
+  <!-- 2. سياسة الشحن والتوصيل -->
+  <section class="policy-modal" id="policyModal-delivery" aria-label="سياسة الشحن">
+    <button class="product-modal-close" onclick="closePolicyModal('delivery')"><i class="fas fa-times"></i></button>
+    <h3>🚚 سياسة الشحن والتوصيل السريع</h3>
+    <div class="policy-content">
+      <h5>سرعة التوصيل:</h5>
+      <p>توصيل في نفس اليوم خلال 3 إلى 5 ساعات داخل جميع أحياء ومناطق القاهرة والجيزة والتجمع والشيخ زايد وأكتوبر.</p>
+      <h5>توصيل المحافظات:</h5>
+      <p>نشحن للإسكندرية وكافة المحافظات مع عناية خاصة لتصل الباقة متماسكة وبكامل أناقتها.</p>
+      <h5>سرية التوصيل والمفاجآت:</h5>
+      <p>في حال كان البوكيه مفاجأة أو إهداء لشخص آخر، يلتزم مندوبنا بعدم ذكر تفاصيل الهدية أو السعر للمستلم لضمان فرحة المفاجأة.</p>
+    </div>
+  </section>
+
+  <!-- 3. سياسة الاستبدال والتعديل -->
+  <section class="policy-modal" id="policyModal-refund" aria-label="سياسة الاستبدال">
+    <button class="product-modal-close" onclick="closePolicyModal('refund')"><i class="fas fa-times"></i></button>
+    <h3>🔄 سياسة الاستبدال والتعديل</h3>
+    <div class="policy-content">
+      <h5>مطابقة التنفيذ للصورة:</h5>
+      <p>نحرص على مطابقة كل باقة للصورة والتفاصيل المختارة. في حال وجود أي ملاحظة عند الاستلام مع المندوب يمكنك التواصل معنا فوراً ونلتزم بتعديلها أو استبدالها بما يرضيك تماماً.</p>
+      <h5>تعديل الطلب:</h5>
+      <p>يمكنك تعديل أي تفاصيل في الطلب أو نص كارت الإهداء بالتواصل المباشر معنا عبر الواتساب قبل خروج الأوردر للتوصيل.</p>
+    </div>
+  </section>
+
+  <!-- 4. الشروط والأحكام -->
+  <section class="policy-modal" id="policyModal-terms" aria-label="الشروط والأحكام">
+    <button class="product-modal-close" onclick="closePolicyModal('terms')"><i class="fas fa-times"></i></button>
+    <h3>📜 الشروط والأحكام</h3>
+    <div class="policy-content">
+      <p>أهلاً بكم في متجر شذى. استخدامك للموقع وتأكيدك للطلبات يعني موافقتك على شروط الخدمة الموضحة أدناه:</p>
+      <h5>مواسم الزهور وتوفر الألوان:</h5>
+      <p>في حالات نادرة قد لا تتوفر درجة لونية محددة لزهرة موسمية معينة؛ في هذه الحالة يلتزم منسقونا بالتواصل معك واستبدالها بنوعية أعلى أو مساوية في القيمة والجمال دون أي تكلفة إضافية.</p>
+      <h5>الأسعار والضرائب:</h5>
+      <p>كافة الأسعار المعروضة بالجنيه المصري وتشمل التغليف الفاخر وكارت الإهداء المطبوع مجاناً.</p>
+    </div>
+  </section>
+
+  <!-- 5. سياسة الخصوصية -->
+  <section class="policy-modal" id="policyModal-privacy" aria-label="سياسة الخصوصية">
+    <button class="product-modal-close" onclick="closePolicyModal('privacy')"><i class="fas fa-times"></i></button>
+    <h3>🔒 سياسة الخصوصية والأمان</h3>
+    <div class="policy-content">
+      <p>نولي في "شذى" سرية بيانات عملائنا ورسائل إهدائهم أعلى درجات العناية والأمان:</p>
+      <h5>حماية البيانات:</h5>
+      <p>بياناتك الشخصية (الاسم، رقم الهاتف، العنوان، نص كارت الإهداء) تُستخدم فقط لأغراض تجهيز وتوصيل طلبك ولا تتم مشاركتها إطلاقاً مع أي طرف ثالث.</p>
+      <h5>رسائل الإهداء:</h5>
+      <p>يتم التعامل مع نصوص الإهداء الخاصة بسرية وأمانة تامة ويتم طباعتها وتغليفها مباشرة داخل أظرف مغلقة.</p>
+    </div>
+  </section>
+
+  <!-- ملفات الجافاسكريبت -->
+  <script src="assets/js/products-data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

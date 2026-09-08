@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إتمام الطلب والدفع | شذى (SHATHA) - اختار حاجه تعيش معاك العمر كلووو</title>
+  
+  <meta name="description" content="صفحة إتمام وتأكيد الطلب لمتجر شذى للهدايا والورد الستان الهاندميد وبوكيهات الفلوس. الدفع كاش أو فودافون كاش والتأكيد عبر واتساب: 01102541236">
+  
+  <!-- أيقونة الموقع (Favicon) من شعار شذى -->
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
+  
+  <!-- أيقونات Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- ملف التنسيقات الفاخر لشذى -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    .checkout-page-wrap {
+      padding: 40px 0 80px;
+      min-height: 80vh;
+    }
+
+    .checkout-nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 30px;
+    }
+
+    .back-to-store-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--primary-pink);
+      font-size: 0.95rem;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      background: var(--primary-soft);
+      border: 1px solid var(--border-subtle);
+      transition: var(--transition);
+    }
+
+    .back-to-store-link:hover {
+      background: var(--primary-pink);
+      color: #FFFFFF;
+    }
+
+    .checkout-main-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr;
+      gap: 35px;
+      align-items: start;
+    }
+
+    .checkout-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 25px;
+    }
+
+    .checkout-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .checkout-card-header h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .checkout-card-header .header-badge-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary-pink);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    /* صندوق فودافون كاش التنبيهي */
+    .vodafone-cash-box {
+      background: #FFF5F5;
+      border: 2px solid #E60000;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-top: 15px;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .vodafone-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #C40000;
+      margin-bottom: 12px;
+    }
+
+    .vf-number-pill {
+      background: #FFFFFF;
+      border: 1.5px dashed #E60000;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .vf-number-text {
+      font-family: monospace;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #272224;
+      direction: ltr;
+      letter-spacing: 1px;
+    }
+
+    .btn-copy-number {
+      background: #E60000;
+      color: #FFFFFF;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-copy-number:hover {
+      background: #B30000;
+      transform: scale(1.03);
+    }
+
+    .vf-warning-note {
+      background: #FFEBEB;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      color: #8C0000;
+      line-height: 1.6;
+      margin-top: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    /* ملخص الفاتورة بالعمود الأيسر */
+    .order-sidebar-summary {
+      position: sticky;
+      top: 90px;
+    }
+
+    .cart-summary-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .cart-summary-item img {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .cart-summary-item-details {
+      flex: 1;
+    }
+
+    .cart-summary-item-details h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .cart-summary-item-details p {
+      font-size: 0.78rem;
+      color: var(--primary-pink);
+      font-weight: 600;
+    }
+
+    .btn-submit-order-whatsapp {
+      width: 100%;
+      background: #25D366;
+      color: #FFFFFF;
+      padding: 18px 20px;
+      border-radius: var(--radius-full);
+      font-weight: 900;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 25px;
+    }
+
+    .btn-submit-order-whatsapp:hover {
+      background: #1EBE5D;
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px rgba(37, 211, 102, 0.5);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 992px) {
+      .checkout-main-grid {
+        grid-template-columns: 1fr;
+      }
+      .order-sidebar-summary {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شريط الإعلانات العلوي -->
+  <aside class="top-announcement-bar">
+    <div class="container">
+      <div class="bar-content">
+        <span>🌸 شَـذى | اختار حاجه تعيش معاك العمر كلووو - شغل يدوي فاخر 100% | هاتف الواتساب: 01102541236</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- الترويسة المبسطة لصفحة الدفع -->
+  <header class="main-header">
+    <div class="container">
+      <div class="checkout-nav-bar">
+        <a href="index.html" class="brand-logo-wrap">
+          <img src="assets/images/logo.jpg" alt="لوجو شذى" class="brand-logo-img">
+          <div class="brand-names">
+            <span class="brand-title">شَـذى</span>
+            <span class="brand-subtitle">HANDMADE FLOWERS & GIFTS</span>
+          </div>
+        </a>
+
+        <a href="index.html" class="back-to-store-link">
+          <i class="fas fa-arrow-right"></i>
+          <span>العودة للمتجر وإضافة باقات أخرى</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- محتوى صفحة إتمام الطلب -->
+  <main class="checkout-page-wrap">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 30px; text-align: right;">
+        <span class="section-subtitle">إتمام عملية الشراء</span>
+        <h2 class="section-title">بيانات الاستلام والتوصيل والدفع</h2>
+        <p class="section-desc">املأ بياناتك بدقة وسيتم تجهيز فاتورة طلبك وفتح محادثة الواتساب فوراً لتأكيد الحجز.</p>
+      </div>
+
+      <div class="checkout-main-grid">
+        <!-- العمود الأيمن: استمارة البيانات والدفع -->
+        <div class="checkout-form-column">
+          <!-- 1. البيانات الشخصية -->
+          <div class="checkout-card">
+            <div class="checkout-card-header">
+              <div class="header-badge-num">1</div>
+              <h3>البيانات الشخصية للتواصل</h3>
+            </div>
+
+            <div class="checkout-form-grid">
+              <div class="form-group">
+                <label for="cName">اسمك بالكامل *</label>
+                <input type="text" id="cName" placeholder="مثال: أحمد محمود / سارة علي" required>
+              </div>
+
+              <div class="form-group">
+                <label for="cPhone">رقم هاتف الواتساب للتواصل *</label>
+                <input type="tel" id="cPhone" placeholder="01xxxxxxxxx" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. عنوان ومكان التوصيل -->
+          <div class="checkout-card">
+            <div class="checkout-card-header">
+              <div class="header-badge-num">2</div>
+              <h3>عنوان ومكان التوصيل بالتفصيل</h3>
+            </div>
+
+            <div class="checkout-form-grid">
+              <div class="form-group form-group-full">
+                <label for="cGovernorate">المحافظة / المنطقة *</label>
+                <select id="cGovernorate">
+                  <option value="cairo" data-price="50">القاهرة (توصيل سريع 3-5 ساعات) - 50 ج.م</option>
+                  <option value="giza" data-price="60">الجيزة و6 أكتوبر والشيخ زايد - 60 ج.م</option>
+                  <option value="new-cairo" data-price="50">القاهرة الجديدة والتجمع والرحاب ومدينتي - 50 ج.م</option>
+                  <option value="alexandria" data-price="90">الإسكندرية والساحل الشمالي - 90 ج.م</option>
+                  <option value="delta" data-price="100">محافظات الدلتا (المنصورة، طنطا، الزقازيق) - 100 ج.م</option>
+                  <option value="canal" data-price="110">محافظات القناة (السويس، بورسعيد، الإسماعيلية) - 110 ج.م</option>
+                  <option value="upper-egypt" data-price="130">محافظات الصعيد - 130 ج.م</option>
+                </select>
+              </div>
+
+              <div class="form-group form-group-full">
+                <label for="cAddress">العنوان بالتفصيل (اسم الشارع، رقم العمارة، الشقة) *</label>
+                <textarea id="cAddress" rows="2" placeholder="اكتب اسم الشارع ورقم العقار والشقة بدقة..." required></textarea>
+              </div>
+
+              <!-- حقل مخصص لـ "مكانك فين وبجوار إيه" بناء على طلب العميل -->
+              <div class="form-group form-group-full" style="background: var(--primary-soft); padding: 14px; border-radius: var(--radius-md); border: 1.5px dashed var(--primary-pink);">
+                <label for="cLandmark" style="color: var(--primary-dark); font-size: 0.95rem; font-weight: 800;">
+                  📍 مكانك فين بالظبط وبجوار إيه؟ (علامة مميزة للمندوب) *
+                </label>
+                <input type="text" id="cLandmark" placeholder="مثال: بجوار صيدلية العزبي / أمام مسجد الفتح / بجانب كافيه كذا..." required style="background: #FFFFFF;">
+                <small style="color: var(--text-muted); display: block; margin-top: 4px;">يساعد هذا المندوب في الوصول إليك مباشرة وبأقصى سرعة.</small>
+              </div>
+
+              <div class="form-group">
+                <label for="cDate">تاريخ التوصيل المطلوب</label>
+                <input type="date" id="cDate">
+              </div>
+
+              <div class="form-group">
+                <label for="cTime">الوقت المفضل للاستلام</label>
+                <select id="cTime">
+                  <option value="في أسرع وقت اليوم (عاجل)">في أسرع وقت اليوم (عاجل 3-5 ساعات)</option>
+                  <option value="الفترة الصباحية (10 ص - 2 ظ)">الفترة الصباحية (10:00 ص - 2:00 ظ)</option>
+                  <option value="الفترة المسائية (3 ظ - 7 م)">الفترة المسائية (3:00 ظ - 7:00 م)</option>
+                  <option value="فترة المساء والسهرة (7 م - 11 م)">فترة المساء والسهرة (7:00 م - 11:00 م)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. كارت الإهداء (اختياري) -->
+          <div class="checkout-card">
+            <div class="checkout-card-header">
+              <div class="header-badge-num">3</div>
+              <h3>كارت إهداء مجاني مطبوع (اختياري)</h3>
+            </div>
+
+            <div class="checkout-form-grid">
+              <div class="form-group">
+                <label for="cSender">من (اسم المُهدي):</label>
+                <input type="text" id="cSender" placeholder="مثال: أحمد">
+              </div>
+              <div class="form-group">
+                <label for="cRecipient">إلى (اسم المُهدى إليه):</label>
+                <input type="text" id="cRecipient" placeholder="مثال: سارة">
+              </div>
+              <div class="form-group form-group-full">
+                <label for="cMessage">نص كارت الإهداء المطبوع:</label>
+                <textarea id="cMessage" rows="2" placeholder="اكتب العبارة الجميلة التي تحب أن نطبعها على الكارت المذهب مجاناً..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. طريقة الدفع وتفاصيل فودافون كاش المطلوبة -->
+          <div class="checkout-card">
+            <div class="checkout-card-header">
+              <div class="header-badge-num">4</div>
+              <h3>طريقة الدفع</h3>
+            </div>
+
+            <div class="payment-options-grid" style="margin-bottom: 15px;">
+              <!-- فودافون كاش -->
+              <div class="payment-option-card selected" id="optVodafone" onclick="selectPaymentMethod('vodafone')">
+                <i class="fas fa-mobile-screen-button" style="color: #E60000;"></i>
+                <h6 style="color: #C40000; font-weight: 800;">فودافون كاش / محافظ</h6>
+              </div>
+
+              <!-- كاش عند الاستلام -->
+              <div class="payment-option-card" id="optCod" onclick="selectPaymentMethod('cod')">
+                <i class="fas fa-money-bill-wave"></i>
+                <h6>كاش عند الاستلام</h6>
+              </div>
+
+              <!-- إنستاباي -->
+              <div class="payment-option-card" id="optInstapay" onclick="selectPaymentMethod('instapay')">
+                <i class="fas fa-bolt" style="color: #8E44AD;"></i>
+                <h6>InstaPay إنستاباي</h6>
+              </div>
+            </div>
+
+            <!-- تفاصيل أرقام فودافون كاش التنبيهية -->
+            <div class="vodafone-cash-box" id="vodafoneBox">
+              <div class="vodafone-title">
+                <i class="fas fa-wallet"></i>
+                <span>يرجى تحويل المبلغ على أحد الرقمين التاليين:</span>
+              </div>
+
+              <!-- الرقم الأول -->
+              <div class="vf-number-pill">
+                <div>
+                  <span style="font-size: 0.8rem; color: #888; display: block;">الرقم الأول (فودافون كاش):</span>
+                  <span class="vf-number-text">01152998910</span>
+                </div>
+                <button type="button" class="btn-copy-number" onclick="copyText('01152998910')">
+                  <i class="far fa-copy"></i> نسخ الرقم
+                </button>
+              </div>
+
+              <!-- الرقم الثاني -->
+              <div class="vf-number-pill">
+                <div>
+                  <span style="font-size: 0.8rem; color: #888; display: block;">الرقم الثاني (فودافون كاش):</span>
+                  <span class="vf-number-text">01002398698</span>
+                </div>
+                <button type="button" class="btn-copy-number" onclick="copyText('01002398698')">
+                  <i class="far fa-copy"></i> نسخ الرقم
+                </button>
+              </div>
+
+              <!-- التنبيه الهام على إرسال الإسكرين شوت -->
+              <div class="vf-warning-note">
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.2rem; color: #E60000; margin-top: 2px;"></i>
+                <div>
+                  <strong>تنبيه هام جداً:</strong>
+                  بعد إتمام التحويل كاش على أي من الرقمين، <strong>يرجى إرسال اسكرين شوت (لقطة شاشة) بالتحويل عبر الواتساب</strong> لتأكيد حجز وتجهيز طلبك فوراً!
+                </div>
+              </div>
+            </div>
+
+            <!-- صندوق معلومات الكاش عند الاستلام -->
+            <div id="codBox" style="display: none; background: var(--bg-surface); padding: 15px; border-radius: var(--radius-md); font-size: 0.9rem; color: var(--text-main); margin-top: 15px;">
+              <i class="fas fa-check-circle" style="color: #27AE60;"></i>
+              <span>يتم سداد كامل المبلغ نقداً لمندوب التوصيل فور استلام الباقة ومعاينتها.</span>
+            </div>
+
+            <!-- صندوق معلومات إنستاباي -->
+            <div id="instapayBox" style="display: none; background: #F8F4FA; border: 1px solid #D7BDE2; padding: 15px; border-radius: var(--radius-md); font-size: 0.9rem; color: #5B2C6F; margin-top: 15px;">
+              <i class="fas fa-bolt" style="color: #8E44AD;"></i>
+              <span>يمكنك التحويل عبر تطبيق إنستاباي، وسنزودك بعنوان الدفع IPA في محادثة الواتساب فور إرسال الطلب.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- العمود الأيسر: ملخص الطلب وسلة المشتريات -->
+        <div class="checkout-sidebar-column">
+          <div class="checkout-card order-sidebar-summary">
+            <div class="checkout-card-header">
+              <i class="fas fa-shopping-bag" style="color: var(--primary-pink); font-size: 1.3rem;"></i>
+              <h3>ملخص الباقات في سلتك</h3>
+            </div>
+
+            <div id="checkoutCartItemsList" style="max-height: 280px; overflow-y: auto; margin-bottom: 20px;">
+              <!-- يتم تعبئتها ديناميكياً -->
+            </div>
+
+            <!-- كوبون الخصم -->
+            <div class="coupon-input-group" style="margin-bottom: 15px;">
+              <input type="text" id="checkoutCouponInput" placeholder="كود الخصم (SHATHA10)">
+              <button type="button" onclick="applyCouponInCheckout()">تطبيق</button>
+            </div>
+
+            <!-- تفاصيل الحسابات -->
+            <div class="cart-summary-lines">
+              <div class="summary-line">
+                <span>المجموع الفرعي:</span>
+                <strong id="summarySubtotal">0 ج.م</strong>
+              </div>
+              <div class="summary-line discount-applied" id="summaryDiscountRow" style="display: none;">
+                <span>خصم الكوبون:</span>
+                <strong id="summaryDiscount">-0 ج.م</strong>
+              </div>
+              <div class="summary-line">
+                <span>تكلفة الشحن والتوصيل:</span>
+                <strong id="summaryShipping">50 ج.م</strong>
+              </div>
+              <div class="summary-line total-line">
+                <span>المبلغ الإجمالي النهائي:</span>
+                <strong id="summaryTotal" style="color: var(--primary-pink); font-size: 1.4rem;">0 ج.م</strong>
+              </div>
+            </div>
+
+            <!-- زر التأكيد النهائي عبر واتساب المعتمد 01102541236 -->
+            <button type="button" class="btn-submit-order-whatsapp" onclick="submitFinalOrderToWhatsApp()">
+              <i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i>
+              <span>تأكيد الطلب وإرسال كل التفاصيل للواتساب</span>
+            </button>
+
+            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--text-light);">
+              <i class="fas fa-lock"></i>
+              <span>يتم فتح محادثة الواتساب مع رقم المتجر <strong>01102541236</strong> مباشرة</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- تنبيهات التوست -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="assets/js/products-data.js"></script>
+  <script>
+    // بيانات ومتحكمات صفحة checkout.html
+    const WA_STORE_PHONE = "201102541236"; // رقم المتجر المعتمد للواتساب
+    let selectedMethod = "vodafone";
+    let cartItems = [];
+    let appliedCoupon = localStorage.getItem('shatha_applied_coupon') || null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadCheckoutCart();
+      
+      document.getElementById("cGovernorate").addEventListener("change", () => {
+        calculateCheckoutTotals();
+      });
+
+      // وضع تاريخ اليوم كافتراضي
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById("cDate");
+      if (dateInput) dateInput.value = today;
+    });
+
+    function loadCheckoutCart() {
+      try {
+        const saved = localStorage.getItem('shatha_cart_items');
+        if (saved) {
+          cartItems = JSON.parse(saved);
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+
+      const listContainer = document.getElementById("checkoutCartItemsList");
+      if (!cartItems || cartItems.length === 0) {
+        listContainer.innerHTML = `
+          <div style="text-align: center; padding: 25px 10px;">
+            <i class="fas fa-shopping-basket" style="font-size: 2.5rem; color: var(--border-subtle); margin-bottom: 10px;"></i>
+            <h4 style="color: var(--primary-dark); margin-bottom: 6px;">سلة المشتريات فارغة</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">يرجى اختيار باقة أولاً من المتجر</p>
+            <a href="index.html#products" class="back-to-store-link">تصفح الباقات الآن</a>
+          </div>
+        `;
+        document.querySelector(".btn-submit-order-whatsapp").disabled = true;
+        document.querySelector(".btn-submit-order-whatsapp").style.opacity = "0.5";
+        return;
+      }
+
+      listContainer.innerHTML = cartItems.map(item => `
+        <div class="cart-summary-item">
+          <img src="${item.image}" alt="${item.name}">
+          <div class="cart-summary-item-details">
+            <h4>${item.name}</h4>
+            <p>${item.sizeName} × ${item.quantity}</p>
+          </div>
+          <strong style="color: var(--primary-dark); font-size: 0.95rem;">${item.price * item.quantity} ج.م</strong>
+        </div>
+      `).join('');
+
+      if (appliedCoupon) {
+        document.getElementById("checkoutCouponInput").value = appliedCoupon;
+      }
+
+      calculateCheckoutTotals();
+    }
+
+    function calculateCheckoutTotals() {
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      let discount = 0;
+      if (appliedCoupon && appliedCoupon.toUpperCase() === "SHATHA10") {
+        discount = Math.round(subtotal * 0.10);
+        document.getElementById("summaryDiscountRow").style.display = "flex";
+        document.getElementById("summaryDiscount").innerText = `- ${discount} ج.م (10%)`;
+      } else {
+        document.getElementById("summaryDiscountRow").style.display = "none";
+      }
+
+      const govSelect = document.getElementById("cGovernorate");
+      const selectedOption = govSelect.options[govSelect.selectedIndex];
+      const shippingPrice = parseInt(selectedOption.getAttribute("data-price") || "50");
+
+      const grandTotal = Math.max(0, subtotal - discount + shippingPrice);
+
+      document.getElementById("summarySubtotal").innerText = `${subtotal} ج.م`;
+      document.getElementById("summaryShipping").innerText = `${shippingPrice} ج.م`;
+      document.getElementById("summaryTotal").innerText = `${grandTotal} ج.م`;
+    }
+
+    function selectPaymentMethod(method) {
+      selectedMethod = method;
+      document.querySelectorAll(".payment-option-card").forEach(c => c.classList.remove("selected"));
+
+      document.getElementById("vodafoneBox").style.display = "none";
+      document.getElementById("codBox").style.display = "none";
+      document.getElementById("instapayBox").style.display = "none";
+
+      if (method === "vodafone") {
+        document.getElementById("optVodafone").classList.add("selected");
+        document.getElementById("vodafoneBox").style.display = "block";
+      } else if (method === "cod") {
+        document.getElementById("optCod").classList.add("selected");
+        document.getElementById("codBox").style.display = "block";
+      } else if (method === "instapay") {
+        document.getElementById("optInstapay").classList.add("selected");
+        document.getElementById("instapayBox").style.display = "block";
+      }
+    }
+
+    function copyText(text) {
+      navigator.clipboard?.writeText(text);
+      showToast(`تم نسخ الرقم (${text}) بنجاح!`, "success");
+    }
+
+    function applyCouponInCheckout() {
+      const code = document.getElementById("checkoutCouponInput")?.value.trim().toUpperCase();
+      if (code === "SHATHA10") {
+        appliedCoupon = code;
+        localStorage.setItem('shatha_applied_coupon', code);
+        calculateCheckoutTotals();
+        showToast("تم تطبيق خصم 10% بنجاح! 🎉", "success");
+      } else {
+        showToast("كود الخصم غير صحيح", "error");
+      }
+    }
+
+    // تأكيد وإرسال الطلب النهائي عبر محادثة الواتساب
+    function submitFinalOrderToWhatsApp() {
+      if (!cartItems || cartItems.length === 0) {
+        showToast("سلة المشتريات فارغة!", "error");
+        return;
+      }
+
+      const name = document.getElementById("cName")?.value.trim();
+      const phone = document.getElementById("cPhone")?.value.trim();
+      const address = document.getElementById("cAddress")?.value.trim();
+      const landmark = document.getElementById("cLandmark")?.value.trim();
+      const date = document.getElementById("cDate")?.value || "اليوم";
+      const time = document.getElementById("cTime")?.value || "توصيل سريع";
+
+      // كارت الإهداء
+      const sender = document.getElementById("cSender")?.value.trim();
+      const recipient = document.getElementById("cRecipient")?.value.trim();
+      const message = document.getElementById("cMessage")?.value.trim();
+
+      if (!name || !phone || !address || !landmark) {
+        showToast("يرجى ملء الاسم، ورقم الواتساب، والعنوان، ومكانك بجوار إيه بالتفصيل!", "error");
+        return;
+      }
+
+      const govSelect = document.getElementById("cGovernorate");
+      const govName = govSelect.options[govSelect.selectedIndex].text;
+      const shippingPrice = parseInt(govSelect.options[govSelect.selectedIndex].getAttribute("data-price") || "50");
+
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const discount = (appliedCoupon && appliedCoupon === "SHATHA10") ? Math.round(subtotal * 0.10) : 0;
+      const grandTotal = subtotal - discount + shippingPrice;
+
+      let paymentText = "";
+      if (selectedMethod === "vodafone") {
+        paymentText = `فودافون كاش (على 01152998910 أو 01002398698) - مرفق اسكرين شوت التحويل الآن 📸`;
+      } else if (selectedMethod === "cod") {
+        paymentText = `الدفع كاش عند الاستلام`;
+      } else {
+        paymentText = `إنستاباي InstaPay`;
+      }
+
+      // صياغة رسالة الطلب المنسقة لواتساب
+      let waMsg = `🌸 *طلب جديد من متجر شذى (SHATHA)* 🌸\n`;
+      waMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
+      waMsg += `👤 *بيانات العميل والتوصيل:*\n`;
+      waMsg += `• *الاسم:* ${name}\n`;
+      waMsg += `• *رقم الهاتف:* ${phone}\n`;
+      waMsg += `• *المنطقة/المحافظة:* ${govName}\n`;
+      waMsg += `• *العنوان:* ${address}\n`;
+      waMsg += `• *المكان بالتفصيل بجوار:* ${landmark} 📍\n`;
+      waMsg += `• *موعد التسليم المطلوب:* ${date} (${time})\n\n`;
+
+      waMsg += `💐 *المنتجات والباقات المطلوبة:*\n`;
+      cartItems.forEach((item, index) => {
+        waMsg += `${index + 1}. *${item.name}*\n   - المقاس: ${item.sizeName}\n   - الكمية: ${item.quantity}\n   - السعر: ${item.price * item.quantity} ج.م\n`;
+      });
+      waMsg += `\n`;
+
+      if (message || sender || recipient) {
+        waMsg += `💌 *كارت الإهداء المجاني:*\n`;
+        if (sender) waMsg += `• من: ${sender}\n`;
+        if (recipient) waMsg += `• إلى: ${recipient}\n`;
+        if (message) waMsg += `• نص الإهداء: "${message}"\n\n`;
+      }
+
+      waMsg += `💰 *تفاصيل الفاتورة:*\n`;
+      waMsg += `• مجموع الباقات: ${subtotal} ج.م\n`;
+      if (discount > 0) {
+        waMsg += `• خصم الكوبون (${appliedCoupon}): -${discount} ج.م\n`;
+      }
+      waMsg += `• مصاريف التوصيل: ${shippingPrice} ج.م\n`;
+      waMsg += `• *الإجمالي المطلوب: ${grandTotal} ج.م*\n`;
+      waMsg += `• *طريقة الدفع:* ${paymentText}\n`;
+      waMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
+      if (selectedMethod === "vodafone") {
+        waMsg += `⚠️ *ملاحظة:* سأقوم بإرسال اسكرين شوت تحويل فودافون كاش هنا في الشات فوراً لتأكيد الحجز.\n`;
+      }
+      waMsg += `شذى.. اختار حاجه تعيش معاك العمر كلووو ✨`;
+
+      // تفريغ السلة بعد نجاح التجهيز
+      localStorage.removeItem('shatha_cart_items');
+
+      // توجيه العميل لرقم الواتساب 01102541236
+      const waUrl = `https://wa.me/${WA_STORE_PHONE}?text=${encodeURIComponent(waMsg)}`;
+      window.open(waUrl, '_blank');
+
+      showToast("تم تجهيز الطلب بنجاح وفتح محادثة الواتساب! شكراً لاختيارك شذى 🌸", "success");
+    }
+
+    function showToast(message, type = "info") {
+      let container = document.getElementById("toastContainer");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="color: ${type === 'success' ? '#27AE60' : '#E74C3C'}"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => toast.classList.add("show"), 10);
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 400);
+      }, 3800);
+    }
+  </script>
+</body>
+</html>
