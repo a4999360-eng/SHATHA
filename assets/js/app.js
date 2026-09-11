@@ -64,8 +64,27 @@ function saveCartToStorage() {
   }
 }
 
+// دالة تحميل ودمج المنتجات الافتراضية مع المنتجات المضافة يدوياً
+function loadAllProducts() {
+  let defaultProds = typeof SHATHA_PRODUCTS !== 'undefined' ? [...SHATHA_PRODUCTS] : [];
+  try {
+    const customProdsJson = localStorage.getItem('shatha_custom_products');
+    if (customProdsJson) {
+      const customProds = JSON.parse(customProdsJson);
+      if (Array.isArray(customProds) && customProds.length > 0) {
+        // المنتجات المضافة يدوياً تظهر أولاً في المقدمة
+        return [...customProds, ...defaultProds];
+      }
+    }
+  } catch (e) {
+    console.warn("Error loading custom products:", e);
+  }
+  return defaultProds;
+}
+
 // بدء التشغيل
 document.addEventListener("DOMContentLoaded", () => {
+  appState.products = loadAllProducts();
   loadCurrentUser();
   loadCartFromStorage();
   renderProducts();
