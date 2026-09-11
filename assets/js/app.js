@@ -9,6 +9,7 @@ const SHATHA_CONFIG = {
   storeName: "شذى للهدايا والورد المصنوع يدوياً",
   whatsappNumber: "201102541236", // 01102541236
   googleClientId: "452956702998-ivve5qvsvi174l08a3bbfep4cmkqn6o3.apps.googleusercontent.com",
+  ownerEmail: "a4999360@gmail.com", // الحساب الخاص بمالك المتجر شذى
   defaultCoupon: "SHATHA10",
   discountPercent: 10,
   freeShippingThreshold: 1000,
@@ -1130,8 +1131,37 @@ function updateAuthUI() {
         }
       }
     }
+
+    // التحقق الصارم من مالك المتجر: a4999360@gmail.com
+    const isOwner = user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+    const navAdmin = document.getElementById("navAdminLink");
+    const sectionAddBtn = document.getElementById("sectionAdminAddBtn");
+    const footerAdmin = document.getElementById("footerAdminLink");
+
+    if (navAdmin) navAdmin.style.display = isOwner ? "block" : "none";
+    if (sectionAddBtn) sectionAddBtn.style.display = isOwner ? "inline-flex" : "none";
+    if (footerAdmin) footerAdmin.style.display = isOwner ? "block" : "none";
+
+    // إضافة شارة مالك المتجر للملف الشخصي
+    if (isOwner) {
+      const dropdownInfo = document.querySelector(".dropdown-user-info");
+      if (dropdownInfo && !document.getElementById("ownerBadgeTag")) {
+        const badge = document.createElement("span");
+        badge.id = "ownerBadgeTag";
+        badge.style = "background: #27AE60; color: #fff; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; margin-top: 4px; display: inline-block;";
+        badge.innerHTML = '<i class="fas fa-crown"></i> مالك المتجر والمدير';
+        dropdownInfo.appendChild(badge);
+      }
+    }
   } else {
-    // حالة عدم تسجيل الدخول
+    // حالة عدم تسجيل الدخول: إخفاء كافة أدوات الإدارة
+    const navAdmin = document.getElementById("navAdminLink");
+    const sectionAddBtn = document.getElementById("sectionAdminAddBtn");
+    const footerAdmin = document.getElementById("footerAdminLink");
+    if (navAdmin) navAdmin.style.display = "none";
+    if (sectionAddBtn) sectionAddBtn.style.display = "none";
+    if (footerAdmin) footerAdmin.style.display = "none";
+
     if (loggedOutBar) loggedOutBar.style.display = "flex";
     if (loggedInBar) loggedInBar.style.display = "none";
     if (userWidget) userWidget.style.display = "none";
@@ -1209,6 +1239,14 @@ let wizardCurrentStep = 1;
 let wizardImages = [];
 
 function openAddProductModal() {
+  const user = appState.currentUser;
+  const isOwner = user && user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+
+  if (!isOwner) {
+    showToast("عذراً، هذه اللوحة مخصصة فقط لمالك المتجر شذى (" + SHATHA_CONFIG.ownerEmail + ") بعد تسجيل الدخول.", "error");
+    return;
+  }
+
   const modal = document.getElementById("addProductModal");
   const backdrop = document.getElementById("modalBackdrop");
   if (!modal) return;
@@ -1457,5 +1495,54 @@ function handleWizardProductSubmit(e) {
     console.error(err);
     showToast("حدث خطأ أثناء حفظ المنتج، جرب استخدام صور أصغر حجماً", "error");
   }
+}
+
+/* ==========================================================================
+   إدارة تطبيق الهاتف وتثبيت الـ PWA (Install Mobile Web App)
+   ========================================================================== */
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // منع المتصفح من إظهار النافذة الافتراضية القديمة
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // إظهار شريط تثبيت تطبيق شذى الأنيق
+  const banner = document.getElementById("pwaInstallBanner");
+  if (banner && !sessionStorage.getItem('shatha_pwa_dismissed')) {
+    banner.style.display = "flex";
+  }
+});
+
+document.getElementById("btnPwaInstall")?.addEventListener("click", async () => {
+  const banner = document.getElementById("pwaInstallBanner");
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      showToast("شكراً لك! تم تثبيت تطبيق شذى على شاشة هاتفك بنجاح 🌸", "success");
+    }
+    deferredPrompt = null;
+    if (banner) banner.style.display = "none";
+  } else {
+    // لهواتف آيفون (iOS Safari)
+    showToast("لتثبيت التطبيق على الآيفون: اضغط على زر المشاركة (Share) بالأسفل ثم اختر 'إضافة إلى الشاشة الرئيسية (Add to Home Screen)'", "info");
+  }
+});
+
+document.getElementById("btnPwaDismiss")?.addEventListener("click", () => {
+  const banner = document.getElementById("pwaInstallBanner");
+  if (banner) banner.style.display = "none";
+  sessionStorage.setItem('shatha_pwa_dismissed', 'true');
+});
+
+// تسجيل الـ Service Worker لتمكين عمل الموقع كتطبيق موبايل
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((err) => {
+      // صامت في بيئة التطوير المحلية
+      console.log('SW registration note:', err);
+    });
+  });
 }
 

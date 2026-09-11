@@ -12,6 +12,14 @@
   <meta property="og:description" content="شذى.. اختار حاجه تعيش معاك العمر كلووو. باقات ورد ستان هاندميد وبوكيهات فلوس وحلويات مشغولة يدوياً بأعلى معايير الإتقان.">
   <meta property="og:image" content="assets/images/logo.jpg">
   
+  <!-- إعدادات تطبيق الهاتف والـ PWA (Mobile Web App) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#BF7279">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="شذى">
+  <link rel="apple-touch-icon" href="assets/images/logo.jpg">
+  
   <!-- أيقونة الموقع (Favicon) من شعار شذى -->
   <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
   
@@ -66,7 +74,7 @@
             <li><a href="#about" class="nav-link">عن شذى</a></li>
             <li><a href="#testimonials" class="nav-link">آراء العملاء</a></li>
             <li><a href="checkout.html" class="nav-link" style="color: var(--primary-pink); font-weight: 700;">صفحة إتمام الطلب والدفع</a></li>
-            <li><a href="admin.html" class="nav-link" style="color: #27AE60; font-weight: 700;"><i class="fas fa-plus-circle"></i> لوحة إضافة المنتجات</a></li>
+            <li id="navAdminLink" style="display: none;"><a href="javascript:void(0)" onclick="openAddProductModal()" class="nav-link" style="color: #27AE60; font-weight: 700;"><i class="fas fa-plus-circle"></i> لوحة إضافة المنتجات (المالك)</a></li>
           </ul>
         </nav>
 
@@ -226,9 +234,9 @@
           <h2 class="section-title" style="margin-bottom: 6px;">تشكيلة الباقات والتنسيقات المصنوعة يدوياً</h2>
           <p class="section-desc" style="margin-bottom: 0;">جميع الباقات مشغولة يدوياً بحرفية عالية؛ ورد ستان يدوم للأبد، وبوكيهات فلوس، وبوكيهات سكاكر مبهجة.</p>
         </div>
-        <button type="button" class="btn-primary" onclick="openAddProductModal()" style="background: #27AE60; white-space: nowrap; padding: 10px 22px; font-size: 0.95rem;">
+        <button type="button" class="btn-primary" id="sectionAdminAddBtn" onclick="openAddProductModal()" style="display: none; background: #27AE60; white-space: nowrap; padding: 10px 22px; font-size: 0.95rem;">
           <i class="fas fa-plus-circle"></i>
-          <span>إضافة منتج جديد للموقع</span>
+          <span>إضافة منتج جديد للموقع (المالك)</span>
         </button>
       </div>
 
@@ -397,7 +405,7 @@
             <li><a href="#about"><i class="fas fa-angle-left"></i> عن براند شذى</a></li>
             <li><a href="#testimonials"><i class="fas fa-angle-left"></i> آراء العملاء</a></li>
             <li><a href="javascript:void(0)" onclick="openCartDrawer()"><i class="fas fa-angle-left"></i> سلة المشتريات</a></li>
-            <li><a href="admin.html" style="color: #27AE60; font-weight: 700;"><i class="fas fa-plus-circle"></i> لوحة إدارة وإضافة المنتجات</a></li>
+            <li id="footerAdminLink" style="display: none;"><a href="javascript:void(0)" onclick="openAddProductModal()" style="color: #27AE60; font-weight: 700;"><i class="fas fa-plus-circle"></i> لوحة إضافة المنتجات (المالك)</a></li>
           </ul>
         </div>
 
@@ -466,6 +474,25 @@
     </div>
     <span class="whatsapp-btn-text">طلبات واستفسارات الواتساب</span>
   </a>
+
+  <!-- إشعار تثبيت تطبيق شذى على الهاتف PWA -->
+  <aside class="app-install-banner" id="pwaInstallBanner" style="display: none; position: fixed; bottom: 85px; right: 20px; left: 20px; max-width: 420px; margin: 0 auto; background: #FFFFFF; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: 0 10px 30px rgba(104, 48, 54, 0.2); border: 2px solid var(--primary-pink); z-index: 998; align-items: center; justify-content: space-between; gap: 12px; animation: fadeInUp 0.4s ease;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="assets/images/logo.jpg" alt="أيقونة تطبيق شذى" style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; border: 1.5px solid var(--border-subtle); flex-shrink: 0;">
+      <div>
+        <strong style="display: block; font-size: 0.95rem; color: var(--primary-dark);">تطبيق شَـذى (SHATHA)</strong>
+        <span style="font-size: 0.78rem; color: var(--text-muted);">ثبّت التطبيق على شاشة هاتفك لتسوق أسرع</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button type="button" class="btn-primary" id="btnPwaInstall" style="padding: 7px 15px; font-size: 0.85rem; border-radius: var(--radius-full);">
+        <i class="fas fa-download"></i> تثبيت
+      </button>
+      <button type="button" id="btnPwaDismiss" style="color: var(--text-muted); font-size: 1.1rem; padding: 5px;" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </aside>
 
   <!-- خلفية التعتيم العامة للمودال -->
   <div class="modal-backdrop" id="modalBackdrop"></div>
