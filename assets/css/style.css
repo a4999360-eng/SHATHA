@@ -2414,37 +2414,250 @@ button {
 }
 
 @media (max-width: 768px) {
+  /* تحسينات شريط التنقل والهيدر للموبايل */
+  .main-header {
+    padding: 2px 0;
+  }
+  
+  .header-inner {
+    padding: 8px 0;
+    gap: 10px;
+  }
+
+  .brand-logo-img {
+    height: 46px;
+  }
+
+  .brand-title {
+    font-size: 1.3rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.58rem;
+    letter-spacing: 1.2px;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .action-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .user-profile-btn {
+    padding: 4px 8px;
+    font-size: 0.78rem;
+    gap: 5px;
+  }
+
+  .user-avatar-mini {
+    width: 24px;
+    height: 24px;
+  }
+
+  .user-name-short {
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .nav-menu {
     position: fixed;
-    top: 75px;
+    top: 65px;
     right: -100%;
     width: 280px;
-    height: calc(100vh - 75px);
+    height: calc(100vh - 65px);
     background: #FFFFFF;
     flex-direction: column;
     align-items: flex-start;
-    padding: 30px;
-    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
     transition: var(--transition);
-    z-index: 99;
+    z-index: 999;
+    gap: 18px;
   }
   
   .nav-menu.active {
     right: 0;
+  }
+
+  .nav-link {
+    font-size: 1.05rem;
+    padding: 8px 0;
+    width: 100%;
+    border-bottom: 1px solid var(--border-subtle);
   }
   
   .mobile-menu-toggle {
     display: flex;
   }
   
+  /* شريط الإعلانات العلوي للموبايل */
+  .top-announcement-bar {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .auth-bar-msg {
+    font-size: 0.78rem;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  /* قسم الهيرو للموبايل */
+  .hero-section {
+    padding: 25px 0 40px;
+  }
+
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 1.75rem;
+    line-height: 1.35;
+  }
+
+  .hero-desc {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    margin-bottom: 22px;
+  }
+
+  .hero-tag {
+    font-size: 0.75rem;
+    padding: 5px 12px;
+  }
+
+  .hero-cta-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .hero-cta-group .btn-primary, 
+  .hero-cta-group .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+  }
+
+  .hero-stats {
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+  }
+
+  .stat-number {
+    font-size: 1.35rem;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+  }
+
+  .hero-image-wrapper {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .floating-badge {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .floating-badge h5 {
+    font-size: 0.8rem;
+  }
+
+  .floating-badge p {
+    font-size: 0.68rem;
   }
   
+  /* شبكة المنتجات للموبايل */
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .product-card {
+    border-radius: var(--radius-md);
+  }
+
+  .product-card-img-wrap {
+    height: 280px;
+  }
+
+  .product-card-content {
+    padding: 16px;
+  }
+
+  .product-card-title {
+    font-size: 1.15rem;
+  }
+
+  .product-card-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .product-card-footer .btn-add-to-cart {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  /* سلة المشتريات الجانبية على الموبايل */
+  .cart-drawer {
+    max-width: 100%;
+    width: 100vw;
+  }
+
+  .cart-drawer-header {
+    padding: 16px;
+  }
+
+  .cart-drawer-items {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .cart-item-card {
+    grid-template-columns: 70px 1fr auto;
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  .cart-item-img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .cart-drawer-footer {
+    padding: 16px;
+  }
+
+  .btn-proceed-checkout {
+    padding: 14px;
+    font-size: 0.98rem;
+  }
+
+  /* شريط المميزات والثقة */
   .trust-features-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .trust-card {
+    background: var(--bg-body);
+    border-radius: var(--radius-md);
+    padding: 14px;
   }
   
+  /* استمارات الدفع والفوتر */
   .checkout-form-grid {
     grid-template-columns: 1fr;
   }
@@ -2455,19 +2668,197 @@ button {
   
   .payment-options-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
   
   .footer-grid {
     grid-template-columns: 1fr;
+    gap: 25px;
   }
   
+  /* زر الواتساب العائم للموبايل */
+  .floating-whatsapp-btn {
+    padding: 12px;
+    bottom: 20px;
+    right: 18px;
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+  }
+
   .floating-whatsapp-btn .whatsapp-btn-text {
     display: none;
   }
-  
-  .floating-whatsapp-btn {
-    padding: 10px;
-    bottom: 20px;
-    right: 20px;
+
+  /* نافذة تفاصيل المنتج Modal على الموبايل */
+  .product-modal {
+    width: 95%;
+    max-height: 90vh;
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-main-img-box {
+    height: 250px;
   }
 }
+
+/* ========================================================
+   تنسيقات تسجيل الدخول بجوجل وكود الخصم الفردي (Google Auth)
+   ======================================================== */
+.auth-bar-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.auth-bar-msg i {
+  color: #FFE6E6;
+}
+
+#googleSignInBtnTop {
+  display: inline-flex;
+  align-items: center;
+}
+
+.coupon-status-badge {
+  background: rgba(39, 174, 96, 0.25);
+  border: 1px solid #27AE60;
+  color: #D4EDDA;
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.coupon-status-badge.used {
+  background: rgba(231, 76, 60, 0.25);
+  border-color: #E74C3C;
+  color: #F8D7DA;
+}
+
+/* ملف المستخدم في الهيدر */
+.user-auth-widget {
+  position: relative;
+}
+
+.user-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 8px;
+  border-radius: var(--radius-full);
+  background: var(--primary-soft);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.user-profile-btn:hover {
+  background: #FFFFFF;
+  border-color: var(--primary-pink);
+  box-shadow: var(--shadow-sm);
+}
+
+.user-avatar-mini {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--primary-pink);
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 250px;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border-subtle);
+  padding: 16px;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.user-dropdown-menu.show {
+  display: flex;
+}
+
+.dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 10px;
+}
+
+.dropdown-user-info strong {
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.dropdown-user-info small {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.dropdown-coupon-box {
+  background: var(--bg-body);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+  border: 1px dashed var(--primary-pink);
+}
+
+.dropdown-coupon-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--primary-dark);
+  background: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  transition: var(--transition);
+}
+
+.dropdown-coupon-code:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary-pink);
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: #FFF5F5;
+  color: #C0392B;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+
+.btn-logout:hover {
+  background: #FADBD8;
+}
+

@@ -8,6 +8,7 @@
 const SHATHA_CONFIG = {
   storeName: "شذى للهدايا والورد المصنوع يدوياً",
   whatsappNumber: "201102541236", // 01102541236
+  googleClientId: "284827048208-hc6obl4l8srlb3m2cqq1p85b30bpdi66.apps.googleusercontent.com",
   defaultCoupon: "SHATHA10",
   discountPercent: 10,
   freeShippingThreshold: 1000,
@@ -16,6 +17,7 @@ const SHATHA_CONFIG = {
 
 // حالة التطبيق
 let appState = {
+  currentUser: null, // بيانات المستخدم المسجل بجوجل { id, name, email, picture, couponCode, couponUsed }
   products: typeof SHATHA_PRODUCTS !== 'undefined' ? SHATHA_PRODUCTS : [],
   shippingZones: typeof SHATHA_SHIPPING_ZONES !== 'undefined' ? SHATHA_SHIPPING_ZONES : [],
   searchQuery: "",
@@ -29,7 +31,7 @@ let appState = {
     enabled: false,
     message: ""
   },
-  selectedPaymentMethod: "cod"
+  selectedPaymentMethod: "vodafone"
 };
 
 // تحميل السلة من المتصفح
@@ -64,11 +66,13 @@ function saveCartToStorage() {
 
 // بدء التشغيل
 document.addEventListener("DOMContentLoaded", () => {
+  loadCurrentUser();
   loadCartFromStorage();
   renderProducts();
   updateCartUI();
   setupEventListeners();
   setupShippingDropdown();
+  initGoogleSignIn();
 });
 
 // إعداد المستمعين
@@ -121,9 +125,7 @@ function setupEventListeners() {
 
   // نسخ كود الخصم
   document.getElementById("couponPill")?.addEventListener("click", () => {
-    navigator.clipboard?.writeText(SHATHA_CONFIG.defaultCoupon);
-    showToast(`تم نسخ كود الخصم (${SHATHA_CONFIG.defaultCoupon}) بنجاح! 🎉`, "success");
-    applyCouponCode(SHATHA_CONFIG.defaultCoupon);
+    copyMyCoupon();
   });
 
   // تطبيق الكوبون
@@ -488,6 +490,23 @@ function removeCartItem(cartKey) {
 
 function applyCouponCode(code) {
   const cleanCode = code.trim().toUpperCase();
+
+  // التحقق من كود المستخدم الفردي
+  if (appState.currentUser && appState.currentUser.couponCode === cleanCode) {
+    if (appState.currentUser.couponUsed) {
+      showToast("عذراً، هذا الكود تم استخدامه بالفعل مسبقاً! كل حساب له استخدام لمرة واحدة فقط.", "error");
+      return;
+    }
+    appState.appliedCoupon = cleanCode;
+    saveCartToStorage();
+    updateCartUI();
+    showToast(`تم تطبيق خصم 10% الخاص بحسابك بنجاح! 🎉 (${cleanCode})`, "success");
+    const input = document.getElementById("couponInput");
+    if (input) input.value = cleanCode;
+    return;
+  }
+
+  // التحقق من الكوبون الافتراضي العام إذا لم يكن مسجلاً
   if (cleanCode === SHATHA_CONFIG.defaultCoupon) {
     appState.appliedCoupon = cleanCode;
     saveCartToStorage();
@@ -495,42 +514,30 @@ function applyCouponCode(code) {
     showToast(`تم تطبيق خصم 10% بنجاح! كود: ${cleanCode}`, "success");
     const input = document.getElementById("couponInput");
     if (input) input.value = cleanCode;
-  } else {
-    showToast("عذراً، كود الخصم غير صالح", "error");
+    return;
   }
+
+  showToast("عذراً، كود الخصم غير صالح أو غير مرتبط بحسابك", "error");
 }
 
 /**
- * طلب منتج فردي محدد من داخل السلة عبر الواتساب مباشرة
- * استجابة لطلب المستخدم: "وخلي لما ادخل علي السله يكون فيه الطلب عبر الواتس للمنتج اللي انا اختارتوو"
+ * طلب منتج فردي محدد من داخل السلة:
+ * توجيه العميل لصفحة checkout.html لملء بيانات التواصل ومكان التوصيل الإلزامية أولاً قبل إرسال الفاتورة للواتساب
  */
 function orderSingleCartItemViaWhatsapp(cartKey) {
   const item = appState.cart.find(i => i.cartKey === cartKey);
   if (!item) return;
 
-  const totalItemPrice = item.price * item.quantity;
-  const giftMsg = appState.giftCard.enabled && document.getElementById("giftCardMsgInput")?.value.trim() 
-    ? document.getElementById("giftCardMsgInput").value.trim() 
-    : null;
-
-  let msg = `🌸 *طلب منتج عبر واتساب من متجر شذى* 🌸\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `• *المنتج المطلوب:* ${item.name}\n`;
-  msg += `• *المقاس/التنسيق:* ${item.sizeName}\n`;
-  msg += `• *الكمية:* ${item.quantity}\n`;
-  msg += `• *السعر الإجمالي:* ${totalItemPrice} ج.م\n`;
-  if (giftMsg) {
-    msg += `💌 *نص كارت الإهداء:* "${giftMsg}"\n`;
-  }
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `أود تأكيد طلب هذا المنتج ومعرفة موعد التوصيل المتاح 💐`;
-
-  const waUrl = `https://wa.me/${SHATHA_CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-  window.open(waUrl, '_blank');
+  showToast("يرجى ملء بيانات التواصل ومكان التوصيل أولاً لتجهيز فاتورة طلبك للواتساب", "info");
+  closeCartDrawer();
+  setTimeout(() => {
+    window.location.href = "checkout.html";
+  }, 400);
 }
 
 /**
- * إرسال كامل السلة عبر واتساب مباشرة
+ * إرسال كامل السلة عبر واتساب:
+ * توجيه العميل لصفحة checkout.html لملء بيانات التواصل ومكان التوصيل الإلزامية أولاً
  */
 function sendFullCartDirectToWhatsapp() {
   if (appState.cart.length === 0) {
@@ -538,33 +545,11 @@ function sendFullCartDirectToWhatsapp() {
     return;
   }
 
-  const subtotal = appState.cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-  const discount = appState.appliedCoupon ? Math.round(subtotal * (SHATHA_CONFIG.discountPercent / 100)) : 0;
-  const finalTotal = subtotal - discount;
-  const giftMsg = appState.giftCard.enabled && document.getElementById("giftCardMsgInput")?.value.trim() 
-    ? document.getElementById("giftCardMsgInput").value.trim() 
-    : null;
-
-  let msg = `🌸 *طلب سلة مشتريات كاملة من متجر شذى (SHATHA)* 🌸\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `📦 *المنتجات المختارة في السلة:*\n`;
-  appState.cart.forEach((item, idx) => {
-    msg += `${idx + 1}. *${item.name}*\n   - المقاس: ${item.sizeName}\n   - العدد: ${item.quantity}\n   - السعر: ${item.price * item.quantity} ج.م\n`;
-  });
-  msg += `\n`;
-  if (giftMsg) {
-    msg += `💌 *كارت الإهداء المجاني:* "${giftMsg}"\n\n`;
-  }
-  msg += `💰 *المجموع الفرعي:* ${subtotal} ج.م\n`;
-  if (discount > 0) {
-    msg += `🏷️ *خصم كوبون (${appState.appliedCoupon}):* -${discount} ج.م\n`;
-  }
-  msg += `⭐ *الإجمالي المطلوب:* ${finalTotal} ج.م (+ مصاريف الشحن حسب العنوان)\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `أرجو تأكيد الطلب وتحديد موعد الاستلام والتوصيل ✨`;
-
-  const waUrl = `https://wa.me/${SHATHA_CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-  window.open(waUrl, '_blank');
+  showToast("جاري توجيهك لصفحة كتابة بيانات التواصل والتوصيل لتأكيد الطلب عبر الواتساب", "info");
+  closeCartDrawer();
+  setTimeout(() => {
+    window.location.href = "checkout.html";
+  }, 400);
 }
 
 // تحديث واجهة السلة (UI)
@@ -747,8 +732,7 @@ function handleCheckoutSubmit(e) {
   const customerName = document.getElementById("checkoutName")?.value.trim();
   const customerPhone = document.getElementById("checkoutPhone")?.value.trim();
   const customerAddress = document.getElementById("checkoutAddress")?.value.trim();
-  const deliveryDate = document.getElementById("checkoutDate")?.value || "في أسرع وقت اليوم";
-  const deliveryTime = document.getElementById("checkoutTime")?.value || "توصيل عادي";
+  const deliveryDate = document.getElementById("checkoutDate")?.value || "في أسرع وقت";
   const notes = document.getElementById("checkoutNotes")?.value.trim() || "لا توجد ملاحظات إضافية";
 
   const giftSender = document.getElementById("checkoutGiftSender")?.value.trim();
@@ -768,11 +752,10 @@ function handleCheckoutSubmit(e) {
   const grandTotal = subtotal - discount + shippingCost;
 
   const paymentNames = {
-    cod: "الدفع نقداً عند الاستلام",
-    instapay: "إنستاباي / فودافون كاش ومحافظ إلكترونية",
-    visa: "بطاقة بنكية (فيزا / ماستركارد)"
+    vodafone: "فودافون كاش / محافظ إلكترونية (01152998910 أو 01002398698)",
+    instapay: "إنستاباي InstaPay"
   };
-  const paymentMethodLabel = paymentNames[appState.selectedPaymentMethod] || "عند الاستلام";
+  const paymentMethodLabel = paymentNames[appState.selectedPaymentMethod] || "فودافون كاش / محافظ إلكترونية";
 
   let orderMsg = `🌸 *طلب جديد من متجر شذى للهدايا والورد المصنوع (SHATHA)* 🌸\n`;
   orderMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
@@ -780,8 +763,8 @@ function handleCheckoutSubmit(e) {
   orderMsg += `• الاسم: ${customerName}\n`;
   orderMsg += `• رقم الهاتف: ${customerPhone}\n`;
   orderMsg += `• العنوان: ${customerAddress}\n`;
-  orderMsg += `• المنطقة/المحافظة: ${currentZone.name}\n`;
-  orderMsg += `• موعد التوصيل المطلوب: ${deliveryDate} (${deliveryTime})\n\n`;
+  orderMsg += `• المحافظة/المنطقة: ${currentZone.name}\n`;
+  orderMsg += `• موعد التوصيل المطلوب: ${deliveryDate}\n\n`;
 
   orderMsg += `💐 *المنتجات والباقات المطلوبة:*\n`;
   appState.cart.forEach((item, index) => {
@@ -818,7 +801,17 @@ function handleCheckoutSubmit(e) {
     items: [...appState.cart]
   };
 
+  // تعليم كود الخصم الفردي كمستخدم لمرة واحدة فقط
+  if (appState.currentUser && appState.appliedCoupon === appState.currentUser.couponCode) {
+    localStorage.setItem(`shatha_coupon_used_${appState.currentUser.id}`, 'true');
+    appState.currentUser.couponUsed = true;
+    localStorage.setItem('shatha_google_user', JSON.stringify(appState.currentUser));
+    updateAuthUI();
+  }
+
   appState.cart = [];
+  appState.appliedCoupon = null;
+  localStorage.removeItem('shatha_applied_coupon');
   saveCartToStorage();
   updateCartUI();
 
@@ -907,3 +900,284 @@ function showToast(message, type = "info") {
     setTimeout(() => toast.remove(), 400);
   }, 3500);
 }
+
+/* ==========================================================================
+   Google Sign-In & Individual Discount Coupon Engine
+   نظام تسجيل الدخول بحساب Google وتوليد كود خصم فردي 10% لكل حساب (استخدام لمرة واحدة)
+   ========================================================================== */
+
+/**
+ * تحميل المستخدم المخزن محلياً
+ */
+function loadCurrentUser() {
+  try {
+    const saved = localStorage.getItem('shatha_google_user');
+    if (saved) {
+      const user = JSON.parse(saved);
+      // فحص حالة استهلاك الكود من سجل الأكواد المستهلكة
+      const usedStatus = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
+      user.couponUsed = usedStatus;
+      appState.currentUser = user;
+    }
+  } catch (e) {
+    console.warn("Error loading user:", e);
+  }
+}
+
+/**
+ * تهيئة Google Identity Services وزر تسجيل الدخول
+ */
+function initGoogleSignIn() {
+  updateAuthUI();
+
+  // فحص توفر مكتبة Google
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+    // محاولة ثانية بعد تحميل السكربت
+    setTimeout(initGoogleSignIn, 600);
+    return;
+  }
+
+  try {
+    google.accounts.id.initialize({
+      client_id: SHATHA_CONFIG.googleClientId,
+      callback: handleGoogleSignInResponse,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+
+    const btnContainer = document.getElementById("googleSignInBtnTop");
+    if (btnContainer && !appState.currentUser) {
+      btnContainer.innerHTML = "";
+      google.accounts.id.renderButton(btnContainer, {
+        theme: "outline",
+        size: "medium",
+        type: "standard",
+        text: "signin_with",
+        shape: "pill",
+        logo_alignment: "right"
+      });
+    }
+  } catch (e) {
+    console.error("Google Sign-In Init Error:", e);
+  }
+
+  // إعداد نقر الملف الشخصي لفتح وإغلاق القائمة المنسدلة
+  const profileBtn = document.getElementById("userProfileBtn");
+  const dropdown = document.getElementById("userDropdownMenu");
+  profileBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown?.classList.toggle("show");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!profileBtn?.contains(e.target) && !dropdown?.contains(e.target)) {
+      dropdown?.classList.remove("show");
+    }
+  });
+}
+
+/**
+ * معالجة استجابة تسجيل الدخول بجوجل
+ */
+function handleGoogleSignInResponse(response) {
+  try {
+    const payload = parseJwt(response.credential);
+    if (!payload || !payload.sub) {
+      showToast("حدث خطأ أثناء قراءة بيانات الحساب", "error");
+      return;
+    }
+
+    const googleId = payload.sub;
+    const name = payload.name || "عميل شذى";
+    const email = payload.email || "";
+    const picture = payload.picture || "assets/images/logo.jpg";
+
+    // توليد كود خصم فردي فريد مشتق من Google ID
+    const uniqueCoupon = generateUniqueCouponForUser(googleId);
+    const isUsed = localStorage.getItem(`shatha_coupon_used_${googleId}`) === 'true';
+
+    const userData = {
+      id: googleId,
+      name: name,
+      email: email,
+      picture: picture,
+      couponCode: uniqueCoupon,
+      couponUsed: isUsed
+    };
+
+    appState.currentUser = userData;
+    localStorage.setItem('shatha_google_user', JSON.stringify(userData));
+
+    updateAuthUI();
+
+    showToast(`مرحباً بك يا ${name}! حصلت على كود خصم 10% لطلبك 🌸`, "success");
+
+    // تطبيق الكود تلقائياً إذا لم يكن مستخدماً من قبل
+    if (!isUsed) {
+      applyCouponCode(uniqueCoupon);
+    }
+  } catch (err) {
+    console.error("JWT Decode Error:", err);
+    showToast("تعذر إتمام تسجيل الدخول بحساب Google", "error");
+  }
+}
+
+/**
+ * فك تشفير JWT الخاص بجوجل لاستخراج الاسم والـ ID والصورة
+ */
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * توليد كود خصم فريد 10% لكل حساب جوجل
+ */
+function generateUniqueCouponForUser(googleId) {
+  // استخدام جزء من الـ hash للـ ID لإنشاء كود مميز ومختصر
+  let hash = 0;
+  for (let i = 0; i < googleId.length; i++) {
+    hash = ((hash << 5) - hash) + googleId.charCodeAt(i);
+    hash |= 0;
+  }
+  const codeSuffix = Math.abs(hash).toString(36).toUpperCase().padStart(5, '0').slice(0, 5);
+  return `SHATHA-${codeSuffix}`;
+}
+
+/**
+ * تحديث واجهة المستخدم بعد تسجيل الدخول أو الخروج
+ */
+function updateAuthUI() {
+  const loggedOutBar = document.getElementById("authBarLoggedOut");
+  const loggedInBar = document.getElementById("authBarLoggedIn");
+  const userWidget = document.getElementById("userAuthWidget");
+
+  if (appState.currentUser) {
+    const user = appState.currentUser;
+    const isUsed = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
+    user.couponUsed = isUsed;
+
+    if (loggedOutBar) loggedOutBar.style.display = "none";
+    if (loggedInBar) loggedInBar.style.display = "flex";
+
+    const nameElem = document.getElementById("loggedInUserName");
+    const codeElem = document.getElementById("userCouponCode");
+    const statusBadge = document.getElementById("couponStatusBadge");
+
+    if (nameElem) nameElem.innerText = user.name.split(' ')[0];
+    if (codeElem) codeElem.innerText = user.couponCode;
+
+    if (statusBadge) {
+      if (isUsed) {
+        statusBadge.innerText = "تم استخدام الكود سابقاً";
+        statusBadge.classList.add("used");
+      } else {
+        statusBadge.innerText = "متاح للاستخدام (مرة واحدة)";
+        statusBadge.classList.remove("used");
+      }
+    }
+
+    // عنصر الهيدر
+    if (userWidget) {
+      userWidget.style.display = "block";
+      const avatar = document.getElementById("userAvatarImg");
+      const shortName = document.getElementById("userNameShort");
+      const fullName = document.getElementById("dropdownFullName");
+      const email = document.getElementById("dropdownEmail");
+      const dropCode = document.getElementById("dropdownCouponVal");
+      const dropStatus = document.getElementById("dropdownCouponStatus");
+
+      if (avatar) avatar.src = user.picture;
+      if (shortName) shortName.innerText = user.name.split(' ')[0];
+      if (fullName) fullName.innerText = user.name;
+      if (email) email.innerText = user.email;
+      if (dropCode) dropCode.innerText = user.couponCode;
+
+      if (dropStatus) {
+        if (isUsed) {
+          dropStatus.innerText = "تم استهلاك الكود";
+          dropStatus.style.color = "#E74C3C";
+        } else {
+          dropStatus.innerText = "متاح للاستخدام (مرة واحدة)";
+          dropStatus.style.color = "#27AE60";
+        }
+      }
+    }
+  } else {
+    // حالة عدم تسجيل الدخول
+    if (loggedOutBar) loggedOutBar.style.display = "flex";
+    if (loggedInBar) loggedInBar.style.display = "none";
+    if (userWidget) userWidget.style.display = "none";
+
+    // إعادة رسم زر جوجل
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      const btnContainer = document.getElementById("googleSignInBtnTop");
+      if (btnContainer) {
+        btnContainer.innerHTML = "";
+        google.accounts.id.renderButton(btnContainer, {
+          theme: "outline",
+          size: "medium",
+          type: "standard",
+          text: "signin_with",
+          shape: "pill",
+          logo_alignment: "right"
+        });
+      }
+    }
+  }
+}
+
+/**
+ * نسخ كود الخصم الخاص بالمستخدم وتطبيقه
+ */
+function copyMyCoupon() {
+  if (!appState.currentUser) {
+    showToast("يرجى تسجيل الدخول بحساب Google أولاً للحصول على كود الخصم", "info");
+    return;
+  }
+
+  const user = appState.currentUser;
+  const isUsed = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
+
+  if (isUsed) {
+    showToast("كود الخصم هذا تم استخدامه بالفعل مسبقاً! كل حساب له كود يعمل لمرة واحدة فقط.", "error");
+    return;
+  }
+
+  navigator.clipboard?.writeText(user.couponCode);
+  showToast(`تم نسخ كود خصمك (${user.couponCode}) وتطبيقه تلقائياً! 🎉`, "success");
+  applyCouponCode(user.couponCode);
+}
+
+/**
+ * تسجيل الخروج
+ */
+function handleGoogleSignOut() {
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+  }
+
+  appState.currentUser = null;
+  localStorage.removeItem('shatha_google_user');
+  
+  // إلغاء الكوبون الحالي إذا كان كوبون المستخدم المسجل
+  appState.appliedCoupon = null;
+  localStorage.removeItem('shatha_applied_coupon');
+  
+  const dropdown = document.getElementById("userDropdownMenu");
+  dropdown?.classList.remove("show");
+
+  updateAuthUI();
+  updateCartUI();
+
+  showToast("تم تسجيل الخروج بنجاح", "info");
+}
+

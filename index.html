@@ -18,25 +18,29 @@
   <!-- أيقونات Font Awesome الحديثة -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
+  <!-- مكتبة Google Identity Services لتسجيل الدخول بجوجل -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
   <!-- ملف التنسيقات الفاخر لشذى -->
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-  <!-- شريط الإعلانات العلوي وكوبون الخصم الترحيبي -->
-  <aside class="top-announcement-bar" aria-label="شريط العروض الترويجية">
+  <!-- شريط الإعلانات العلوي وكوبون تسجيل الدخول بجوجل -->
+  <aside class="top-announcement-bar" id="topAnnouncementBar" aria-label="شريط الحساب وكوبون الخصم">
     <div class="container">
-      <div class="bar-content">
-        <span>🌸 مرحباً بك في <strong>شذى</strong> - خصم 10% لأول طلب بكود:</span>
-        <div class="coupon-pill" id="couponPill" title="اضغط لنسخ كود الخصم وتطبيقه">
+      <div class="bar-content" id="authBarLoggedOut">
+        <span class="auth-bar-msg"><i class="fab fa-google"></i> سجّل دخولك بحساب Google للحصول على كود خصم 10% لطلبك (يُستخدم مرة واحدة):</span>
+        <div id="googleSignInBtnTop"></div>
+      </div>
+      <div class="bar-content" id="authBarLoggedIn" style="display: none;">
+        <span class="auth-bar-msg">🎉 أهلاً بك يا <strong id="loggedInUserName"></strong>! كود خصمك الحصري (10%):</span>
+        <div class="coupon-pill" id="couponPill" title="اضغط لنسخ كود الخصم وتطبيقه تلقائياً">
           <i class="fas fa-ticket-alt"></i>
-          <span class="coupon-code-text">SHATHA10</span>
+          <span class="coupon-code-text" id="userCouponCode">--</span>
           <i class="far fa-copy"></i>
         </div>
-        <span>| شغل يدوي عالي الجودة يدوم للأبد |</span>
-        <a href="https://wa.me/201102541236" target="_blank" class="bar-phone-link">
-          <i class="fab fa-whatsapp"></i> 01102541236
-        </a>
+        <span id="couponStatusBadge" class="coupon-status-badge">متاح للاستخدام مرة واحدة</span>
       </div>
     </div>
   </aside>
@@ -65,8 +69,35 @@
           </ul>
         </nav>
 
-        <!-- أدوات الهيدر والسلة -->
+        <!-- أدوات الهيدر والسلة وحساب المستخدم -->
         <div class="header-actions">
+          <!-- عنصر ملف المستخدم عند تسجيل الدخول -->
+          <div class="user-auth-widget" id="userAuthWidget" style="display: none;">
+            <div class="user-profile-btn" id="userProfileBtn" title="الملف الشخصي وكود الخصم">
+              <img id="userAvatarImg" src="" alt="صورة الحساب" class="user-avatar-mini">
+              <span class="user-name-short" id="userNameShort"></span>
+              <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+            </div>
+            <!-- قائمة منسدلة للحساب -->
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+              <div class="dropdown-user-info">
+                <strong id="dropdownFullName"></strong>
+                <small id="dropdownEmail"></small>
+              </div>
+              <div class="dropdown-coupon-box">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">كود الخصم الخاص بك:</span>
+                <div class="dropdown-coupon-code" id="dropdownCouponCode" onclick="copyMyCoupon()">
+                  <span id="dropdownCouponVal">--</span>
+                  <i class="far fa-copy"></i>
+                </div>
+                <small id="dropdownCouponStatus" style="color: #27AE60; font-weight: 600; font-size: 0.78rem;">متاح للاستخدام (مرة واحدة)</small>
+              </div>
+              <button type="button" class="btn-logout" id="logoutBtn" onclick="handleGoogleSignOut()">
+                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+              </button>
+            </div>
+          </div>
+
           <button class="action-btn" id="headerSearchBtn" onclick="document.getElementById('productSearchInput').focus(); document.getElementById('products').scrollIntoView({behavior: 'smooth'});" title="بحث في المنتجات" aria-label="بحث في المنتجات">
             <i class="fas fa-search"></i>
           </button>
@@ -128,7 +159,7 @@
 
         <div class="hero-visual">
           <div class="hero-main-card">
-            <img src="../../.gemini/antigravity/brain/dfe6b8d2-cc57-42a7-9078-a02977a9ee0d/.user_uploaded/media_1788902357259.jpg" alt="بوكيه شذى الستان الملكي الهاندميد">
+            <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.16.00 AM.jpeg" alt="بوكيه شذى الستان الملكي الهاندميد">
           </div>
           <div class="floating-badge badge-top">
             <div class="badge-icon"><i class="fas fa-gift"></i></div>
@@ -225,7 +256,7 @@
     <div class="container">
       <div class="about-grid">
         <div class="about-image-composition">
-          <img src="../../.gemini/antigravity/brain/dfe6b8d2-cc57-42a7-9078-a02977a9ee0d/.user_uploaded/media_1788903555534.jpg" alt="بوكيه النقود الملكي بالورود البيضاء من شذى" class="about-img-main">
+          <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.15.59 AM.jpeg" alt="بوكيه النقود الملكي بالورود البيضاء من شذى" class="about-img-main">
           <div class="about-logo-overlay">
             <img src="assets/images/logo.jpg" alt="لوجو شذى">
           </div>
@@ -484,7 +515,7 @@
     <!-- تذييل السلة وحساب الإجمالي -->
     <div class="cart-drawer-footer">
       <div class="coupon-input-group">
-        <input type="text" id="couponInput" placeholder="كود الخصم (SHATHA10)" aria-label="كود الخصم">
+        <input type="text" id="couponInput" placeholder="أدخل كود الخصم الخاص بك" aria-label="كود الخصم">
         <button type="button" id="applyCouponBtn">تطبيق</button>
       </div>
 
@@ -656,19 +687,9 @@
           <textarea id="checkoutAddress" rows="2" placeholder="اكتب العنوان بدقة ليصل مندوبنا سريعاً..." required></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="form-group form-group-full">
           <label for="checkoutDate">تاريخ التوصيل المطلوب</label>
           <input type="date" id="checkoutDate">
-        </div>
-
-        <div class="form-group">
-          <label for="checkoutTime">الفترة الزمنية المفضلة</label>
-          <select id="checkoutTime">
-            <option value="في أسرع وقت اليوم (عاجل)">في أسرع وقت اليوم (عاجل 3-5 ساعات)</option>
-            <option value="الفترة الصباحية (10 ص - 2 ظ)">الفترة الصباحية (10:00 ص - 2:00 ظ)</option>
-            <option value="الفترة المسائية (3 ظ - 7 م)">الفترة المسائية (3:00 ظ - 7:00 م)</option>
-            <option value="فترة المساء والسهرة (7 م - 11 م)">فترة المساء والسهرة (7:00 م - 11:00 م)</option>
-          </select>
         </div>
 
         <!-- بيانات كارت الإهداء (اختياري) -->
@@ -695,19 +716,15 @@
 
       <!-- تحديد طريقة الدفع -->
       <div class="payment-methods-selector">
-        <h5>طريقة الدفع المفضلة:</h5>
+        <h5>طريقة الدفع:</h5>
         <div class="payment-options-grid">
-          <div class="payment-option-card selected" data-method="cod">
-            <i class="fas fa-money-bill-wave"></i>
-            <h6>كاش عند الاستلام</h6>
+          <div class="payment-option-card selected" data-method="vodafone">
+            <i class="fas fa-mobile-screen-button" style="color: #E60000;"></i>
+            <h6>فودافون كاش / محافظ إلكترونية</h6>
           </div>
           <div class="payment-option-card" data-method="instapay">
-            <i class="fas fa-bolt"></i>
-            <h6>InstaPay / فودافون كاش</h6>
-          </div>
-          <div class="payment-option-card" data-method="visa">
-            <i class="fab fa-cc-visa"></i>
-            <h6>فيزا / ماستركارد</h6>
+            <i class="fas fa-bolt" style="color: #8E44AD;"></i>
+            <h6>InstaPay إنستاباي</h6>
           </div>
         </div>
       </div>

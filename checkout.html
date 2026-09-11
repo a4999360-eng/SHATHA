@@ -234,12 +234,55 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .input-field-error {
+      border: 2px solid #E74C3C !important;
+      background: #FFF5F5 !important;
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
     @media (max-width: 992px) {
       .checkout-main-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
       }
       .order-sidebar-summary {
         position: static;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .checkout-page-wrap {
+        padding: 20px 0 60px;
+      }
+      .checkout-card {
+        padding: 20px 16px;
+        border-radius: var(--radius-md);
+      }
+      .checkout-card-header h3 {
+        font-size: 1.1rem;
+      }
+      .btn-submit-order-whatsapp {
+        padding: 16px;
+        font-size: 1.05rem;
+      }
+      .vf-number-text {
+        font-size: 1.1rem;
+      }
+      .vf-number-pill {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .btn-copy-number {
+        width: 100%;
+        justify-content: center;
       }
     }
   </style>
@@ -316,15 +359,36 @@
 
             <div class="checkout-form-grid">
               <div class="form-group form-group-full">
-                <label for="cGovernorate">المحافظة / المنطقة *</label>
-                <select id="cGovernorate">
+                <label for="cGovernorate">المحافظة / المنطقة * (اختر محافظتك من القائمة أو حددها)</label>
+                <select id="cGovernorate" required>
                   <option value="cairo" data-price="50">القاهرة (توصيل سريع 3-5 ساعات) - 50 ج.م</option>
                   <option value="giza" data-price="60">الجيزة و6 أكتوبر والشيخ زايد - 60 ج.م</option>
-                  <option value="new-cairo" data-price="50">القاهرة الجديدة والتجمع والرحاب ومدينتي - 50 ج.م</option>
-                  <option value="alexandria" data-price="90">الإسكندرية والساحل الشمالي - 90 ج.م</option>
-                  <option value="delta" data-price="100">محافظات الدلتا (المنصورة، طنطا، الزقازيق) - 100 ج.م</option>
-                  <option value="canal" data-price="110">محافظات القناة (السويس، بورسعيد، الإسماعيلية) - 110 ج.م</option>
-                  <option value="upper-egypt" data-price="130">محافظات الصعيد - 130 ج.م</option>
+                  <option value="new-cairo" data-price="50">القاهرة الجديدة والتجمع والرحاب ومدينتي والعاصمة الإدارية - 50 ج.م</option>
+                  <option value="alexandria" data-price="80">الإسكندرية والساحل الشمالي - 80 ج.م</option>
+                  <option value="qalyubia" data-price="60">القليوبية (بنها، شبرا الخيمة، العبور) - 60 ج.م</option>
+                  <option value="sharqia" data-price="80">الشرقية (الزقازيق، العاشر من رمضان) - 80 ج.م</option>
+                  <option value="dakahlia" data-price="80">الدقهلية (المنصورة، ميت غمر) - 80 ج.م</option>
+                  <option value="gharbia" data-price="80">الغربية (طنطا، المحلة الكبرى) - 80 ج.م</option>
+                  <option value="menofia" data-price="75">المنوفية (شبين الكوم، قويسنا، السادات) - 75 ج.م</option>
+                  <option value="beheira" data-price="85">البحيرة (دمنهور، كفر الدوار) - 85 ج.م</option>
+                  <option value="kafr-el-sheikh" data-price="85">كفر الشيخ - 85 ج.م</option>
+                  <option value="damietta" data-price="85">دمياط ودمياط الجديدة - 85 ج.م</option>
+                  <option value="port-said" data-price="85">بورسعيد وبورفؤاد - 85 ج.م</option>
+                  <option value="ismailia" data-price="85">الإسماعيلية - 85 ج.م</option>
+                  <option value="suez" data-price="85">السويس والعين السخنة - 85 ج.م</option>
+                  <option value="fayoum" data-price="90">الفيوم - 90 ج.م</option>
+                  <option value="beni-suef" data-price="90">بني سويف - 90 ج.م</option>
+                  <option value="minya" data-price="100">المنيا - 100 ج.م</option>
+                  <option value="assiut" data-price="100">أسيوط - 100 ج.م</option>
+                  <option value="sohag" data-price="110">سوهاج - 110 ج.م</option>
+                  <option value="qena" data-price="120">قنا - 120 ج.م</option>
+                  <option value="luxor" data-price="120">الأقصر - 120 ج.م</option>
+                  <option value="aswan" data-price="130">أسوان - 130 ج.م</option>
+                  <option value="red-sea" data-price="130">البحر الأحمر (الغردقة، الجونة، سفاجا) - 130 ج.م</option>
+                  <option value="south-sinai" data-price="130">جنوب سيناء (شرم الشيخ، دهب) - 130 ج.م</option>
+                  <option value="north-sinai" data-price="130">شمال سيناء (العريش) - 130 ج.م</option>
+                  <option value="matrouh" data-price="120">مطروح والساحل الشمالي الغربي - 120 ج.م</option>
+                  <option value="new-valley" data-price="140">الوادي الجديد - 140 ج.م</option>
                 </select>
               </div>
 
@@ -342,19 +406,9 @@
                 <small style="color: var(--text-muted); display: block; margin-top: 4px;">يساعد هذا المندوب في الوصول إليك مباشرة وبأقصى سرعة.</small>
               </div>
 
-              <div class="form-group">
+              <div class="form-group form-group-full">
                 <label for="cDate">تاريخ التوصيل المطلوب</label>
                 <input type="date" id="cDate">
-              </div>
-
-              <div class="form-group">
-                <label for="cTime">الوقت المفضل للاستلام</label>
-                <select id="cTime">
-                  <option value="في أسرع وقت اليوم (عاجل)">في أسرع وقت اليوم (عاجل 3-5 ساعات)</option>
-                  <option value="الفترة الصباحية (10 ص - 2 ظ)">الفترة الصباحية (10:00 ص - 2:00 ظ)</option>
-                  <option value="الفترة المسائية (3 ظ - 7 م)">الفترة المسائية (3:00 ظ - 7:00 م)</option>
-                  <option value="فترة المساء والسهرة (7 م - 11 م)">فترة المساء والسهرة (7:00 م - 11:00 م)</option>
-                </select>
               </div>
             </div>
           </div>
@@ -393,13 +447,7 @@
               <!-- فودافون كاش -->
               <div class="payment-option-card selected" id="optVodafone" onclick="selectPaymentMethod('vodafone')">
                 <i class="fas fa-mobile-screen-button" style="color: #E60000;"></i>
-                <h6 style="color: #C40000; font-weight: 800;">فودافون كاش / محافظ</h6>
-              </div>
-
-              <!-- كاش عند الاستلام -->
-              <div class="payment-option-card" id="optCod" onclick="selectPaymentMethod('cod')">
-                <i class="fas fa-money-bill-wave"></i>
-                <h6>كاش عند الاستلام</h6>
+                <h6 style="color: #C40000; font-weight: 800;">فودافون كاش / محافظ إلكترونية</h6>
               </div>
 
               <!-- إنستاباي -->
@@ -448,12 +496,6 @@
               </div>
             </div>
 
-            <!-- صندوق معلومات الكاش عند الاستلام -->
-            <div id="codBox" style="display: none; background: var(--bg-surface); padding: 15px; border-radius: var(--radius-md); font-size: 0.9rem; color: var(--text-main); margin-top: 15px;">
-              <i class="fas fa-check-circle" style="color: #27AE60;"></i>
-              <span>يتم سداد كامل المبلغ نقداً لمندوب التوصيل فور استلام الباقة ومعاينتها.</span>
-            </div>
-
             <!-- صندوق معلومات إنستاباي -->
             <div id="instapayBox" style="display: none; background: #F8F4FA; border: 1px solid #D7BDE2; padding: 15px; border-radius: var(--radius-md); font-size: 0.9rem; color: #5B2C6F; margin-top: 15px;">
               <i class="fas fa-bolt" style="color: #8E44AD;"></i>
@@ -476,7 +518,7 @@
 
             <!-- كوبون الخصم -->
             <div class="coupon-input-group" style="margin-bottom: 15px;">
-              <input type="text" id="checkoutCouponInput" placeholder="كود الخصم (SHATHA10)">
+              <input type="text" id="checkoutCouponInput" placeholder="أدخل كود الخصم (10%)">
               <button type="button" onclick="applyCouponInCheckout()">تطبيق</button>
             </div>
 
@@ -587,7 +629,7 @@
       const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       
       let discount = 0;
-      if (appliedCoupon && appliedCoupon.toUpperCase() === "SHATHA10") {
+      if (appliedCoupon && isCouponValid(appliedCoupon)) {
         discount = Math.round(subtotal * 0.10);
         document.getElementById("summaryDiscountRow").style.display = "flex";
         document.getElementById("summaryDiscount").innerText = `- ${discount} ج.م (10%)`;
@@ -606,20 +648,38 @@
       document.getElementById("summaryTotal").innerText = `${grandTotal} ج.م`;
     }
 
+    function isCouponValid(code) {
+      if (!code) return false;
+      const clean = code.trim().toUpperCase();
+      
+      // الكوبون الافتراضي
+      if (clean === "SHATHA10") return true;
+
+      // كوبون مستخدم جوجل
+      try {
+        const savedUser = localStorage.getItem('shatha_google_user');
+        if (savedUser) {
+          const user = JSON.parse(savedUser);
+          if (user.couponCode === clean) {
+            const isUsed = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
+            return !isUsed;
+          }
+        }
+      } catch (e) {}
+
+      return false;
+    }
+
     function selectPaymentMethod(method) {
       selectedMethod = method;
       document.querySelectorAll(".payment-option-card").forEach(c => c.classList.remove("selected"));
 
       document.getElementById("vodafoneBox").style.display = "none";
-      document.getElementById("codBox").style.display = "none";
       document.getElementById("instapayBox").style.display = "none";
 
       if (method === "vodafone") {
         document.getElementById("optVodafone").classList.add("selected");
         document.getElementById("vodafoneBox").style.display = "block";
-      } else if (method === "cod") {
-        document.getElementById("optCod").classList.add("selected");
-        document.getElementById("codBox").style.display = "block";
       } else if (method === "instapay") {
         document.getElementById("optInstapay").classList.add("selected");
         document.getElementById("instapayBox").style.display = "block";
@@ -633,37 +693,102 @@
 
     function applyCouponInCheckout() {
       const code = document.getElementById("checkoutCouponInput")?.value.trim().toUpperCase();
-      if (code === "SHATHA10") {
+      if (!code) {
+        showToast("يرجى إدخال كود الخصم", "info");
+        return;
+      }
+
+      // فحص إذا كان كود مستخدم جوجل مستهلكاً
+      try {
+        const savedUser = localStorage.getItem('shatha_google_user');
+        if (savedUser) {
+          const user = JSON.parse(savedUser);
+          if (user.couponCode === code) {
+            const isUsed = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
+            if (isUsed) {
+              showToast("عذراً، هذا الكود تم استخدامه بالفعل مسبقاً! كل حساب له استخدام لمرة واحدة فقط.", "error");
+              return;
+            }
+          }
+        }
+      } catch (e) {}
+
+      if (isCouponValid(code)) {
         appliedCoupon = code;
         localStorage.setItem('shatha_applied_coupon', code);
         calculateCheckoutTotals();
         showToast("تم تطبيق خصم 10% بنجاح! 🎉", "success");
       } else {
-        showToast("كود الخصم غير صحيح", "error");
+        showToast("عذراً، كود الخصم غير صالح أو غير مرتبط بحسابك", "error");
       }
     }
 
-    // تأكيد وإرسال الطلب النهائي عبر محادثة الواتساب
+    // تأكيد وإرسال الطلب النهائي عبر محادثة الواتساب (يشترط ملء كافة بيانات التواصل)
     function submitFinalOrderToWhatsApp() {
       if (!cartItems || cartItems.length === 0) {
-        showToast("سلة المشتريات فارغة!", "error");
+        showToast("سلة المشتريات فارغة! يرجى إضافة باقات أولاً", "error");
         return;
       }
 
-      const name = document.getElementById("cName")?.value.trim();
-      const phone = document.getElementById("cPhone")?.value.trim();
-      const address = document.getElementById("cAddress")?.value.trim();
-      const landmark = document.getElementById("cLandmark")?.value.trim();
-      const date = document.getElementById("cDate")?.value || "اليوم";
-      const time = document.getElementById("cTime")?.value || "توصيل سريع";
+      const nameInput = document.getElementById("cName");
+      const phoneInput = document.getElementById("cPhone");
+      const addressInput = document.getElementById("cAddress");
+      const landmarkInput = document.getElementById("cLandmark");
+
+      const name = nameInput?.value.trim();
+      const phone = phoneInput?.value.trim();
+      const address = addressInput?.value.trim();
+      const landmark = landmarkInput?.value.trim();
+      const date = document.getElementById("cDate")?.value || "في أسرع وقت";
 
       // كارت الإهداء
       const sender = document.getElementById("cSender")?.value.trim();
       const recipient = document.getElementById("cRecipient")?.value.trim();
       const message = document.getElementById("cMessage")?.value.trim();
 
-      if (!name || !phone || !address || !landmark) {
-        showToast("يرجى ملء الاسم، ورقم الواتساب، والعنوان، ومكانك بجوار إيه بالتفصيل!", "error");
+      // إزالة علامات الخطأ السابقة
+      [nameInput, phoneInput, addressInput, landmarkInput].forEach(el => el?.classList.remove("input-field-error"));
+
+      const missingFields = [];
+      let firstInvalidInput = null;
+
+      if (!name) {
+        missingFields.push("الاسم بالكامل");
+        nameInput?.classList.add("input-field-error");
+        if (!firstInvalidInput) firstInvalidInput = nameInput;
+      }
+
+      if (!phone) {
+        missingFields.push("رقم هاتف الواتساب");
+        phoneInput?.classList.add("input-field-error");
+        if (!firstInvalidInput) firstInvalidInput = phoneInput;
+      } else {
+        // التحقق من صحة رقم الهاتف المصري
+        const cleanPhone = phone.replace(/[\s-]/g, '');
+        if (cleanPhone.length < 10) {
+          missingFields.push("رقم هاتف صحيح (11 رقم)");
+          phoneInput?.classList.add("input-field-error");
+          if (!firstInvalidInput) firstInvalidInput = phoneInput;
+        }
+      }
+
+      if (!address) {
+        missingFields.push("العنوان بالتفصيل");
+        addressInput?.classList.add("input-field-error");
+        if (!firstInvalidInput) firstInvalidInput = addressInput;
+      }
+
+      if (!landmark) {
+        missingFields.push("المكان فين بالظبط وبجوار إيه");
+        landmarkInput?.classList.add("input-field-error");
+        if (!firstInvalidInput) firstInvalidInput = landmarkInput;
+      }
+
+      // إذا كان هناك أي حقل ناقص، منع الطلب فوراً وتنبيه العميل
+      if (missingFields.length > 0) {
+        firstInvalidInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstInvalidInput?.focus();
+        showToast(`يرجى استكمال بيانات التواصل الإلزامية: ${missingFields.join("، ")}`, "error");
         return;
       }
 
@@ -672,14 +797,12 @@
       const shippingPrice = parseInt(govSelect.options[govSelect.selectedIndex].getAttribute("data-price") || "50");
 
       const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const discount = (appliedCoupon && appliedCoupon === "SHATHA10") ? Math.round(subtotal * 0.10) : 0;
+      const discount = (appliedCoupon && isCouponValid(appliedCoupon)) ? Math.round(subtotal * 0.10) : 0;
       const grandTotal = subtotal - discount + shippingPrice;
 
       let paymentText = "";
       if (selectedMethod === "vodafone") {
         paymentText = `فودافون كاش (على 01152998910 أو 01002398698) - مرفق اسكرين شوت التحويل الآن 📸`;
-      } else if (selectedMethod === "cod") {
-        paymentText = `الدفع كاش عند الاستلام`;
       } else {
         paymentText = `إنستاباي InstaPay`;
       }
@@ -690,10 +813,10 @@
       waMsg += `👤 *بيانات العميل والتوصيل:*\n`;
       waMsg += `• *الاسم:* ${name}\n`;
       waMsg += `• *رقم الهاتف:* ${phone}\n`;
-      waMsg += `• *المنطقة/المحافظة:* ${govName}\n`;
+      waMsg += `• *المحافظة/المنطقة:* ${govName}\n`;
       waMsg += `• *العنوان:* ${address}\n`;
       waMsg += `• *المكان بالتفصيل بجوار:* ${landmark} 📍\n`;
-      waMsg += `• *موعد التسليم المطلوب:* ${date} (${time})\n\n`;
+      waMsg += `• *موعد التسليم المطلوب:* ${date}\n\n`;
 
       waMsg += `💐 *المنتجات والباقات المطلوبة:*\n`;
       cartItems.forEach((item, index) => {
@@ -722,8 +845,23 @@
       }
       waMsg += `شذى.. اختار حاجه تعيش معاك العمر كلووو ✨`;
 
-      // تفريغ السلة بعد نجاح التجهيز
+      // تعليم كود مستخدم جوجل كمستهلك لمرة واحدة فقط
+      try {
+        const savedUser = localStorage.getItem('shatha_google_user');
+        if (savedUser) {
+          const user = JSON.parse(savedUser);
+          if (user.couponCode === appliedCoupon) {
+            localStorage.setItem(`shatha_coupon_used_${user.id}`, 'true');
+            user.couponUsed = true;
+            localStorage.setItem('shatha_google_user', JSON.stringify(user));
+          }
+        }
+      } catch (e) {}
+
+      // تفريغ السلة والكوبون بعد نجاح التجهيز
       localStorage.removeItem('shatha_cart_items');
+      localStorage.removeItem('shatha_applied_coupon');
+      appliedCoupon = null;
 
       // توجيه العميل لرقم الواتساب 01102541236
       const waUrl = `https://wa.me/${WA_STORE_PHONE}?text=${encodeURIComponent(waMsg)}`;
