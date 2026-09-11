@@ -220,10 +220,16 @@
   <!-- قسم المنتجات والبحث والفرز (جميع المنتجات معاً بدون فئات) -->
   <section class="products-section" id="products">
     <div class="container">
-      <div class="section-header" style="margin-bottom: 25px;">
-        <span class="section-subtitle">إبداعات شذى اليدوية</span>
-        <h2 class="section-title">تشكيلة الباقات والتنسيقات المصنوعة يدوياً</h2>
-        <p class="section-desc">جميع الباقات مشغولة يدوياً بحرفية عالية؛ بوكيهات ورد ستان تدوم للأبد، وبوكيهات فلوس للمناسبات، وبوكيهات سكاكر مبهجة.</p>
+      <div class="section-header" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
+        <div>
+          <span class="section-subtitle">إبداعات شذى اليدوية</span>
+          <h2 class="section-title" style="margin-bottom: 6px;">تشكيلة الباقات والتنسيقات المصنوعة يدوياً</h2>
+          <p class="section-desc" style="margin-bottom: 0;">جميع الباقات مشغولة يدوياً بحرفية عالية؛ ورد ستان يدوم للأبد، وبوكيهات فلوس، وبوكيهات سكاكر مبهجة.</p>
+        </div>
+        <button type="button" class="btn-primary" onclick="openAddProductModal()" style="background: #27AE60; white-space: nowrap; padding: 10px 22px; font-size: 0.95rem;">
+          <i class="fas fa-plus-circle"></i>
+          <span>إضافة منتج جديد للموقع</span>
+        </button>
       </div>
 
       <!-- شريط البحث والفرز -->
@@ -651,6 +657,187 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- نافذة إضافة منتج جديد بخطوات سلسة (Add Product Wizard Modal) -->
+  <section class="checkout-modal" id="addProductModal" aria-label="إضافة منتج جديد" style="max-width: 780px;">
+    <div class="checkout-modal-header">
+      <h3>
+        <i class="fas fa-plus-circle" style="color: #27AE60;"></i>
+        <span>نظام إضافة منتج وباقة جديدة لشذى</span>
+      </h3>
+      <button class="close-drawer-btn" onclick="closeAddProductModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- مؤشر الخطوات الأربع -->
+    <div style="display: flex; justify-content: space-between; background: var(--bg-body); padding: 10px 15px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border-subtle); gap: 6px; overflow-x: auto;">
+      <div class="step-badge-nav active" id="wizardTab1" onclick="switchWizardStep(1)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); padding: 6px 12px; border-radius: var(--radius-full); background: var(--primary-soft);">
+        <span style="background: var(--primary-pink); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">1</span>
+        <span>البيانات والاسم</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab2" onclick="switchWizardStep(2)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">2</span>
+        <span>صور المنتج</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab3" onclick="switchWizardStep(3)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">3</span>
+        <span>السعر والأحجام</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab4" onclick="switchWizardStep(4)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">4</span>
+        <span>الخامات والحفظ</span>
+      </div>
+    </div>
+
+    <form id="wizardProductForm" onsubmit="handleWizardProductSubmit(event)">
+
+      <!-- الخطوة 1: البيانات والاسم -->
+      <div id="wizardStep1">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-tag" style="color: var(--primary-pink);"></i> الخطوة 1: اسم الباقة وسعرها والوصف
+        </h4>
+        <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label><span style="color: #E74C3C;">*</span> اسم الباقة / المنتج:</label>
+            <input type="text" id="wName" class="form-control" placeholder="مثال: بوكيه ورد ستan موف ملكي هاندميد" required>
+          </div>
+          <div class="form-group">
+            <label><span style="color: #E74C3C;">*</span> السعر الأساسي (ج.م):</label>
+            <input type="number" id="wBasePrice" class="form-control" placeholder="مثال: 450" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>السعر قبل الخصم (اختياري):</label>
+            <input type="number" id="wOldPrice" class="form-control" placeholder="مثال: 550">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>شارة التمييز (Tag):</label>
+            <input type="text" id="wTag" class="form-control" placeholder="مثال: شغل يدوي فاخر • يدوم للأبد">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label><span style="color: #E74C3C;">*</span> وصف الباقة ومكوناتها:</label>
+            <textarea id="wShortDesc" class="form-control" rows="3" placeholder="اكتب وصفاً مفصلاً يوضح الخامات ولون الستان وطريقة التغليف..." required></textarea>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" class="btn-primary" onclick="switchWizardStep(2)">
+            <span>متابعة لصور المنتج</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 2: الصور وتعدد الزوايا -->
+      <div id="wizardStep2" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-camera" style="color: var(--primary-pink);"></i> الخطوة 2: صور الباقة وتعدد الزوايا
+        </h4>
+        
+        <!-- رفع الصور من الجهاز -->
+        <div onclick="document.getElementById('wFileInput').click()" style="border: 2px dashed var(--primary-pink); background: var(--primary-soft); padding: 25px 15px; border-radius: var(--radius-md); text-align: center; cursor: pointer; margin-bottom: 14px;">
+          <i class="fas fa-cloud-upload-alt" style="font-size: 2.2rem; color: var(--primary-pink); margin-bottom: 8px;"></i>
+          <h5 style="color: var(--primary-dark); margin-bottom: 4px;">اضغط لاختيار صور من جهازك (موبايل أو كمبيوتر)</h5>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">يمكنك رفع صورة أو عدة صور للباقة من زوايا مختلفة</p>
+          <input type="file" id="wFileInput" accept="image/*" multiple style="display: none;" onchange="handleWizardFiles(this.files)">
+        </div>
+
+        <!-- إضافة مسار صورة من FLOURS -->
+        <div style="background: var(--bg-body); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 15px;">
+          <label style="font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 6px;">أو اكتب مسار صورة داخل فولدر FLOURS:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="wManualPath" class="form-control" style="font-size: 0.88rem;" placeholder="مثال: FLOURS/اسم_الصورة.jpeg">
+            <button type="button" class="btn-secondary" style="white-space: nowrap; padding: 8px 16px;" onclick="addWizardManualPath()">
+              <i class="fas fa-plus"></i> إضافة
+            </button>
+          </div>
+        </div>
+
+        <!-- المعاينة -->
+        <label style="font-size: 0.88rem; font-weight: 700;">الصور المرفوعة (<span id="wImagesCount">0</span>):</label>
+        <div id="wImagesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; margin-top: 8px; min-height: 90px; padding: 8px; background: var(--bg-body); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <!-- تظهر الصور هنا -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(1)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" class="btn-primary" onclick="switchWizardStep(3)">
+            <span>متابعة لضبط الأحجام</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 3: الأحجام والمقاسات -->
+      <div id="wizardStep3" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-sliders-h" style="color: var(--primary-pink);"></i> الخطوة 3: تحديد أحجام وتنسيقات الباقة
+        </h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 0.88rem; color: var(--text-muted);">حدد مقاسات وأسعار الباقة:</span>
+          <button type="button" class="btn-secondary" style="padding: 5px 12px; font-size: 0.82rem;" onclick="addWizardSizeRow()">
+            <i class="fas fa-plus"></i> إضافة مقاس
+          </button>
+        </div>
+
+        <div id="wSizesContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
+          <!-- صفوف المقاسات -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(2)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" class="btn-primary" onclick="switchWizardStep(4)">
+            <span>متابعة للخامات والنشر</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 4: الخامات والمميزات والنشر -->
+      <div id="wizardStep4" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-magic" style="color: var(--primary-pink);"></i> الخطوة 4: الخامات والمميزات والنشر الفوري
+        </h4>
+        
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>الخامات المستخدمة:</label>
+          <input type="text" id="wMaterials" class="form-control" placeholder="مثال: أشرطة ستان حريري تركي لامع، تغليف كوري سموكي أسود.">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>طريقة الصنع والإتقان اليدوي:</label>
+          <input type="text" id="wCraft" class="form-control" placeholder="مثال: طي وتشكيل بتلات الجوري بحرفية يدوية 100% تدوم العمر كله.">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>المميزات الإضافية (ميزة في كل سطر):</label>
+          <textarea id="wAdvantages" class="form-control" rows="3" placeholder="ورد ستان مصنوع يدوياً يدوم مدى الحياة ولا يذبل أبداً.&#10;لا يحتاج إلى ماء أو شمس أو عناية خاصة.&#10;كارت إهداء مطبوع مجاناً مع كل باقة."></textarea>
+        </div>
+
+        <div style="background: #E8F8F5; padding: 12px 16px; border-radius: var(--radius-md); border-right: 4px solid #27AE60; margin-bottom: 16px;">
+          <strong style="color: #27AE60; font-size: 0.95rem; display: block; margin-bottom: 3px;">
+            <i class="fas fa-check-circle"></i> نشر مباشر وفوري بالموقع
+          </strong>
+          <span style="font-size: 0.85rem; color: #2C3E50;">
+            سيظهر المنتج فوراً في الصفحة الرئيسية، والبحث، والسلة، وصفحة إتمام الطلب دون أي كود!
+          </span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(3)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="submit" class="btn-primary" style="background: #27AE60; padding: 12px 30px; font-size: 1.05rem;">
+            <i class="fas fa-save"></i> حفظ ونشر الباقة فوراً
+          </button>
+        </div>
+      </div>
+
+    </form>
   </section>
 
   <!-- نافذة إتمام الطلب وتأكيد الدفع والواتساب (Checkout Modal) -->

@@ -1200,3 +1200,262 @@ function handleGoogleSignOut() {
   showToast("تم تسجيل الخروج بنجاح", "info");
 }
 
+/* ==========================================================================
+   نظام إضافة المنتجات الذكي والمباشر لشذى (In-Page Product Wizard)
+   يتيح للمستخدم رفع الصور وإدخال الأسعار والأحجام والخامات دون تعديل الكود
+   ========================================================================== */
+
+let wizardCurrentStep = 1;
+let wizardImages = [];
+
+function openAddProductModal() {
+  const modal = document.getElementById("addProductModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (!modal) return;
+
+  wizardImages = [];
+  renderWizardImages();
+  initWizardSizes();
+  switchWizardStep(1);
+
+  backdrop?.classList.add("active");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeAddProductModal() {
+  const modal = document.getElementById("addProductModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  modal?.classList.remove("active");
+  backdrop?.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+function switchWizardStep(step) {
+  if (step === 2) {
+    const name = document.getElementById("wName")?.value.trim();
+    const price = document.getElementById("wBasePrice")?.value;
+    const desc = document.getElementById("wShortDesc")?.value.trim();
+    if (!name || !price || !desc) {
+      showToast("يرجى ملء اسم المنتج وسعره والوصف أولاً للمتابعة", "error");
+      return;
+    }
+  }
+
+  if (step === 3 && wizardImages.length === 0) {
+    showToast("يرجى اختيار صورة واحدة على الأقل للباقة للمتابعة", "error");
+    return;
+  }
+
+  wizardCurrentStep = step;
+
+  for (let i = 1; i <= 4; i++) {
+    const content = document.getElementById(`wizardStep${i}`);
+    const tab = document.getElementById(`wizardTab${i}`);
+    if (content) content.style.display = (i === step) ? "block" : "none";
+    if (tab) {
+      tab.style.background = (i === step) ? "var(--primary-soft)" : "transparent";
+      tab.style.color = (i === step) ? "var(--primary-dark)" : "var(--text-muted)";
+      const badge = tab.querySelector("span");
+      if (badge) {
+        badge.style.background = (i === step) ? "var(--primary-pink)" : "var(--border-subtle)";
+        badge.style.color = (i === step) ? "#FFFFFF" : "var(--text-main)";
+      }
+    }
+  }
+}
+
+// قراءة ملفات الصور المختارة من الجهاز
+function handleWizardFiles(files) {
+  if (!files || files.length === 0) return;
+
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      wizardImages.push(e.target.result);
+      renderWizardImages();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// إضافة مسار يدوي من مجلد FLOURS
+function addWizardManualPath() {
+  const input = document.getElementById("wManualPath");
+  const path = input?.value.trim();
+  if (!path) {
+    showToast("يرجى كتابة مسار الصورة أولاً", "error");
+    return;
+  }
+  wizardImages.push(path);
+  input.value = "";
+  renderWizardImages();
+  showToast("تمت إضافة مسار الصورة بنجاح!", "success");
+}
+
+function renderWizardImages() {
+  const grid = document.getElementById("wImagesGrid");
+  const counter = document.getElementById("wImagesCount");
+  if (counter) counter.innerText = wizardImages.length;
+  if (!grid) return;
+
+  if (wizardImages.length === 0) {
+    grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 15px;">لم تقم باختيار أي صورة بعد</div>`;
+    return;
+  }
+
+  grid.innerHTML = wizardImages.map((src, idx) => `
+    <div style="position: relative; aspect-ratio: 1/1; border-radius: var(--radius-sm); overflow: hidden; border: 1.5px solid var(--border-subtle); box-shadow: var(--shadow-sm);">
+      <img src="${src}" alt="صورة ${idx + 1}" style="width: 100%; height: 100%; object-fit: cover;">
+      <button type="button" onclick="removeWizardImage(${idx})" style="position: absolute; top: 3px; left: 3px; background: rgba(231,76,60,0.85); color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;" title="حذف الصورة">
+        <i class="fas fa-times"></i>
+      </button>
+      <span style="position: absolute; bottom: 0; right: 0; left: 0; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.65rem; text-align: center; padding: 2px 0;">
+        ${idx === 0 ? 'الرئيسية' : 'زاوية ' + (idx + 1)}
+      </span>
+    </div>
+  `).join('');
+}
+
+function removeWizardImage(index) {
+  wizardImages.splice(index, 1);
+  renderWizardImages();
+}
+
+// الأحجام الافتراضية
+function initWizardSizes() {
+  const container = document.getElementById("wSizesContainer");
+  if (!container) return;
+
+  const basePrice = document.getElementById("wBasePrice")?.value || 450;
+  container.innerHTML = `
+    <div class="wizard-size-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 35px; gap: 8px; background: #fff; padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); align-items: center;">
+      <input type="text" class="form-control wz-size-name" style="font-size: 0.85rem; padding: 8px;" placeholder="اسم المقاس" value="باقة كلاسيكية (15-18 زهرة)">
+      <input type="number" class="form-control wz-size-price" style="font-size: 0.85rem; padding: 8px;" placeholder="السعر" value="${basePrice}">
+      <input type="text" class="form-control wz-size-stems" style="font-size: 0.85rem; padding: 8px;" placeholder="التنسيق" value="15-18 زهرة ستان هاندميد">
+      <button type="button" onclick="this.closest('.wizard-size-row').remove()" style="color: #E74C3C; font-size: 0.9rem;" title="حذف المقاس"><i class="fas fa-trash"></i></button>
+    </div>
+    <div class="wizard-size-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 35px; gap: 8px; background: #fff; padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); align-items: center;">
+      <input type="text" class="form-control wz-size-name" style="font-size: 0.85rem; padding: 8px;" placeholder="اسم المقاس" value="باقة ديلوكس (25-30 زهرة)">
+      <input type="number" class="form-control wz-size-price" style="font-size: 0.85rem; padding: 8px;" placeholder="السعر" value="${Math.round(basePrice * 1.35)}">
+      <input type="text" class="form-control wz-size-stems" style="font-size: 0.85rem; padding: 8px;" placeholder="التنسيق" value="25-30 زهرة ستان هاندميد">
+      <button type="button" onclick="this.closest('.wizard-size-row').remove()" style="color: #E74C3C; font-size: 0.9rem;" title="حذف المقاس"><i class="fas fa-trash"></i></button>
+    </div>
+  `;
+}
+
+function addWizardSizeRow() {
+  const container = document.getElementById("wSizesContainer");
+  if (!container) return;
+
+  const row = document.createElement("div");
+  row.className = "wizard-size-row";
+  row.style = "display: grid; grid-template-columns: 1.5fr 1fr 1fr 35px; gap: 8px; background: #fff; padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); align-items: center;";
+  row.innerHTML = `
+    <input type="text" class="form-control wz-size-name" style="font-size: 0.85rem; padding: 8px;" placeholder="اسم المقاس" value="باقة ملكية ضخمة">
+    <input type="number" class="form-control wz-size-price" style="font-size: 0.85rem; padding: 8px;" placeholder="السعر" value="">
+    <input type="text" class="form-control wz-size-stems" style="font-size: 0.85rem; padding: 8px;" placeholder="التنسيق" value="تنسيق خاص VIP">
+    <button type="button" onclick="this.closest('.wizard-size-row').remove()" style="color: #E74C3C; font-size: 0.9rem;" title="حذف المقاس"><i class="fas fa-trash"></i></button>
+  `;
+  container.appendChild(row);
+}
+
+// حفظ المنتج وإدراجه فوراً في المتجر
+function handleWizardProductSubmit(e) {
+  e.preventDefault();
+
+  if (wizardImages.length === 0) {
+    switchWizardStep(2);
+    showToast("يرجى اختيار صورة واحدة على الأقل في الخطوة 2", "error");
+    return;
+  }
+
+  const name = document.getElementById("wName").value.trim();
+  const basePrice = parseFloat(document.getElementById("wBasePrice").value);
+  const oldPrice = parseFloat(document.getElementById("wOldPrice")?.value) || null;
+  const tag = document.getElementById("wTag")?.value.trim() || "شغل يدوي فاخر";
+  const shortDesc = document.getElementById("wShortDesc").value.trim();
+  const materials = document.getElementById("wMaterials")?.value.trim() || "أشرطة ستان حريري تركي فاخر عالي اللمعان، تغليف كوري سموكي أسود أنيق مقاوم للماء.";
+  const craftsmanship = document.getElementById("wCraft")?.value.trim() || "صناعة يدوية متقنة 100% - طي وتشكيل بتلات الجوري بحرفية لتدوم للأبد دون أن تذبل.";
+
+  const advText = document.getElementById("wAdvantages")?.value.trim();
+  const advantages = advText ? advText.split('\n').map(l => l.trim()).filter(l => l.length > 0) : [
+    "ورد ستان مصنوع يدوياً يدوم مدى الحياة ولا يذبل أبداً.",
+    "لا يحتاج إلى ماء أو شمس أو أي عناية خاصة.",
+    "كارت إهداء مطبوع مجاناً مع كل باقة."
+  ];
+
+  const sizeRows = document.querySelectorAll(".wizard-size-row");
+  const sizes = [];
+  sizeRows.forEach((row, i) => {
+    const sName = row.querySelector(".wz-size-name")?.value.trim() || `مقاس ${i + 1}`;
+    const sPrice = parseFloat(row.querySelector(".wz-size-price")?.value) || basePrice;
+    const sStems = row.querySelector(".wz-size-stems")?.value.trim() || "تنسيق خاص";
+    sizes.push({
+      id: `wz_size_${i}_${Date.now()}`,
+      name: sName,
+      price: sPrice,
+      stems: sStems,
+      sizeLabel: "مقاس قياسي",
+      desc: "صناعة يدوية متقنة بتنسيق شذى"
+    });
+  });
+
+  if (sizes.length === 0) {
+    sizes.push({
+      id: `wz_size_default_${Date.now()}`,
+      name: "باقة قياسية",
+      price: basePrice,
+      stems: "تنسيق يدوي",
+      sizeLabel: "قياسي",
+      desc: "صناعة يدوية متقنة بتنسيق شذى"
+    });
+  }
+
+  const newProduct = {
+    id: "custom_" + Date.now(),
+    name: name,
+    slug: "shatha-custom-" + Date.now(),
+    tag: tag,
+    isBestSeller: true,
+    basePrice: basePrice,
+    oldPrice: oldPrice,
+    rating: 5.0,
+    reviewsCount: 1,
+    stock: "متوفر حسب الطلب (صناعة يدوية خاصة)",
+    inStock: true,
+    shortDesc: shortDesc,
+    images: wizardImages,
+    materials: materials,
+    craftsmanship: craftsmanship,
+    sizes: sizes,
+    advantages: advantages,
+    reviews: [
+      { author: "عميل شذى", rating: 5, date: "الآن", comment: "منتج رائع ومتقن للغاية!" }
+    ],
+    isCustom: true
+  };
+
+  try {
+    let customList = [];
+    const stored = localStorage.getItem('shatha_custom_products');
+    if (stored) customList = JSON.parse(stored);
+    customList.unshift(newProduct);
+    localStorage.setItem('shatha_custom_products', JSON.stringify(customList));
+
+    // تحديث حالة المنتجات مباشرة في الصفحة دون الحاجة لإعادة التحميل
+    appState.products = loadAllProducts();
+    renderProducts();
+
+    closeAddProductModal();
+    showToast(`🎉 تم نشر باقة "${newProduct.name}" بنجاح على الموقع وتظهر الآن في المقدمة!`, "success");
+
+    // التمرير التلقائي لقسم المنتجات لرؤية المنتج الجديد
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+  } catch (err) {
+    console.error(err);
+    showToast("حدث خطأ أثناء حفظ المنتج، جرب استخدام صور أصغر حجماً", "error");
+  }
+}
+
