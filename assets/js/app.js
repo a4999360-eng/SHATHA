@@ -8,7 +8,7 @@
 const SHATHA_CONFIG = {
   storeName: "شذى للهدايا والورد المصنوع يدوياً",
   whatsappNumber: "201102541236", // 01102541236
-  googleClientId: "284827048208-hc6obl4l8srlb3m2cqq1p85b30bpdi66.apps.googleusercontent.com",
+  googleClientId: "452956702998-ivve5qvsvi174l08a3bbfep4cmkqn6o3.apps.googleusercontent.com",
   defaultCoupon: "SHATHA10",
   discountPercent: 10,
   freeShippingThreshold: 1000,
