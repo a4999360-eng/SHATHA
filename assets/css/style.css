@@ -55,6 +55,9 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 body {
@@ -65,7 +68,11 @@ body {
   color: var(--text-main);
   line-height: 1.6;
   overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+  position: relative;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 img {
@@ -703,26 +710,51 @@ button {
 }
 
 .filter-sort-group {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  background: linear-gradient(135deg, #FFF9F9 0%, #FFFFFF 100%);
+  border: 1.5px solid var(--border-subtle);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(191, 114, 121, 0.08);
+  transition: var(--transition);
+}
+
+.filter-sort-group:hover, .filter-sort-group:focus-within {
+  border-color: var(--primary-pink);
+  box-shadow: 0 4px 14px rgba(191, 114, 121, 0.18);
+}
+
+.sort-flower-badge {
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  animation: pulseFlower 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulseFlower {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(6deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
 
 .sort-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  white-space: nowrap;
 }
 
 .sort-select {
-  background: var(--bg-body);
-  border: 1px solid var(--border-subtle);
-  padding: 8px 16px;
-  border-radius: var(--radius-full);
-  font-size: 0.9rem;
-  color: var(--text-main);
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  font-size: 0.84rem;
+  color: var(--primary-dark);
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  outline: none;
 }
 
 /* شبكة بطاقات المنتجات */
@@ -2414,75 +2446,105 @@ button {
 }
 
 @media (max-width: 768px) {
-  /* تحسينات شريط التنقل والهيدر للموبايل */
+  /* شريط الإعلانات العلوي للموبايل */
+  .top-announcement-bar {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    overflow: hidden;
+  }
+
+  .top-announcement-bar .container {
+    padding: 0 8px;
+  }
+
+  .top-announcement-bar .bar-content {
+    flex-direction: row;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* تحسينات شريط التنقل والهيدر للموبايل ليبقى متناسقاً تماماً داخل إطار الهاتف */
   .main-header {
-    padding: 2px 0;
+    padding: 0;
   }
   
+  .main-header .container {
+    padding: 0 10px;
+  }
+
   .header-inner {
-    padding: 8px 0;
-    gap: 10px;
+    padding: 6px 0;
+    gap: 6px;
+  }
+
+  .brand-logo-wrap {
+    gap: 6px;
   }
 
   .brand-logo-img {
-    height: 46px;
+    height: 38px;
+    width: 38px;
   }
 
   .brand-title {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
+    line-height: 1.1;
   }
 
   .brand-subtitle {
-    font-size: 0.58rem;
-    letter-spacing: 1.2px;
+    font-size: 0.52rem;
+    letter-spacing: 0.8px;
   }
 
   .header-actions {
-    gap: 8px;
-  }
-
-  .action-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-
-  .user-profile-btn {
-    padding: 4px 8px;
-    font-size: 0.78rem;
     gap: 5px;
   }
 
+  .action-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.92rem;
+  }
+
+  .user-profile-btn {
+    padding: 3px 6px;
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+
   .user-avatar-mini {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
   }
 
   .user-name-short {
-    max-width: 60px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    max-width: 45px;
+    font-size: 0.72rem;
   }
 
   .nav-menu {
     position: fixed;
     top: 65px;
-    right: -100%;
+    right: 0;
+    transform: translateX(100%);
+    visibility: hidden;
     width: 280px;
+    max-width: 85vw;
     height: calc(100vh - 65px);
     background: #FFFFFF;
     flex-direction: column;
     align-items: flex-start;
     padding: 25px;
     box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
-    transition: var(--transition);
+    transition: transform 0.3s ease, visibility 0.3s ease;
     z-index: 999;
     gap: 18px;
   }
   
   .nav-menu.active {
-    right: 0;
+    transform: translateX(0);
+    visibility: visible;
   }
 
   .nav-link {
@@ -2510,9 +2572,10 @@ button {
     margin-bottom: 4px;
   }
 
-  /* قسم الهيرو للموبايل */
+  /* قسم الهيرو للموبايل بدون أي بروز أو حركة أفقية */
   .hero-section {
     padding: 25px 0 40px;
+    overflow: hidden;
   }
 
   .hero-title {
@@ -2564,8 +2627,19 @@ button {
   }
 
   .floating-badge {
-    padding: 8px 12px;
-    gap: 8px;
+    padding: 6px 10px;
+    gap: 6px;
+    max-width: calc(100% - 20px);
+  }
+
+  .floating-badge.badge-top {
+    right: 8px;
+    top: 15px;
+  }
+
+  .floating-badge.badge-bottom {
+    left: 8px;
+    bottom: 15px;
   }
 
   .floating-badge h5 {
@@ -2576,38 +2650,101 @@ button {
     font-size: 0.68rem;
   }
   
-  /* شبكة المنتجات للموبايل */
+  /* شبكة المنتجات للموبايل: بطاقات مدمجة وصغيرة بنظام عمودين متجاورين */
   .products-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
   }
 
   .product-card {
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 2px 8px rgba(104, 48, 54, 0.04) !important;
+    overflow: hidden;
   }
 
-  .product-card-img-wrap {
-    height: 280px;
+  .product-thumb-wrap {
+    aspect-ratio: 1/1 !important;
   }
 
-  .product-card-content {
-    padding: 16px;
+  .quick-view-overlay-btn {
+    display: none !important;
   }
 
-  .product-card-title {
-    font-size: 1.15rem;
+  .product-badge {
+    top: 6px !important;
+    right: 6px !important;
+    font-size: 0.62rem !important;
+    padding: 2px 6px !important;
   }
 
-  .product-card-footer {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
+  .product-info {
+    padding: 8px 6px 10px !important;
   }
 
-  .product-card-footer .btn-add-to-cart {
-    width: 100%;
-    justify-content: center;
-    padding: 12px;
+  .product-title {
+    font-size: 0.85rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 4px !important;
+    min-height: 2.6em;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-short-desc-text {
+    display: none !important;
+  }
+
+  .product-rating {
+    font-size: 0.72rem !important;
+    margin-bottom: 4px !important;
+    gap: 3px !important;
+  }
+
+  .product-rating .reviews-count {
+    display: none !important;
+  }
+
+  .product-price-row {
+    margin-bottom: 6px !important;
+    gap: 4px !important;
+    align-items: baseline !important;
+  }
+
+  .current-price {
+    font-size: 0.92rem !important;
+  }
+
+  .current-price .currency {
+    font-size: 0.7rem !important;
+  }
+
+  .old-price {
+    font-size: 0.7rem !important;
+  }
+
+  .product-card-actions {
+    display: flex !important;
+    gap: 4px !important;
+    margin-top: auto !important;
+  }
+
+  .btn-add-cart {
+    padding: 6px 4px !important;
+    font-size: 0.75rem !important;
+    gap: 3px !important;
+    flex: 1 !important;
+    border-radius: var(--radius-sm) !important;
+    justify-content: center !important;
+  }
+
+  .btn-whatsapp-direct {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    font-size: 0.9rem !important;
+    border-radius: var(--radius-sm) !important;
   }
 
   /* سلة المشتريات الجانبية على الموبايل */
@@ -2860,5 +2997,465 @@ button {
 
 .btn-logout:hover {
   background: #FADBD8;
+}
+
+/* ========================================================
+   تثبيت قائمة الحساب وتسجيل الخروج داخل إطار شاشة الهاتف تماماً
+   ======================================================== */
+@media (max-width: 768px) {
+  .user-dropdown-menu {
+    position: fixed !important;
+    top: 66px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: 320px !important;
+    margin: 0 auto !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
+    border: 1.5px solid var(--border-subtle) !important;
+    z-index: 1002 !important;
+  }
+}
+
+/* ========================================================
+   أدوات تحكم المالك: تعديل وحذف المنتجات
+   ======================================================== */
+.admin-card-badge-tools {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 5px;
+  z-index: 6;
+}
+
+.btn-admin-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: var(--transition);
+  border: 1.5px solid #FFFFFF;
+  cursor: pointer;
+}
+
+.btn-admin-icon.edit {
+  background: #E67E22;
+}
+
+.btn-admin-icon.edit:hover {
+  background: #D35400;
+  transform: scale(1.1);
+}
+
+.btn-admin-icon.delete {
+  background: #E74C3C;
+}
+
+.btn-admin-icon.delete:hover {
+  background: #C0392B;
+  transform: scale(1.1);
+}
+
+.modal-admin-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  background: #FEF9E7;
+  border: 1.5px dashed #F39C12;
+  border-radius: var(--radius-md);
+}
+
+.btn-modal-admin {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-modal-admin.edit {
+  background: #E67E22;
+}
+
+.btn-modal-admin.edit:hover {
+  background: #D35400;
+}
+
+.btn-modal-admin.delete {
+  background: #E74C3C;
+}
+
+.btn-modal-admin.delete:hover {
+  background: #C0392B;
+}
+
+/* ========================================================
+   نظام إضافة تقييمات وآراء العملاء
+   ======================================================== */
+.product-review-form-box {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.star-rating-select-group {
+  display: flex;
+  gap: 8px;
+  direction: ltr;
+  justify-content: flex-end;
+  margin: 6px 0 10px;
+}
+
+.star-rating-select-group i {
+  font-size: 1.4rem;
+  color: #CBD5E1;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.star-rating-select-group i.active,
+.star-rating-select-group i:hover {
+  color: #F5A623;
+}
+
+.testimonials-action-wrap {
+  text-align: center;
+  margin: 24px 0 10px;
+}
+
+.btn-toggle-store-review {
+  background: #FFFFFF;
+  color: var(--primary-pink);
+  border: 1.5px dashed var(--primary-pink);
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-toggle-store-review:hover {
+  background: var(--primary-soft);
+  transform: translateY(-2px);
+}
+
+.store-review-form-card {
+  max-width: 620px;
+  margin: 20px auto 30px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.store-review-form-card.active {
+  display: block;
+}
+
+/* أزرار حذف الآراء للمالك والعميل */
+.btn-del-review {
+  background: #FFF0F0;
+  color: #E74C3C;
+  border: 1px solid #FADBD8;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-right: 8px;
+}
+
+.btn-del-review:hover {
+  background: #E74C3C;
+  color: #FFFFFF;
+  transform: scale(1.1);
+}
+
+.testimonial-card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.btn-del-store-review {
+  background: #FFF0F0;
+  color: #E74C3C;
+  border: 1px solid #FADBD8;
+  border-radius: var(--radius-full);
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-del-store-review:hover {
+  background: #E74C3C;
+  color: #FFFFFF;
+}
+
+/* نافذة تسجيل الدخول الوردية الخاصة بشذى */
+.shatha-auth-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  width: 92%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(104, 48, 54, 0.25);
+  border: 2px solid var(--primary-light);
+  z-index: 1005;
+  display: none;
+  opacity: 0;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.shatha-auth-modal.active {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.shatha-auth-modal-close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.shatha-auth-modal-close:hover {
+  background: var(--primary-pink);
+  color: #fff;
+}
+
+.shatha-auth-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  border: 3px solid var(--primary-pink);
+  box-shadow: 0 4px 15px rgba(191, 114, 121, 0.25);
+  object-fit: cover;
+}
+
+.shatha-auth-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0 20px;
+  text-align: right;
+  background: var(--primary-soft);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--primary-pink);
+}
+
+.shatha-auth-perk-item {
+  font-size: 0.84rem;
+  color: var(--primary-dark);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-open-auth-modal {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid #FFFFFF;
+  color: #FFFFFF;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition);
+}
+
+.btn-open-auth-modal:hover {
+  background: #FFFFFF;
+  color: var(--primary-dark);
+}
+
+/* تنسيقات زر كتابة المحافظة يدوياً */
+.btn-toggle-custom-gov {
+  font-size: 0.8rem;
+  color: var(--primary-pink);
+  font-weight: 700;
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  text-decoration: underline;
+}
+
+.btn-toggle-custom-gov:hover {
+  color: var(--primary-dark);
+}
+
+/* =============================================
+   أزرار حذف التقييمات للمالك أو صاحب الرأي
+   ============================================= */
+.btn-del-review,
+.btn-del-store-review {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #E74C3C;
+  font-size: 0.8rem;
+  padding: 3px 7px;
+  border-radius: var(--radius-full);
+  transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0.7;
+}
+.btn-del-review:hover,
+.btn-del-store-review:hover {
+  background: #FDECEA;
+  opacity: 1;
+}
+
+.btn-del-store-review {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+/* =============================================
+   مودال تسجيل الدخول بشذى (Shatha Auth Modal)
+   ============================================= */
+#shathaAuthModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(104, 48, 54, 0.55);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+#shathaAuthModal.active {
+  display: flex;
+}
+.shatha-auth-modal-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: fadeInUp 0.35s ease;
+}
+.shatha-auth-modal-card .modal-close-x {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.shatha-auth-modal-card .modal-logo-wrap {
+  margin-bottom: 16px;
+}
+.shatha-auth-modal-card .modal-logo-wrap img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary-light);
+}
+.shatha-auth-modal-card h3 {
+  color: var(--primary-dark);
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+.shatha-auth-modal-card p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+.shatha-auth-modal-card .benefit-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 18px;
+  border: 1px solid var(--primary-light);
+}
+.shatha-auth-modal-card #googleSignInBtnModal {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 

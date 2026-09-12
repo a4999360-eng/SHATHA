@@ -65,22 +65,47 @@ function saveCartToStorage() {
   }
 }
 
-// دالة تحميل ودمج المنتجات الافتراضية مع المنتجات المضافة يدوياً
+// التحقق من هوية مالك المتجر
+function isCurrentUserOwner() {
+  return appState.currentUser && 
+         appState.currentUser.email && 
+         appState.currentUser.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+}
+
+// تحميل ودمج المنتجات مع التعديلات المحفوظة
 function loadAllProducts() {
-  let defaultProds = typeof SHATHA_PRODUCTS !== 'undefined' ? [...SHATHA_PRODUCTS] : [];
   try {
+    const savedAll = localStorage.getItem('shatha_all_products_v2');
+    if (savedAll) {
+      const parsed = JSON.parse(savedAll);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+
+    let defaultProds = typeof SHATHA_PRODUCTS !== 'undefined' ? [...SHATHA_PRODUCTS] : [];
     const customProdsJson = localStorage.getItem('shatha_custom_products');
     if (customProdsJson) {
       const customProds = JSON.parse(customProdsJson);
       if (Array.isArray(customProds) && customProds.length > 0) {
-        // المنتجات المضافة يدوياً تظهر أولاً في المقدمة
-        return [...customProds, ...defaultProds];
+        defaultProds = [...customProds, ...defaultProds];
       }
     }
+    localStorage.setItem('shatha_all_products_v2', JSON.stringify(defaultProds));
+    return defaultProds;
   } catch (e) {
-    console.warn("Error loading custom products:", e);
+    console.warn("Error loading products:", e);
   }
-  return defaultProds;
+  return typeof SHATHA_PRODUCTS !== 'undefined' ? [...SHATHA_PRODUCTS] : [];
+}
+
+// حفظ كافة المنتجات في التخزين المحلي
+function saveAllProductsToStorage() {
+  try {
+    localStorage.setItem('shatha_all_products_v2', JSON.stringify(appState.products));
+  } catch (e) {
+    console.error("Error saving products to storage:", e);
+  }
 }
 
 // بدء التشغيل
@@ -89,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCurrentUser();
   loadCartFromStorage();
   renderProducts();
+  renderStoreTestimonials();
   updateCartUI();
   setupEventListeners();
   setupShippingDropdown();
@@ -247,6 +273,8 @@ function renderProducts() {
     return;
   }
 
+  const isOwner = isCurrentUserOwner();
+
   grid.innerHTML = filtered.map(product => {
     const discountPercent = product.oldPrice ? Math.round(((product.oldPrice - product.basePrice) / product.oldPrice) * 100) : null;
     const badgeText = product.tag || (discountPercent ? `خصم ${discountPercent}%` : null);
@@ -256,6 +284,16 @@ function renderProducts() {
         <div class="product-thumb-wrap" onclick="openProductModal('${product.id}')">
           <img src="${product.images[0]}" alt="${product.name}" class="product-img" loading="lazy">
           ${badgeText ? `<span class="product-badge">${badgeText}</span>` : ''}
+          ${isOwner ? `
+            <div class="admin-card-badge-tools">
+              <button type="button" class="btn-admin-icon edit" onclick="event.stopPropagation(); openEditProductModal('${product.id}')" title="تعديل بيانات وصور الباقة">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button type="button" class="btn-admin-icon delete" onclick="event.stopPropagation(); deleteProductById('${product.id}')" title="حذف الباقة نهائياً من المتجر">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          ` : ''}
           <button class="quick-view-overlay-btn" type="button">
             <i class="fas fa-eye"></i> تفاصيل الباقة والزوايا (${product.images.length} صور)
           </button>
@@ -264,7 +302,7 @@ function renderProducts() {
         <div class="product-info">
           <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.name}</h3>
           
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          <p class="product-short-desc-text" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
             ${product.shortDesc}
           </p>
 
@@ -335,6 +373,28 @@ function openProductModal(productId) {
       thumbsContainer.style.display = "none";
     }
   }
+
+  // أدوات المالك داخل نافذة التفاصيل
+  const ownerTools = document.getElementById("modalOwnerTools");
+  const isOwner = isCurrentUserOwner();
+  if (ownerTools) {
+    if (isOwner) {
+      ownerTools.style.display = "flex";
+      ownerTools.innerHTML = `
+        <span style="font-weight: 700; color: #D35400; font-size: 0.85rem;"><i class="fas fa-crown"></i> إدارة الباقة (المالك):</span>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-modal-admin edit" onclick="openEditProductModal('${product.id}')"><i class="fas fa-pen"></i> تعديل محتوى الباقة</button>
+          <button type="button" class="btn-modal-admin delete" onclick="deleteProductById('${product.id}')"><i class="fas fa-trash-alt"></i> حذف الباقة</button>
+        </div>
+      `;
+    } else {
+      ownerTools.style.display = "none";
+    }
+  }
+
+  // إخفاء صندوق كتابة التقييم عند الفتح وتصفيره
+  const reviewFormBox = document.getElementById("prodReviewFormBox");
+  if (reviewFormBox) reviewFormBox.style.display = "none";
 
   // ملء النصوص والبيانات
   document.getElementById("modalProductTitle").innerText = product.name;
@@ -443,16 +503,307 @@ function renderModalReviews(product) {
     return;
   }
 
-  container.innerHTML = product.reviews.map(rev => `
+  const isOwner = isCurrentUserOwner();
+  const currentUserEmail = appState.currentUser?.email || null;
+
+  container.innerHTML = product.reviews.map((rev, idx) => {
+    const canDelete = isOwner || (currentUserEmail && currentUserEmail === rev.userEmail);
+    return `
     <div style="background: var(--bg-body); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 10px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
         <strong style="color: var(--text-main); font-size: 0.9rem;">${rev.author}</strong>
-        <span style="color: #F5A623; font-size: 0.85rem;">★ ${rev.rating}</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: #F5A623; font-size: 0.85rem;">★ ${rev.rating}</span>
+          ${canDelete ? `<button type="button" class="btn-del-review" onclick="deleteProductReview('${product.id}', ${idx})" title="حذف هذا التقييم"><i class="fas fa-trash-alt"></i></button>` : ''}
+        </div>
       </div>
       <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">${rev.comment}</p>
       <small style="color: var(--text-light); font-size: 0.75rem;">${rev.date}</small>
     </div>
-  `).join('');
+  `}).join('');
+}
+
+function deleteProductReview(productId, reviewIndex) {
+  const isOwner = isCurrentUserOwner();
+  const product = appState.products.find(p => p.id === productId);
+  if (!product || !Array.isArray(product.reviews)) return;
+
+  const rev = product.reviews[reviewIndex];
+  if (!rev) return;
+
+  // فقط المالك أو صاحب التقييم يستطيع الحذف
+  if (!isOwner && appState.currentUser?.email !== rev.userEmail) {
+    showToast("ليس لديك صلاحية حذف هذا التقييم", "error");
+    return;
+  }
+
+  if (!confirm("هل أنت متأكد من حذف هذا التقييم نهائياً؟")) return;
+
+  product.reviews.splice(reviewIndex, 1);
+  product.reviewsCount = product.reviews.length;
+  if (product.reviews.length > 0) {
+    const sum = product.reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 5), 0);
+    product.rating = (sum / product.reviews.length).toFixed(1);
+  } else {
+    product.rating = "5.0";
+  }
+
+  saveAllProductsToStorage();
+  renderModalReviews(product);
+
+  const rElem = document.getElementById("modalProductRating");
+  const cElem = document.getElementById("modalProductReviewsCount");
+  if (rElem) rElem.innerText = product.rating;
+  if (cElem) cElem.innerText = `(${product.reviewsCount} تقييم)`;
+
+  renderProducts();
+  showToast("تم حذف التقييم بنجاح 🗑️", "info");
+}
+
+// تبديل إظهار/إخفاء نموذج تقييم الباقة
+function toggleProdReviewForm() {
+  const box = document.getElementById("prodReviewFormBox");
+  if (!box) return;
+  box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
+// ضبط عدد النجوم في تقييم الباقة
+function setProdRating(val) {
+  const hiddenInput = document.getElementById("prRatingVal");
+  if (hiddenInput) hiddenInput.value = val;
+  const stars = document.querySelectorAll("#prodRatingStars i");
+  stars.forEach((s, idx) => {
+    if (idx < val) {
+      s.classList.add("active");
+    } else {
+      s.classList.remove("active");
+    }
+  });
+}
+
+// إرسال تقييم جديد للباقة الحالية
+function handleProductReviewSubmit(e) {
+  e.preventDefault();
+  if (!appState.selectedProduct) return;
+
+  const author = document.getElementById("prAuthor")?.value.trim() || "عميل شذى";
+  const rating = parseInt(document.getElementById("prRatingVal")?.value) || 5;
+  const comment = document.getElementById("prComment")?.value.trim();
+
+  if (!comment) {
+    showToast("يرجى كتابة رأيك في الباقة أولاً", "error");
+    return;
+  }
+
+  if (!Array.isArray(appState.selectedProduct.reviews)) {
+    appState.selectedProduct.reviews = [];
+  }
+
+  const newReview = {
+    author: author,
+    rating: rating,
+    comment: comment,
+    date: "الآن",
+    userEmail: appState.currentUser?.email || null
+  };
+
+  appState.selectedProduct.reviews.unshift(newReview);
+  appState.selectedProduct.reviewsCount = appState.selectedProduct.reviews.length;
+  
+  // إعادة حساب متوسط التقييم
+  const sum = appState.selectedProduct.reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 5), 0);
+  appState.selectedProduct.rating = (sum / appState.selectedProduct.reviews.length).toFixed(1);
+
+  saveAllProductsToStorage();
+  renderModalReviews(appState.selectedProduct);
+  
+  // تحديث النصوص في النافذة والبطاقة
+  const rElem = document.getElementById("modalProductRating");
+  const cElem = document.getElementById("modalProductReviewsCount");
+  if (rElem) rElem.innerText = appState.selectedProduct.rating;
+  if (cElem) cElem.innerText = `(${appState.selectedProduct.reviewsCount} تقييم)`;
+
+  renderProducts();
+
+  // إفراغ النموذج وإخفائه
+  document.getElementById("prComment").value = "";
+  toggleProdReviewForm();
+  showToast("شكراً لمشاركتك! تمت إضافة تقييمك للباقة بنجاح 🌸", "success");
+}
+
+/* ==========================================================================
+   نظام آراء وتقييمات المتجر بالكامل (Store-Wide Testimonials)
+   ========================================================================== */
+const DEFAULT_STORE_REVIEWS = [
+  {
+    author: "نورهان حسين",
+    location: "القاهرة • بوكيه ورد ستان أحمر ملكي",
+    rating: 5,
+    comment: "بوكيه الورد الستان طلع في الحقيقة خيال! لمعة الستان والتغليف الأسود مع الأحمر مدي شياكة مش طبيعية، وأجمل حاجة إنه هيفضل ذكرى دايمة مش بيذبل خالص."
+  },
+  {
+    author: "محمود عبد العزيز",
+    location: "التجمع الخامس • بوكيه النقود الملكي الضخم",
+    rating: 5,
+    comment: "طلبت بوكيه الفلوس الملكي في خطوبة أختي وكان مفاجأة الحفلة كلها! لف الفلوس متقن جداً ونظيف ومن غير ما تتجرح، ذوق عالي والتزام في الميعاد."
+  },
+  {
+    author: "سارة منصور",
+    location: "الشيخ زايد • بوكيه حلوى اللولي بوب",
+    rating: 5,
+    comment: "بوكيهات اللولي بوب كانت كيوت ومبهجة جداً! أصحابي في حفلة التخرج طاروا بيها من الفرحة، والتعامل على الواتساب راقي وسريع جداً."
+  }
+];
+
+function loadStoreReviews() {
+  try {
+    const saved = localStorage.getItem('shatha_store_reviews');
+    if (saved) {
+      const custom = JSON.parse(saved);
+      if (Array.isArray(custom) && custom.length > 0) {
+        return [...custom, ...DEFAULT_STORE_REVIEWS];
+      }
+    }
+  } catch (e) {
+    console.warn("Error loading store reviews:", e);
+  }
+  return DEFAULT_STORE_REVIEWS;
+}
+
+function renderStoreTestimonials() {
+  const grid = document.getElementById("testimonialsGrid");
+  if (!grid) return;
+
+  const reviews = loadStoreReviews();
+  const isOwner = isCurrentUserOwner();
+  const currentUserEmail = appState.currentUser?.email || null;
+
+  grid.innerHTML = reviews.map((rev, idx) => {
+    const stars = '★'.repeat(rev.rating || 5);
+    const initials = rev.author ? rev.author.split(' ').map(w => w[0]).join('.').slice(0, 5) : 'ع.ش';
+    // المالك يحذف أي رأي، العميل يحذف رأيه فقط (مطابقة userEmail المحفوظ)
+    const canDelete = isOwner || (currentUserEmail && currentUserEmail === rev.userEmail);
+
+    return `
+      <div class="testimonial-card" style="position: relative;">
+        ${canDelete ? `<button type="button" class="btn-del-store-review" onclick="deleteStoreReview(${idx})" title="حذف هذا الرأي"><i class="fas fa-trash-alt"></i></button>` : ''}
+        <div class="testimonial-stars" style="color: #F5A623;">${stars}</div>
+        <p class="testimonial-quote">"${rev.comment}"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">${initials}</div>
+          <div class="author-info">
+            <h5>${rev.author}</h5>
+            <span>${rev.location || 'عميل موثوق • متجر شذى'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteStoreReview(reviewIndex) {
+  const isOwner = isCurrentUserOwner();
+  const currentUserEmail = appState.currentUser?.email || null;
+
+  // تحميل الآراء المخصصة فقط (الافتراضية غير محفوظة في localStorage)
+  let customReviews = [];
+  try {
+    const saved = localStorage.getItem('shatha_store_reviews');
+    if (saved) customReviews = JSON.parse(saved);
+  } catch (e) {}
+
+  const allReviews = loadStoreReviews();
+  const rev = allReviews[reviewIndex];
+  if (!rev) return;
+
+  if (!isOwner && currentUserEmail !== rev.userEmail) {
+    showToast("ليس لديك صلاحية حذف هذا الرأي", "error");
+    return;
+  }
+
+  if (!confirm("هل أنت متأكد من حذف هذا الرأي نهائياً؟")) return;
+
+  // البحث في الآراء المخصصة والحذف
+  const customIdx = customReviews.findIndex(r => r.author === rev.author && r.comment === rev.comment);
+  if (customIdx > -1) {
+    customReviews.splice(customIdx, 1);
+    localStorage.setItem('shatha_store_reviews', JSON.stringify(customReviews));
+  } else if (isOwner) {
+    // المالك يحذف حتى الآراء الافتراضية: تحفظ قائمة بدونه
+    const defaultWithout = DEFAULT_STORE_REVIEWS.filter((r, i) => {
+      const allIdx = allReviews.indexOf(rev);
+      return r !== rev;
+    });
+    // حفظ نسخة معدلة من الافتراضيين في localStorage
+    const existingCustom = customReviews;
+    const newCustom = allReviews.filter((r, i) => i !== reviewIndex && customReviews.some(c => c.author === r.author && c.comment === r.comment));
+    localStorage.setItem('shatha_store_reviews', JSON.stringify(newCustom));
+  }
+
+  renderStoreTestimonials();
+  showToast("تم حذف الرأي بنجاح 🗑️", "info");
+}
+
+function toggleStoreReviewForm() {
+  const card = document.getElementById("storeReviewFormCard");
+  if (!card) return;
+  card.classList.toggle("active");
+  if (card.classList.contains("active")) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById("srAuthor")?.focus();
+  }
+}
+
+function setStoreRating(val) {
+  const input = document.getElementById("srRatingVal");
+  if (input) input.value = val;
+  const stars = document.querySelectorAll("#storeRatingStars i");
+  stars.forEach((s, idx) => {
+    if (idx < val) {
+      s.classList.add("active");
+    } else {
+      s.classList.remove("active");
+    }
+  });
+}
+
+function handleStoreReviewSubmit(e) {
+  e.preventDefault();
+  const author = document.getElementById("srAuthor")?.value.trim();
+  const location = document.getElementById("srLocation")?.value.trim() || "عميل متجر شذى";
+  const rating = parseInt(document.getElementById("srRatingVal")?.value) || 5;
+  const comment = document.getElementById("srComment")?.value.trim();
+
+  if (!author || !comment) {
+    showToast("يرجى ملء الاسم والتعليق أولاً", "error");
+    return;
+  }
+
+  const newReview = {
+    author,
+    location,
+    rating,
+    comment,
+    date: new Date().toLocaleDateString('ar-EG'),
+    userEmail: appState.currentUser?.email || null
+  };
+
+  try {
+    let customReviews = [];
+    const saved = localStorage.getItem('shatha_store_reviews');
+    if (saved) customReviews = JSON.parse(saved);
+    customReviews.unshift(newReview);
+    localStorage.setItem('shatha_store_reviews', JSON.stringify(customReviews));
+
+    renderStoreTestimonials();
+    toggleStoreReviewForm();
+    document.getElementById("storeReviewForm")?.reset();
+    setStoreRating(5);
+    showToast("شكراً لمشاركتك! تم نشر رأيك في المتجر بنجاح 🌸", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("حدث خطأ أثناء حفظ تقييمك", "error");
+  }
 }
 
 function closeProductModal() {
@@ -752,8 +1103,10 @@ function handleCheckoutSubmit(e) {
   const customerName = document.getElementById("checkoutName")?.value.trim();
   const customerPhone = document.getElementById("checkoutPhone")?.value.trim();
   const customerAddress = document.getElementById("checkoutAddress")?.value.trim();
-  const deliveryDate = document.getElementById("checkoutDate")?.value || "في أسرع وقت";
-  const notes = document.getElementById("checkoutNotes")?.value.trim() || "لا توجد ملاحظات إضافية";
+  const deliveryTiming = document.getElementById("checkoutDeliveryTiming")?.value.trim() || "في أسرع وقت";
+  const deliveryUrgency = document.querySelector('input[name="modalUrgency"]:checked')?.value || "عادي 🌸";
+  const deliveryReason = document.getElementById("checkoutDeliveryReason")?.value.trim();
+  const notes = document.getElementById("checkoutNotes")?.value.trim() || "";
 
   const giftSender = document.getElementById("checkoutGiftSender")?.value.trim();
   const giftRecipient = document.getElementById("checkoutGiftRecipient")?.value.trim();
@@ -784,7 +1137,12 @@ function handleCheckoutSubmit(e) {
   orderMsg += `• رقم الهاتف: ${customerPhone}\n`;
   orderMsg += `• العنوان: ${customerAddress}\n`;
   orderMsg += `• المحافظة/المنطقة: ${currentZone.name}\n`;
-  orderMsg += `• موعد التوصيل المطلوب: ${deliveryDate}\n\n`;
+  orderMsg += `• موعد وتوقيت التوصيل المطلوب: ${deliveryTiming}\n`;
+  orderMsg += `• درجة الاستعجال: ${deliveryUrgency}\n`;
+  if (deliveryReason) {
+    orderMsg += `• توضيح المناسبة / الاستعجال: ${deliveryReason}\n`;
+  }
+  orderMsg += `\n`;
 
   orderMsg += `💐 *المنتجات والباقات المطلوبة:*\n`;
   appState.cart.forEach((item, index) => {
@@ -807,7 +1165,7 @@ function handleCheckoutSubmit(e) {
   orderMsg += `• الشحن: ${isFreeShipping ? 'مجاني 🎉' : `${shippingCost} ج.م`}\n`;
   orderMsg += `• *الإجمالي النهائي: ${grandTotal} ج.م*\n`;
   orderMsg += `• طريقة الدفع: ${paymentMethodLabel}\n`;
-  if (notes && notes !== "لا توجد ملاحظات إضافية") {
+  if (notes) {
     orderMsg += `• ملاحظات: ${notes}\n`;
   }
   orderMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
@@ -890,6 +1248,73 @@ function closeAllModals() {
   document.body.style.overflow = "";
 }
 
+/* ==========================================================================
+   وظائف مساعدة: Auth Modal + Governorate Helpers
+   ========================================================================== */
+
+function openShathaAuthModal() {
+  const modal = document.getElementById("shathaAuthModal");
+  if (!modal) return;
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+  // إعادة رسم زر جوجل داخل المودال
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id && !appState.currentUser) {
+    setTimeout(() => {
+      const btn = document.getElementById("googleSignInBtnModal");
+      if (btn) {
+        btn.innerHTML = "";
+        google.accounts.id.renderButton(btn, {
+          theme: "outline", size: "large", type: "standard",
+          text: "signin_with", shape: "pill", logo_alignment: "right"
+        });
+      }
+    }, 100);
+  }
+}
+
+function closeShathaAuthModal() {
+  const modal = document.getElementById("shathaAuthModal");
+  modal?.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function toggleCustomGovModalInput() {
+  const wrap = document.getElementById("checkoutCustomGovWrap");
+  if (!wrap) return;
+  wrap.style.display = wrap.style.display === "none" ? "block" : "none";
+  if (wrap.style.display === "block") {
+    document.getElementById("checkoutCustomGovInput")?.focus();
+  }
+}
+
+function saveCustomGovModal() {
+  const input = document.getElementById("checkoutCustomGovInput");
+  const val = input?.value.trim();
+  if (!val) {
+    showToast("يرجى كتابة اسم المحافظة أو المنطقة", "info");
+    return;
+  }
+  const select = document.getElementById("checkoutGovernorate");
+  if (select) {
+    const opt = document.createElement("option");
+    opt.value = "custom-" + Date.now();
+    opt.setAttribute("data-price", "80");
+    opt.textContent = `${val} - 80 ج.م`;
+    select.appendChild(opt);
+    select.value = opt.value;
+    appState.selectedShippingZone = opt.value;
+    updateCheckoutSummary();
+    showToast(`تمت إضافة واختيار "${val}" بنجاح! 🌸`, "success");
+    document.getElementById("checkoutCustomGovWrap").style.display = "none";
+    if (input) input.value = "";
+  }
+}
+
+function handleGovernorateChange(selectEl) {
+  appState.selectedShippingZone = selectEl.value;
+  updateCheckoutSummary();
+}
+
 function showToast(message, type = "info") {
   let container = document.getElementById("toastContainer");
   if (!container) {
@@ -965,16 +1390,21 @@ function initGoogleSignIn() {
       cancel_on_tap_outside: true
     });
 
-    const btnContainer = document.getElementById("googleSignInBtnTop");
-    if (btnContainer && !appState.currentUser) {
-      btnContainer.innerHTML = "";
-      google.accounts.id.renderButton(btnContainer, {
-        theme: "outline",
-        size: "medium",
-        type: "standard",
-        text: "signin_with",
-        shape: "pill",
-        logo_alignment: "right"
+    if (!appState.currentUser) {
+      const btnsToRender = ["googleSignInBtnTop", "googleSignInBtnNewsletter", "googleSignInBtnModal"];
+      btnsToRender.forEach(btnId => {
+        const btnContainer = document.getElementById(btnId);
+        if (btnContainer) {
+          btnContainer.innerHTML = "";
+          google.accounts.id.renderButton(btnContainer, {
+            theme: "outline",
+            size: btnId === "googleSignInBtnTop" ? "medium" : "large",
+            type: "standard",
+            text: "signin_with",
+            shape: "pill",
+            logo_alignment: "right"
+          });
+        }
       });
     }
   } catch (e) {
@@ -1166,22 +1596,28 @@ function updateAuthUI() {
     if (loggedInBar) loggedInBar.style.display = "none";
     if (userWidget) userWidget.style.display = "none";
 
-    // إعادة رسم زر جوجل
+    // إعادة رسم زر جوجل في كل الأماكن المخصصة
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-      const btnContainer = document.getElementById("googleSignInBtnTop");
-      if (btnContainer) {
-        btnContainer.innerHTML = "";
-        google.accounts.id.renderButton(btnContainer, {
-          theme: "outline",
-          size: "medium",
-          type: "standard",
-          text: "signin_with",
-          shape: "pill",
-          logo_alignment: "right"
-        });
-      }
+      const btnsToRender = ["googleSignInBtnTop", "googleSignInBtnNewsletter", "googleSignInBtnModal"];
+      btnsToRender.forEach(btnId => {
+        const btnContainer = document.getElementById(btnId);
+        if (btnContainer) {
+          btnContainer.innerHTML = "";
+          google.accounts.id.renderButton(btnContainer, {
+            theme: "outline",
+            size: btnId === "googleSignInBtnTop" ? "medium" : "large",
+            type: "standard",
+            text: "signin_with",
+            shape: "pill",
+            logo_alignment: "right"
+          });
+        }
+      });
     }
   }
+
+  // تحديث أدوات المالك فوراً على كروت المنتجات
+  renderProducts();
 }
 
 /**
@@ -1251,6 +1687,20 @@ function openAddProductModal() {
   const backdrop = document.getElementById("modalBackdrop");
   if (!modal) return;
 
+  // إعادة ضبط وضع الإضافة
+  const editInput = document.getElementById("editingProductId");
+  if (editInput) editInput.value = "";
+
+  const modalTitle = document.getElementById("wizardModalTitle");
+  const modalIcon = document.getElementById("wizardModalIcon");
+  const submitBtnText = document.getElementById("wizardSubmitBtnText");
+
+  if (modalTitle) modalTitle.innerText = "نظام إضافة منتج وباقة جديدة لشذى";
+  if (modalIcon) modalIcon.className = "fas fa-plus-circle";
+  if (submitBtnText) submitBtnText.innerText = "حفظ ونشر الباقة فوراً";
+
+  document.getElementById("wizardProductForm")?.reset();
+
   wizardImages = [];
   renderWizardImages();
   initWizardSizes();
@@ -1259,6 +1709,106 @@ function openAddProductModal() {
   backdrop?.classList.add("active");
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
+}
+
+// فتح نافذة تعديل باقة قائمة للمالك
+function openEditProductModal(productId) {
+  const user = appState.currentUser;
+  const isOwner = user && user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+
+  if (!isOwner) {
+    showToast("عذراً، التعديل متاح فقط لمالك المتجر شذى بعد تسجيل الدخول.", "error");
+    return;
+  }
+
+  const product = appState.products.find(p => p.id === productId);
+  if (!product) {
+    showToast("لم يتم العثور على الباقة المطلوبة", "error");
+    return;
+  }
+
+  const modal = document.getElementById("addProductModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (!modal) return;
+
+  // وضع معرّف المنتج قيد التعديل
+  const editInput = document.getElementById("editingProductId");
+  if (editInput) editInput.value = product.id;
+
+  // تحديث النصوص والعناوين
+  const modalTitle = document.getElementById("wizardModalTitle");
+  const modalIcon = document.getElementById("wizardModalIcon");
+  const submitBtnText = document.getElementById("wizardSubmitBtnText");
+
+  if (modalTitle) modalTitle.innerText = `تعديل باقة: ${product.name}`;
+  if (modalIcon) modalIcon.className = "fas fa-edit";
+  if (submitBtnText) submitBtnText.innerText = "حفظ التعديلات على الباقة";
+
+  // تعبئة بيانات الخطوة 1
+  if (document.getElementById("wName")) document.getElementById("wName").value = product.name || "";
+  if (document.getElementById("wBasePrice")) document.getElementById("wBasePrice").value = product.basePrice || "";
+  if (document.getElementById("wOldPrice")) document.getElementById("wOldPrice").value = product.oldPrice || "";
+  if (document.getElementById("wTag")) document.getElementById("wTag").value = product.tag || "";
+  if (document.getElementById("wShortDesc")) document.getElementById("wShortDesc").value = product.shortDesc || "";
+
+  // تعبئة بيانات الخطوة 2: الصور
+  wizardImages = Array.isArray(product.images) ? [...product.images] : [];
+  renderWizardImages();
+
+  // تعبئة بيانات الخطوة 3: المقاسات
+  const container = document.getElementById("wSizesContainer");
+  if (container) {
+    if (Array.isArray(product.sizes) && product.sizes.length > 0) {
+      container.innerHTML = product.sizes.map(s => `
+        <div class="wizard-size-row" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 35px; gap: 8px; background: #fff; padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); align-items: center;">
+          <input type="text" class="form-control wz-size-name" style="font-size: 0.85rem; padding: 8px;" placeholder="اسم المقاس" value="${s.name || ''}">
+          <input type="number" class="form-control wz-size-price" style="font-size: 0.85rem; padding: 8px;" placeholder="السعر" value="${s.price || ''}">
+          <input type="text" class="form-control wz-size-stems" style="font-size: 0.85rem; padding: 8px;" placeholder="التنسيق" value="${s.stems || ''}">
+          <button type="button" onclick="this.closest('.wizard-size-row').remove()" style="color: #E74C3C; font-size: 0.9rem;" title="حذف المقاس"><i class="fas fa-trash"></i></button>
+        </div>
+      `).join('');
+    } else {
+      initWizardSizes();
+    }
+  }
+
+  // تعبئة بيانات الخطوة 4: الخامات والميزات
+  if (document.getElementById("wMaterials")) document.getElementById("wMaterials").value = product.materials || "";
+  if (document.getElementById("wCraft")) document.getElementById("wCraft").value = product.craftsmanship || "";
+  if (document.getElementById("wAdvantages")) {
+    document.getElementById("wAdvantages").value = Array.isArray(product.advantages) ? product.advantages.join('\n') : "";
+  }
+
+  switchWizardStep(1);
+
+  backdrop?.classList.add("active");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+// حذف باقة نهائياً بواسطة المالك
+function deleteProductById(productId) {
+  const user = appState.currentUser;
+  const isOwner = user && user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+
+  if (!isOwner) {
+    showToast("عذراً، صلاحية الحذف متاحة فقط لمالك المتجر بعد تسجيل الدخول.", "error");
+    return;
+  }
+
+  const product = appState.products.find(p => p.id === productId);
+  if (!product) return;
+
+  const confirmed = confirm(`هل أنت متأكد من رغبتك في حذف باقة "${product.name}" نهائياً من المتجر؟`);
+  if (!confirmed) return;
+
+  appState.products = appState.products.filter(p => p.id !== productId);
+  saveAllProductsToStorage();
+
+  closeProductModal();
+  renderProducts();
+
+  showToast(`تم حذف باقة "${product.name}" بنجاح 🗑️`, "info");
 }
 
 function closeAddProductModal() {
@@ -1451,6 +2001,43 @@ function handleWizardProductSubmit(e) {
     });
   }
 
+  const editingId = document.getElementById("editingProductId")?.value;
+
+  if (editingId) {
+    try {
+      const prodIndex = appState.products.findIndex(p => p.id === editingId);
+      if (prodIndex > -1) {
+        const existing = appState.products[prodIndex];
+        existing.name = name;
+        existing.basePrice = basePrice;
+        existing.oldPrice = oldPrice;
+        existing.tag = tag;
+        existing.shortDesc = shortDesc;
+        existing.images = [...wizardImages];
+        existing.materials = materials;
+        existing.craftsmanship = craftsmanship;
+        existing.sizes = sizes;
+        existing.advantages = advantages;
+
+        saveAllProductsToStorage();
+        renderProducts();
+
+        // إذا كانت نافذة تفاصيل المنتج مفتوحة، نقوم بتحديثها فوراً
+        if (document.getElementById("productDetailsModal")?.classList.contains("active") && appState.selectedProduct?.id === editingId) {
+          openProductModal(editingId);
+        }
+
+        closeAddProductModal();
+        showToast(`🎉 تم حفظ تعديلات باقة "${existing.name}" بنجاح!`, "success");
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("حدث خطأ أثناء حفظ تعديلات الباقة", "error");
+      return;
+    }
+  }
+
   const newProduct = {
     id: "custom_" + Date.now(),
     name: name,
@@ -1476,14 +2063,10 @@ function handleWizardProductSubmit(e) {
   };
 
   try {
-    let customList = [];
-    const stored = localStorage.getItem('shatha_custom_products');
-    if (stored) customList = JSON.parse(stored);
-    customList.unshift(newProduct);
-    localStorage.setItem('shatha_custom_products', JSON.stringify(customList));
+    appState.products.unshift(newProduct);
+    saveAllProductsToStorage();
 
     // تحديث حالة المنتجات مباشرة في الصفحة دون الحاجة لإعادة التحميل
-    appState.products = loadAllProducts();
     renderProducts();
 
     closeAddProductModal();
