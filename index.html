@@ -38,14 +38,11 @@
   <aside class="top-announcement-bar" id="topAnnouncementBar" aria-label="شريط الحساب وكوبون الخصم">
     <div class="container">
       <div class="bar-content" id="authBarLoggedOut">
-        <span class="auth-bar-msg"><i class="fab fa-google"></i> سجّل دخولك بحساب Google للحصول على خصم 10% فوري:</span>
+        <span class="auth-bar-msg"><i class="fab fa-google"></i> سجّل دخولك بحساب Google للحصول على كود خصم 10% لطلبك (يُستخدم مرة واحدة):</span>
         <div id="googleSignInBtnTop"></div>
-        <button type="button" class="btn-open-auth-modal" onclick="openShathaAuthModal()">
-          <i class="fas fa-sparkles"></i> تفاصيل الخصم والحساب
-        </button>
       </div>
       <div class="bar-content" id="authBarLoggedIn" style="display: none;">
-        <span class="auth-bar-msg">🎉 أهلاً بك يا <strong id="loggedInUserName"></strong>! كود خصمك (10%):</span>
+        <span class="auth-bar-msg">🎉 أهلاً بك يا <strong id="loggedInUserName"></strong>! كود خصمك الحصري (10%):</span>
         <div class="coupon-pill" id="couponPill" title="اضغط لنسخ كود الخصم وتطبيقه تلقائياً">
           <i class="fas fa-ticket-alt"></i>
           <span class="coupon-code-text" id="userCouponCode">--</span>
@@ -76,7 +73,8 @@
             <li><a href="#products" class="nav-link">الباقات والمنتجات</a></li>
             <li><a href="#about" class="nav-link">عن شذى</a></li>
             <li><a href="#testimonials" class="nav-link">آراء العملاء</a></li>
-            <li><a href="checkout.html" class="nav-link" style="color: var(--primary-pink); font-weight: 700;">صفحة إتمام الطلب والدفع</a></li>
+            <li><a href="cart.html" class="nav-link" style="color: var(--primary-pink); font-weight: 700;"><i class="fas fa-shopping-bag"></i> سلة المشتريات</a></li>
+            <li><a href="checkout.html" class="nav-link" style="font-weight: 700;">إتمام الطلب والدفع</a></li>
             <li id="navAdminLink" style="display: none;"><a href="javascript:void(0)" onclick="openAddProductModal()" class="nav-link" style="color: #27AE60; font-weight: 700;"><i class="fas fa-plus-circle"></i> لوحة إضافة المنتجات (المالك)</a></li>
           </ul>
         </nav>
@@ -251,13 +249,13 @@
         </div>
 
         <div class="filter-sort-group">
-          <span class="sort-flower-badge">🌸</span>
+          <span class="sort-flower-badge" aria-hidden="true">🌸</span>
           <label for="sortSelect" class="sort-label">الترتيب:</label>
           <select id="sortSelect" class="sort-select">
-            <option value="default">🌸 باقات شذى المقترحة</option>
-            <option value="bestseller">👑 الأكثر طلباً ومبيعاً</option>
-            <option value="price-low">📉 السعر: الأقل أولاً</option>
-            <option value="price-high">📈 السعر: الأعلى أولاً</option>
+            <option value="default">🌸 المقترحة لشذى</option>
+            <option value="bestseller">🔥 الأكثر مبيعاً</option>
+            <option value="price-low">💸 السعر: الأقل للأعلى</option>
+            <option value="price-high">💎 السعر: الأعلى للأقل</option>
             <option value="rating">⭐ الأعلى تقييماً</option>
           </select>
         </div>
@@ -374,28 +372,22 @@
       <div class="newsletter-box">
         <div class="newsletter-text">
           <h3>انضمي لعالم "شذى" الزهري 🌸</h3>
-          <p>سجلي بريدك الآن للحصول على كود خصم فوري 10%، مع نصائح مجانية دورية للعناية بالزهور وإشعار بأحدث التشكيلات الموسمية.</p>
+          <p>سجلي بحسابك الآن للحصول على كود خصم فوري 10%، مع نصائح مجانية دورية للعناية بالزهور وإشعار بأحدث التشكيلات الموسمية.</p>
         </div>
-        <form class="newsletter-form" id="newsletterForm">
-          <input type="email" id="newsletterEmail" placeholder="أدخلي بريدك الإلكتروني..." required aria-label="البريد الإلكتروني للنشرة البريدية">
-          <button type="submit">انضمام</button>
-        </form>
-      </div>
-
-      <!-- تسجيل الدخول بجوجل في قسم النشرة أيضاً -->
-      <div style="background: rgba(255, 255, 255, 0.95); border: 1.5px dashed var(--primary-pink); border-radius: var(--radius-md); padding: 16px 20px; margin-top: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.3rem;">🌸</span>
-          <div>
-            <strong style="color: var(--primary-dark); font-size: 0.95rem; display: block;">أو سجّلي دخولكِ بضغطة واحدة بحساب Google:</strong>
-            <small style="color: var(--text-muted); font-size: 0.8rem;">واحصلي فوراً على كود خصم 10% لطلبك مع إمكانية متابعة باقاتك في أي وقت.</small>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 440px;">
+          <!-- زر تسجيل الدخول السريع بجوجل للحصول على الكود -->
+          <div id="googleSignInBtnNewsletter" class="newsletter-auth-cta"></div>
+          
+          <div style="display: flex; align-items: center; width: 100%; gap: 10px; opacity: 0.7;">
+            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.4);"></div>
+            <span style="font-size: 0.8rem; color: #fff;">أو التسجيل عبر البريد</span>
+            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.4);"></div>
           </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-          <div id="googleSignInBtnNewsletter"></div>
-          <button type="button" class="btn-primary" onclick="openShathaAuthModal()" style="padding: 8px 18px; font-size: 0.85rem;">
-            <i class="fas fa-sparkles"></i> تفاصيل الحساب والخصم
-          </button>
+
+          <form class="newsletter-form" id="newsletterForm" style="width: 100%;">
+            <input type="email" id="newsletterEmail" placeholder="أدخلي بريدك الإلكتروني..." required aria-label="البريد الإلكتروني للنشرة البريدية">
+            <button type="submit">انضمام</button>
+          </form>
         </div>
       </div>
     </div>
@@ -598,14 +590,14 @@
         </div>
       </div>
 
+      <a href="cart.html" class="btn-full-cart-link" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 18px; border-radius: var(--radius-full); background: rgba(212, 107, 123, 0.1); color: var(--primary-dark); font-weight: 700; font-size: 0.92rem; text-decoration: none; border: 1.5px solid var(--primary-pink); margin-bottom: 8px; transition: all 0.25s ease;">
+        <i class="fas fa-shopping-bag" style="color: var(--primary-pink);"></i>
+        <span>عرض وتعديل سلة المشتريات بالكامل 🛍️</span>
+      </a>
+
       <button class="btn-proceed-checkout" id="proceedCheckoutBtn">
         <span>موافق على الطلب (الانتقال لصفحة كتابة البيانات والدفع)</span>
         <i class="fas fa-arrow-left"></i>
-      </button>
-
-      <button type="button" class="btn-cart-whatsapp-all" id="cartDirectWhatsappBtn" title="إرسال قائمة السلة مباشرة إلى محادثة واتساب">
-        <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i>
-        <span>إرسال السلة بالكامل عبر واتساب (01102541236)</span>
       </button>
     </div>
   </aside>
@@ -676,15 +668,11 @@
           </div>
         </div>
 
-        <!-- أزرار الإجراء السريع -->
+        <!-- زر الإضافة إلى السلة -->
         <div class="modal-actions-row">
-          <button class="btn-primary" id="modalAddToCartBtn">
+          <button class="btn-primary" id="modalAddToCartBtn" style="width: 100%; justify-content: center; padding: 16px; font-size: 1.1rem; border-radius: var(--radius-full);">
             <i class="fas fa-shopping-bag"></i>
-            <span>إضافة إلى السلة</span>
-          </button>
-          <button class="btn-whatsapp-order" id="modalWhatsappBtn" title="طلب مباشر عبر واتساب">
-            <i class="fab fa-whatsapp"></i>
-            <span>طلب فوري عبر واتساب</span>
+            <span>إضافة هذه الباقة إلى السلة 🌸</span>
           </button>
         </div>
 
@@ -964,18 +952,9 @@
 
         <div class="form-group form-group-full">
           <label for="checkoutGovernorate">المحافظة والمنطقة (لتحديد مدة وتكلفة التوصيل) *</label>
-          <select id="checkoutGovernorate" onchange="handleGovernorateChange(this)">
+          <select id="checkoutGovernorate">
             <!-- يتم تعبئتها بواسطة JS -->
           </select>
-          <div id="checkoutCustomGovWrap" style="display: none; margin-top: 8px;">
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="checkoutCustomGovInput" placeholder="اكتب اسم محافظتك ومنطقتك..." style="background: #FFFFFF;">
-              <button type="button" class="btn-primary" onclick="saveCustomGovModal()" style="white-space: nowrap; padding: 6px 14px; font-size: 0.85rem;">حفظ</button>
-            </div>
-          </div>
-          <button type="button" class="btn-toggle-custom-gov" onclick="toggleCustomGovModalInput()">
-            <i class="fas fa-plus-circle"></i> كتابة اسم محافظتي يدوياً إذا لم تكن بالقائمة
-          </button>
         </div>
 
         <div class="form-group form-group-full">
@@ -983,33 +962,9 @@
           <textarea id="checkoutAddress" rows="2" placeholder="اكتب العنوان بدقة ليصل مندوبنا سريعاً..." required></textarea>
         </div>
 
-        <!-- توقيت التوصيل ومدى الاستعجال بناءً على طلب العميل -->
-        <div class="form-group form-group-full" style="background: var(--bg-body); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-          <label for="checkoutDeliveryTiming" style="font-weight: 800; color: var(--primary-dark); margin-bottom: 6px; display: block;">
-            <i class="fas fa-clock" style="color: var(--primary-pink);"></i> متى تريد توصيل الطلب؟ *
-          </label>
-          <input type="text" id="checkoutDeliveryTiming" placeholder="مثال: اليوم خلال 3 ساعات / غداً بعد المغرب / يوم محدد..." required style="background: #FFFFFF; margin-bottom: 12px;">
-
-          <label style="font-weight: 800; color: var(--primary-dark); margin-bottom: 6px; display: block;">
-            <i class="fas fa-bolt" style="color: #E67E22;"></i> هل الطلب مستعجل أم عادي؟ *
-          </label>
-          <div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: #fff; padding: 6px 14px; border-radius: var(--radius-full); border: 1.5px solid var(--border-subtle); font-weight: 700; font-size: 0.85rem;">
-              <input type="radio" name="modalUrgency" value="عادي 🌸" checked onchange="toggleModalUrgencyReason(this.value)">
-              <span>عادي 🌸</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: #fff; padding: 6px 14px; border-radius: var(--radius-full); border: 1.5px solid var(--border-subtle); font-weight: 700; font-size: 0.85rem; color: #D35400;">
-              <input type="radio" name="modalUrgency" value="مستعجل جداً ⚡" onchange="toggleModalUrgencyReason(this.value)">
-              <span>مستعجل جداً ⚡</span>
-            </label>
-          </div>
-
-          <div id="modalUrgencyReasonBox">
-            <label for="checkoutDeliveryReason" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px; display: block;">
-              سبب الاستعجال أو توضيح المناسبة (اختياري):
-            </label>
-            <input type="text" id="checkoutDeliveryReason" placeholder="مثال: حفلة تخرج الليلة / مفاجأة عيد ميلاد..." style="background: #FFFFFF;">
-          </div>
+        <div class="form-group form-group-full">
+          <label for="checkoutDate">تاريخ التوصيل المطلوب</label>
+          <input type="date" id="checkoutDate">
         </div>
 
         <!-- بيانات كارت الإهداء (اختياري) -->
@@ -1147,56 +1102,6 @@
       <p>يتم التعامل مع نصوص الإهداء الخاصة بسرية وأمانة تامة ويتم طباعتها وتغليفها مباشرة داخل أظرف مغلقة.</p>
     </div>
   </section>
-
-  <!-- نافذة تسجيل الدخول الفاخرة الخاصة بشذى (Shatha Auth Modal) -->
-  <div class="shatha-auth-modal" id="shathaAuthModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
-    <button type="button" class="shatha-auth-modal-close" onclick="closeShathaAuthModal()" aria-label="إغلاق">
-      <i class="fas fa-times"></i>
-    </button>
-    <img src="assets/images/logo.jpg" alt="لوجو شذى" class="shatha-auth-logo">
-    <h3 id="authModalTitle" style="color: var(--primary-dark); font-size: 1.35rem; font-weight: 800; margin-bottom: 6px;">
-      أهلاً بكِ في عالم شَـذى 🌸
-    </h3>
-    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
-      سجّلي دخولكِ بضغطة واحدة بحساب Google للحصول على كود خصم فوري 10% وتجربة تسوق راقية لجميع باقات الورد والفلوس.
-    </p>
-
-    <div class="shatha-auth-perks">
-      <div class="shatha-auth-perk-item">
-        <i class="fas fa-ticket-alt" style="color: var(--primary-pink);"></i>
-        <span>كود خصم فوري 10% يُطبّق تلقائياً على سلتك</span>
-      </div>
-      <div class="shatha-auth-perk-item">
-        <i class="fas fa-infinity" style="color: var(--primary-pink);"></i>
-        <span>صناعة يدوية تدوم للأبد تعيش معاك العمر كلووو</span>
-      </div>
-      <div class="shatha-auth-perk-item">
-        <i class="fab fa-whatsapp" style="color: #25D366;"></i>
-        <span>متابعة فورية ومباشرة لحالة باقتك عبر واتساب</span>
-      </div>
-    </div>
-
-    <!-- حالة المستخدم غير المسجل -->
-    <div id="authModalLoggedOutContent" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-      <div id="googleSignInBtnModal"></div>
-      <small style="color: var(--text-light); font-size: 0.75rem;">تسجيل آمن ومشفر 100% عبر خدمة Google الرسمية</small>
-    </div>
-
-    <!-- حالة المستخدم المسجل بالفعل -->
-    <div id="authModalLoggedInContent" style="display: none; flex-direction: column; align-items: center; gap: 12px;">
-      <div style="background: var(--bg-body); padding: 14px 20px; border-radius: var(--radius-md); width: 100%; border: 1px solid var(--border-subtle);">
-        <strong id="authModalUserName" style="color: var(--primary-dark); font-size: 1.05rem; display: block;"></strong>
-        <span id="authModalUserEmail" style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 8px;"></span>
-        <div class="dropdown-coupon-code" onclick="copyMyCoupon()" style="justify-content: center;">
-          <span id="authModalCouponVal">--</span>
-          <i class="far fa-copy"></i>
-        </div>
-      </div>
-      <button type="button" class="btn-logout" onclick="handleGoogleSignOut(); closeShathaAuthModal();" style="width: 100%;">
-        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج من الحساب
-      </button>
-    </div>
-  </div>
 
   <!-- ملفات الجافاسكريبت -->
   <script src="assets/js/products-data.js"></script>

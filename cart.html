@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
+  <title>سلة المشتريات | شَـذى - زهور طبيعية وهدايا فاخرة</title>
+  <meta name="description" content="راجعي باقاتك وهداياكِ في سلة متجر شذى للزهور الطبيعية المصنوعة يدوياً. احصلي على كارت إهداء مجاني وشحن مجاني للطلبات فوق 1000 ج.م.">
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
+
+  <!-- Google Fonts: Cairo & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main Website Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    /* تنسيقات خاصة بصفحة السلة المستقلة */
+    .cart-page-wrap {
+      padding: 40px 0 80px;
+      background-color: var(--bg-body);
+      min-height: 80vh;
+    }
+
+    .cart-breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 25px;
+    }
+
+    .cart-breadcrumbs a {
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .cart-breadcrumbs a:hover {
+      color: var(--primary-pink);
+    }
+
+    .cart-breadcrumbs .current {
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .cart-layout-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 991px) {
+      .cart-layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cart-card-box {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 25px;
+    }
+
+    .cart-table-header {
+      display: grid;
+      grid-template-columns: 3fr 1fr 1fr 1fr 40px;
+      padding-bottom: 14px;
+      border-bottom: 1.5px solid var(--border-subtle);
+      font-weight: 800;
+      color: var(--primary-dark);
+      font-size: 0.95rem;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .cart-table-header {
+        display: none;
+      }
+    }
+
+    .cart-row-item {
+      display: grid;
+      grid-template-columns: 3fr 1fr 1fr 1fr 40px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      align-items: center;
+      gap: 15px;
+      transition: var(--transition);
+    }
+
+    @media (max-width: 768px) {
+      .cart-row-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        position: relative;
+        padding: 16px;
+        background: #FFF9F9;
+        border-radius: var(--radius-md);
+        margin-bottom: 14px;
+        border: 1px solid var(--border-subtle);
+      }
+    }
+
+    .cart-item-prod-col {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cart-prod-thumb {
+      width: 75px;
+      height: 75px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      border: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .cart-prod-meta h4 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+
+    .cart-prod-meta .size-badge {
+      display: inline-block;
+      background: var(--bg-card);
+      color: var(--primary-pink);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .btn-item-whatsapp-cart {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #25D366;
+      color: #FFFFFF;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      margin-top: 6px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .btn-item-whatsapp-cart:hover {
+      background: #1EBE5D;
+      transform: scale(1.02);
+    }
+
+    .cart-item-remove-btn {
+      color: #E74C3C;
+      background: rgba(231, 76, 60, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+    }
+
+    .cart-item-remove-btn:hover {
+      background: #E74C3C;
+      color: #FFFFFF;
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      .cart-item-remove-btn {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+      }
+    }
+
+    .cart-sidebar-summary {
+      position: sticky;
+      top: 90px;
+    }
+
+    .summary-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      padding-bottom: 14px;
+      border-bottom: 1.5px solid var(--border-subtle);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-calc-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .summary-calc-row.discount-row {
+      color: #27AE60;
+      font-weight: 700;
+    }
+
+    .summary-calc-row.total-row {
+      border-top: 1.5px dashed var(--border-subtle);
+      padding-top: 16px;
+      margin-top: 16px;
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+    }
+
+    .btn-checkout-cta {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-pink), var(--primary-dark));
+      color: #FFFFFF;
+      padding: 16px 20px;
+      border-radius: var(--radius-full);
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(212, 107, 123, 0.35);
+      transition: var(--transition);
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .btn-checkout-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(212, 107, 123, 0.45);
+    }
+
+    .btn-wa-full-cart {
+      width: 100%;
+      background: #25D366;
+      color: #FFFFFF;
+      padding: 14px 20px;
+      border-radius: var(--radius-full);
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      box-shadow: 0 8px 18px rgba(37, 211, 102, 0.3);
+      transition: var(--transition);
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .btn-wa-full-cart:hover {
+      background: #1EBE5D;
+      transform: translateY(-2px);
+    }
+
+    .cart-empty-big {
+      text-align: center;
+      padding: 60px 20px;
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .cart-empty-big i {
+      font-size: 4rem;
+      color: var(--primary-pink);
+      opacity: 0.5;
+      margin-bottom: 20px;
+    }
+
+    .cart-empty-big h3 {
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    .cart-empty-big p {
+      color: var(--text-muted);
+      max-width: 460px;
+      margin: 0 auto 25px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شريط الإعلانات الترويجي العلوي -->
+  <aside class="top-announcement-bar" role="region" aria-label="شريط العروض">
+    <div class="container announcement-inner">
+      <div class="announcement-slide">
+        <span class="badge-tag">عرض خاص</span>
+        <span>🌸 خصم 10% فوري عند تسجيل الدخول + كارت إهداء مجاني مطبوع مع كل باقة ورد</span>
+      </div>
+      <div class="auth-bar-quick">
+        <a href="index.html" style="color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+          <i class="fas fa-arrow-right"></i> العودة لتصفح المتجر
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- الترويسة الرئيسية -->
+  <header class="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="brand-logo-wrap">
+          <img src="assets/images/logo.jpg" alt="شعار شذى SHATHA" class="brand-logo-img">
+          <div class="brand-names">
+            <span class="brand-title">شَـذى</span>
+            <span class="brand-subtitle">FLOWERS • GIFTS • MOMENTS</span>
+          </div>
+        </a>
+
+        <nav>
+          <ul class="nav-menu" id="navMenu">
+            <li><a href="index.html#home" class="nav-link">الرئيسية</a></li>
+            <li><a href="index.html#products" class="nav-link">تشكيلة الباقات</a></li>
+            <li><a href="index.html#about" class="nav-link">عن شذى</a></li>
+            <li><a href="index.html#testimonials" class="nav-link">آراء العملاء</a></li>
+            <li><a href="cart.html" class="nav-link active" style="color: var(--primary-pink); font-weight: 700;"><i class="fas fa-shopping-bag"></i> سلة المشتريات</a></li>
+            <li><a href="checkout.html" class="nav-link" style="font-weight: 700;">إتمام الطلب والدفع</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a href="index.html" class="btn-secondary" style="padding: 8px 16px; font-size: 0.88rem; border-radius: var(--radius-full); text-decoration: none;">
+            <i class="fas fa-plus"></i> إضافة باقات أخرى
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- جسم صفحة السلة -->
+  <main class="cart-page-wrap">
+    <div class="container">
+      
+      <!-- مسار التنقل -->
+      <div class="cart-breadcrumbs">
+        <a href="index.html">الرئيسية</a>
+        <i class="fas fa-chevron-left" style="font-size: 0.75rem;"></i>
+        <span class="current">سلة المشتريات وتجهيز الطلب</span>
+      </div>
+
+      <!-- حالة وجود منتجات بالسلة -->
+      <div id="cartFullContent" style="display: none;">
+        <div class="section-header" style="margin-bottom: 25px; text-align: right;">
+          <h2 class="section-title" style="margin-bottom: 4px;">سلة مشترياتك وباقاتك المختارة 🌸</h2>
+          <p class="section-desc" style="margin-bottom: 0;">راجعي باقاتك وهداياكِ وعدّلي الكميات أو اطلبي أي باقة بشكل منفصل عبر واتساب.</p>
+        </div>
+
+        <!-- شريط الشحن المجاني التفاعلي -->
+        <div class="cart-card-box" style="padding: 16px 20px; margin-bottom: 20px;">
+          <div class="cart-free-shipping-meter" style="padding: 0; background: transparent;">
+            <div class="meter-text" id="cartPageMeterText" style="margin-bottom: 8px;">
+              أضيفي بـ <strong>350 ج.م</strong> إضافية للحصول على توصيل مجاني!
+            </div>
+            <div class="meter-bar" style="height: 10px;">
+              <div class="meter-fill" id="cartPageMeterFill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cart-layout-grid">
+          <!-- العمود الأيمن: قائمة الباقات -->
+          <div class="cart-items-column">
+            <div class="cart-card-box">
+              <div class="cart-table-header">
+                <div>الباقة والتنسيق</div>
+                <div style="text-align: center;">سعر الوحدة</div>
+                <div style="text-align: center;">الكمية</div>
+                <div style="text-align: center;">المجموع</div>
+                <div></div>
+              </div>
+
+              <div id="cartRowsContainer">
+                <!-- يتم التوليد عبر جافاسكريبت -->
+              </div>
+            </div>
+
+            <!-- كارت الإهداء المجاني -->
+            <div class="cart-card-box">
+              <div class="cart-gift-card-addon" style="margin: 0;">
+                <label class="gift-card-toggle-label" style="font-size: 1rem; font-weight: 700;">
+                  <input type="checkbox" id="pageGiftCardToggle" onchange="togglePageGiftCard()">
+                  <span>💌 إرفاق كارت إهداء مذهب ومطبوع مجاناً مع هديتك</span>
+                </label>
+                <div id="pageGiftCardWrapper" style="display: none; margin-top: 14px;">
+                  <textarea class="gift-message-input" id="pageGiftCardMsg" rows="3" placeholder="اكتبي نص الإهداء والتهنئة هنا، وسنقوم بطباعته بأناقة على كارت فاخر مجاناً..."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- العمود الأيسر: ملخص الفاتورة وإتمام الطلب -->
+          <div class="cart-sidebar-summary">
+            <div class="cart-card-box">
+              <h3 class="summary-title">
+                <i class="fas fa-file-invoice-dollar" style="color: var(--primary-pink);"></i>
+                <span>ملخص السلة والحسابات</span>
+              </h3>
+
+              <!-- إدخال كود الخصم -->
+              <div class="coupon-input-group" style="margin-bottom: 20px;">
+                <input type="text" id="pageCouponInput" placeholder="أدخل كود الخصم (10%)" aria-label="كود الخصم">
+                <button type="button" onclick="applyPageCoupon()">تطبيق</button>
+              </div>
+
+              <!-- حساب مصاريف الشحن التقديرية -->
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label for="pageShippingSelect" style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; display: block;">
+                  🚚 اختر محافظتك لحساب التوصيل:
+                </label>
+                <select id="pageShippingSelect" class="form-control" onchange="handlePageShippingChange()" style="font-size: 0.88rem; padding: 10px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-subtle); width: 100%;">
+                  <option value="cairo" data-price="50">القاهرة - 50 ج.م</option>
+                  <option value="giza" data-price="60">الجيزة و6 أكتوبر والشيخ زايد - 60 ج.م</option>
+                  <option value="new-cairo" data-price="50">القاهرة الجديدة والتجمع والرحاب ومدينتي - 50 ج.م</option>
+                  <option value="alexandria" data-price="80">الإسكندرية والساحل الشمالي - 80 ج.م</option>
+                  <option value="qalyubia" data-price="60">القليوبية - 60 ج.م</option>
+                  <option value="sharqia" data-price="80">الشرقية - 80 ج.م</option>
+                  <option value="dakahlia" data-price="80">الدقهلية - 80 ج.م</option>
+                  <option value="gharbia" data-price="80">الغربية - 80 ج.م</option>
+                  <option value="menofia" data-price="75">المنوفية - 75 ج.م</option>
+                  <option value="beheira" data-price="85">البحيرة - 85 ج.م</option>
+                  <option value="fayoum" data-price="90">الفيوم - 90 ج.م</option>
+                  <option value="sohag" data-price="110">سوهاج - 110 ج.م</option>
+                  <option value="aswan" data-price="130">أسوان - 130 ج.م</option>
+                  <option value="custom" data-price="60">✏️ أخرى (محافظة أو منطقة يدوية) - 60 ج.م</option>
+                </select>
+                <div id="pageManualGovWrap" style="display: none; margin-top: 8px;">
+                  <input type="text" id="pageManualGovInput" placeholder="اكتب اسم محافظتك..." class="form-control" style="font-size: 0.85rem; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px dashed var(--primary-pink); width: 100%;">
+                </div>
+              </div>
+
+              <!-- سطور الحساب -->
+              <div class="summary-calc-row">
+                <span>مجموع الباقات:</span>
+                <strong id="pageSubtotalVal">0 ج.م</strong>
+              </div>
+
+              <div class="summary-calc-row discount-row" id="pageDiscountRow" style="display: none;">
+                <span>خصم الكوبون (<span id="pageDiscountCodeLabel"></span>):</span>
+                <strong id="pageDiscountVal">-0 ج.م</strong>
+              </div>
+
+              <div class="summary-calc-row">
+                <span>تكلفة التوصيل:</span>
+                <strong id="pageShippingCostVal">50 ج.م</strong>
+              </div>
+
+              <div class="summary-calc-row total-row">
+                <span>المبلغ الإجمالي:</span>
+                <span id="pageTotalVal" style="color: var(--primary-pink);">0 ج.م</span>
+              </div>
+
+              <!-- أزرار الإجراءات -->
+              <a href="checkout.html" class="btn-checkout-cta" id="pageProceedBtn">
+                <span>متابعة إتمام الطلب والدفع</span>
+                <i class="fas fa-arrow-left"></i>
+              </a>
+
+              <!-- مميزات الثقة السريعة -->
+              <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; color: var(--text-muted);">
+                <div><i class="fas fa-check-circle" style="color: #27AE60;"></i> كارت إهداء مطبوع مذهب مجاناً مع كل باقة</div>
+                <div><i class="fas fa-check-circle" style="color: #27AE60;"></i> توصيل آمن ومغلف بعناية فائقة لكافة المحافظات</div>
+                <div><i class="fas fa-check-circle" style="color: #27AE60;"></i> دفع عبر فودافون كاش أو إنستاباي InstaPay</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- حالة السلة الفارغة -->
+      <div id="cartEmptyContent" class="cart-empty-big" style="display: none;">
+        <i class="fas fa-shopping-bag"></i>
+        <h3>سلة مشترياتك فارغة حالياً</h3>
+        <p>لم تقومي بإضافة أي باقة ورد أو هدية إلى سلتك بعد.. اختاري الآن من تشكيلة ورود الستان الفاخرة وبوكيهات النقود والحلويات المصنوعة بكل حب.</p>
+        <a href="index.html#products" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; text-decoration: none; border-radius: var(--radius-full);">
+          <i class="fas fa-store"></i> استعراض تشكيلة الباقات الآن
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- تذييل الموقع -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding: 25px 0;">
+        <p>© 2026 جميع الحقوق محفوظة لعلامة <strong>شَـذى (SHATHA)</strong> للزهور المصنوعة يدوياً والهدايا الراقية في مصر.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- زر الواتساب العائم الدائم للاستفسارات (Floating Sticky WhatsApp) -->
+  <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%81%D8%B1%D9%8A%D9%82%20%D8%B4%D8%B0%D9%89%20%F0%9F%8C%B8%20%D8%A3%D8%AD%D8%AA%D8%A7%D8%AC%20%D9%85%D8%B3%D8%A7%D8%B9%D8%AF%D8%A9%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%B3%D9%84%D8%A9" 
+     target="_blank" 
+     class="floating-whatsapp-btn" 
+     id="floatingWhatsappBtn"
+     title="تواصلي معنا عبر واتساب 01102541236">
+    <div class="whatsapp-icon-circle">
+      <i class="fab fa-whatsapp"></i>
+    </div>
+    <span class="whatsapp-btn-text">طلبات واستفسارات الواتساب</span>
+  </a>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="assets/js/products-data.js"></script>
+  <script>
+    const CONFIG = {
+      storeName: "شذى للهدايا والورد المصنوع",
+      whatsappNumber: "201102541236",
+      freeShippingThreshold: 1000,
+      currency: "ج.م",
+      discountPercent: 10
+    };
+
+    let cart = [];
+    let appliedCoupon = null;
+
+    function loadCart() {
+      try {
+        const saved = localStorage.getItem('shatha_cart_items');
+        if (saved) cart = JSON.parse(saved);
+        const coupon = localStorage.getItem('shatha_applied_coupon');
+        if (coupon) appliedCoupon = coupon;
+      } catch (e) {
+        console.warn("Cart load error", e);
+      }
+    }
+
+    function saveCart() {
+      try {
+        localStorage.setItem('shatha_cart_items', JSON.stringify(cart));
+        if (appliedCoupon) {
+          localStorage.setItem('shatha_applied_coupon', appliedCoupon);
+        } else {
+          localStorage.removeItem('shatha_applied_coupon');
+        }
+      } catch (e) {}
+    }
+
+    function renderCartPage() {
+      const fullWrap = document.getElementById("cartFullContent");
+      const emptyWrap = document.getElementById("cartEmptyContent");
+      const rowsContainer = document.getElementById("cartRowsContainer");
+
+      if (!cart || cart.length === 0) {
+        if (fullWrap) fullWrap.style.display = "none";
+        if (emptyWrap) emptyWrap.style.display = "block";
+        return;
+      }
+
+      if (emptyWrap) emptyWrap.style.display = "none";
+      if (fullWrap) fullWrap.style.display = "block";
+
+      rowsContainer.innerHTML = cart.map(item => `
+        <div class="cart-row-item">
+          <div class="cart-item-prod-col">
+            <img src="${item.image}" alt="${item.name}" class="cart-prod-thumb">
+            <div class="cart-prod-meta">
+              <h4>${item.name}</h4>
+              <span class="size-badge">${item.sizeName}</span>
+            </div>
+          </div>
+
+          <div style="text-align: center; font-weight: 700; color: var(--text-main);">
+            ${item.price} ${CONFIG.currency}
+          </div>
+
+          <div style="display: flex; justify-content: center;">
+            <div class="cart-qty-controls">
+              <button class="qty-btn" onclick="changeQuantity('${item.cartKey}', -1)">-</button>
+              <span class="qty-val">${item.quantity}</span>
+              <button class="qty-btn" onclick="changeQuantity('${item.cartKey}', 1)">+</button>
+            </div>
+          </div>
+
+          <div style="text-align: center; font-weight: 800; color: var(--primary-pink); font-size: 1.05rem;">
+            ${item.price * item.quantity} ${CONFIG.currency}
+          </div>
+
+          <div style="display: flex; justify-content: center;">
+            <button class="cart-item-remove-btn" onclick="removeItem('${item.cartKey}')" title="حذف">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      calculatePageTotals();
+    }
+
+    function changeQuantity(cartKey, delta) {
+      const idx = cart.findIndex(i => i.cartKey === cartKey);
+      if (idx > -1) {
+        cart[idx].quantity += delta;
+        if (cart[idx].quantity <= 0) {
+          cart.splice(idx, 1);
+          showToast("تم حذف المنتج من السلة", "info");
+        }
+        saveCart();
+        renderCartPage();
+      }
+    }
+
+    function removeItem(cartKey) {
+      cart = cart.filter(i => i.cartKey !== cartKey);
+      saveCart();
+      renderCartPage();
+      showToast("تم حذف المنتج من السلة", "info");
+    }
+
+    function calculatePageTotals() {
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const subtotalElem = document.getElementById("pageSubtotalVal");
+      const discountRow = document.getElementById("pageDiscountRow");
+      const discountElem = document.getElementById("pageDiscountVal");
+      const discountCodeLabel = document.getElementById("pageDiscountCodeLabel");
+      const totalElem = document.getElementById("pageTotalVal");
+      const meterFill = document.getElementById("cartPageMeterFill");
+      const meterText = document.getElementById("cartPageMeterText");
+      const shippingSelect = document.getElementById("pageShippingSelect");
+      const shippingCostElem = document.getElementById("pageShippingCostVal");
+
+      // التوصيل المجاني
+      const isFreeShipping = subtotal >= CONFIG.freeShippingThreshold;
+      let shippingPrice = 50;
+      if (shippingSelect) {
+        const selOpt = shippingSelect.options[shippingSelect.selectedIndex];
+        shippingPrice = parseInt(selOpt.getAttribute("data-price") || "50");
+      }
+
+      if (isFreeShipping) {
+        shippingPrice = 0;
+        if (shippingCostElem) shippingCostElem.innerHTML = '<span style="color: #27AE60;">مجاني 🎉</span>';
+      } else {
+        if (shippingCostElem) shippingCostElem.innerText = `${shippingPrice} ${CONFIG.currency}`;
+      }
+
+      // شريط التقدم
+      if (meterFill && meterText) {
+        const percent = Math.min(100, Math.round((subtotal / CONFIG.freeShippingThreshold) * 100));
+        meterFill.style.width = `${percent}%`;
+        if (isFreeShipping) {
+          meterText.innerHTML = `🎉 مبروك! حصلتِ على توصيل مجاني لباقاتك!`;
+          meterFill.style.background = "#27AE60";
+        } else {
+          const remaining = CONFIG.freeShippingThreshold - subtotal;
+          meterText.innerHTML = `أضيفي بـ <strong>${remaining} ${CONFIG.currency}</strong> إضافية للشحن المجاني!`;
+          meterFill.style.background = "linear-gradient(90deg, var(--primary-pink), #25D366)";
+        }
+      }
+
+      // الخصم
+      let discount = 0;
+      if (appliedCoupon) {
+        discount = Math.round(subtotal * (CONFIG.discountPercent / 100));
+        if (discountRow) discountRow.style.display = "flex";
+        if (discountElem) discountElem.innerText = `- ${discount} ${CONFIG.currency} (10%)`;
+        if (discountCodeLabel) discountCodeLabel.innerText = appliedCoupon;
+      } else {
+        if (discountRow) discountRow.style.display = "none";
+      }
+
+      const total = Math.max(0, subtotal - discount + shippingPrice);
+
+      if (subtotalElem) subtotalElem.innerText = `${subtotal} ${CONFIG.currency}`;
+      if (totalElem) totalElem.innerText = `${total} ${CONFIG.currency}`;
+    }
+
+    function applyPageCoupon() {
+      const input = document.getElementById("pageCouponInput");
+      const code = input?.value.trim().toUpperCase();
+      if (!code) {
+        showToast("يرجى كتابة كود الخصم أولاً", "info");
+        return;
+      }
+
+      // فحص كود المستخدم
+      const savedUserJson = localStorage.getItem('shatha_google_user');
+      if (savedUserJson) {
+        const user = JSON.parse(savedUserJson);
+        if (user.couponCode === code) {
+          const isUsed = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
+          if (isUsed) {
+            showToast("هذا الكود تم استخدامه مسبقاً! كل حساب له استخدام لمرة واحدة فقط.", "error");
+            return;
+          }
+          appliedCoupon = code;
+          saveCart();
+          calculatePageTotals();
+          showToast(`تم تطبيق خصم 10% الخاص بحسابك (${code}) بنجاح! 🌸`, "success");
+          return;
+        }
+      }
+
+      if (code === "SHATHA10") {
+        appliedCoupon = code;
+        saveCart();
+        calculatePageTotals();
+        showToast(`تم تطبيق كود الخصم (${code}) بنجاح! 🌸`, "success");
+        return;
+      }
+
+      showToast("عذراً، كود الخصم غير صالح أو غير مرتبط بحسابك", "error");
+    }
+
+    function handlePageShippingChange() {
+      const select = document.getElementById("pageShippingSelect");
+      const manualWrap = document.getElementById("pageManualGovWrap");
+      if (select?.value === "custom") {
+        if (manualWrap) manualWrap.style.display = "block";
+      } else {
+        if (manualWrap) manualWrap.style.display = "none";
+      }
+      calculatePageTotals();
+    }
+
+    function togglePageGiftCard() {
+      const toggle = document.getElementById("pageGiftCardToggle");
+      const wrap = document.getElementById("pageGiftCardWrapper");
+      if (wrap) wrap.style.display = toggle?.checked ? "block" : "none";
+    }
+
+    function showToast(msg, type = "info") {
+      let container = document.getElementById("toastContainer");
+      if (!container) return;
+      const toast = document.createElement("div");
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${msg}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add("show"), 10);
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 400);
+      }, 3000);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadCart();
+      renderCartPage();
+    });
+  </script>
+</body>
+</html>

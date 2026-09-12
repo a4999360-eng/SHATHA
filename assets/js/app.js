@@ -72,6 +72,63 @@ function isCurrentUserOwner() {
          appState.currentUser.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
 }
 
+/* ==========================================================================
+   محرك المزامنة السحابية الفورية (Cloud Sync Engine)
+   يتيح مزامنة المنتجات وتعديلات المالك والآراء عبر كافة الأجهزة والهواتف عالمياً
+   ========================================================================== */
+const SHATHA_CLOUD = {
+  endpoint: "https://kvdb.io/4aY47vLpW9vW1pM6L6UuG9/shatha_",
+  async get(key) {
+    try {
+      const res = await fetch(`${this.endpoint}${key}?_t=${Date.now()}`, { cache: 'no-store' });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn(`Cloud sync read error (${key}):`, e);
+    }
+    return null;
+  },
+  async set(key, data) {
+    try {
+      await fetch(`${this.endpoint}${key}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    } catch (e) {
+      console.warn(`Cloud sync write error (${key}):`, e);
+    }
+  }
+};
+
+// مزامنة المنتجات في الخلفية من السحابة لجميع الهواتف
+async function syncProductsFromCloud() {
+  try {
+    const cloudProds = await SHATHA_CLOUD.get('products');
+    if (Array.isArray(cloudProds) && cloudProds.length > 0) {
+      appState.products = cloudProds;
+      localStorage.setItem('shatha_all_products_v2', JSON.stringify(cloudProds));
+      renderProducts();
+    }
+  } catch (e) {
+    console.warn("Products cloud sync note:", e);
+  }
+}
+
+// مزامنة آراء المتجر من السحابة لجميع الهواتف
+async function syncStoreReviewsFromCloud() {
+  try {
+    const cloudReviews = await SHATHA_CLOUD.get('store_reviews');
+    if (Array.isArray(cloudReviews) && cloudReviews.length > 0) {
+      localStorage.setItem('shatha_store_reviews', JSON.stringify(cloudReviews));
+      renderStoreTestimonials();
+    }
+  } catch (e) {
+    console.warn("Reviews cloud sync note:", e);
+  }
+}
+
 // تحميل ودمج المنتجات مع التعديلات المحفوظة
 function loadAllProducts() {
   try {
@@ -99,13 +156,22 @@ function loadAllProducts() {
   return typeof SHATHA_PRODUCTS !== 'undefined' ? [...SHATHA_PRODUCTS] : [];
 }
 
-// حفظ كافة المنتجات في التخزين المحلي
+// حفظ كافة المنتجات في التخزين المحلي ورفعها سحابياً لكافة المستخدمين
 function saveAllProductsToStorage() {
   try {
     localStorage.setItem('shatha_all_products_v2', JSON.stringify(appState.products));
+    // مزامنة فورية على السحابة لتظهر التعديلات على كافة هواتف العملاء والمالك
+    SHATHA_CLOUD.set('products', appState.products);
   } catch (e) {
     console.error("Error saving products to storage:", e);
   }
+}
+
+// تصدير كود ملف products-data.js للمالك إذا رغب بحفظ نسخة دائمة
+function exportProductsDataCode() {
+  const code = `/**\n * ملف بيانات منتجات متجر شذى المحدث تلقائياً\n * تاريخ التصدير: ${new Date().toLocaleString('ar-EG')}\n */\n\nconst FLOURS_PATH = "FLOURS/";\n\nconst SHATHA_PRODUCTS = ${JSON.stringify(appState.products, null, 2)};\n`;
+  navigator.clipboard?.writeText(code);
+  showToast("تم نسخ كود المنتجات بالكامل للحافظة! يمكنك لصقه بملف products-data.js", "success");
 }
 
 // بدء التشغيل
@@ -119,6 +185,9 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
   setupShippingDropdown();
   initGoogleSignIn();
+  // مزامنة سحابية فورية في الخلفية لضمان تطابق البيانات مع سحابة شذى
+  syncProductsFromCloud();
+  syncStoreReviewsFromCloud();
 });
 
 // إعداد المستمعين
@@ -318,15 +387,9 @@ function renderProducts() {
           </div>
 
           <div class="product-card-actions">
-            <button class="btn-add-cart" onclick="quickAddToCart('${product.id}')">
+            <button class="btn-add-cart" onclick="quickAddToCart('${product.id}')" style="width: 100%;">
               <i class="fas fa-shopping-bag"></i> أضف للسلة
             </button>
-            <a href="https://wa.me/${SHATHA_CONFIG.whatsappNumber}?text=${encodeURIComponent(`مرحباً شذى 🌸 أود الاستفسار والطلب المباشر لباقة: ${product.name} (السعر: ${product.basePrice} ج.م)`)}" 
-               target="_blank" 
-               class="btn-whatsapp-direct" 
-               title="طلب مباشر وسريع عبر واتساب">
-              <i class="fab fa-whatsapp"></i>
-            </a>
           </div>
         </div>
       </div>
@@ -425,16 +488,6 @@ function openProductModal(productId) {
   // تقييمات العملاء
   renderModalReviews(product);
 
-  // زر الواتساب المباشر للباقة المحددة
-  const waBtn = document.getElementById("modalWhatsappBtn");
-  if (waBtn) {
-    waBtn.onclick = () => {
-      const selectedSizeObj = product.sizes.find(s => s.id === appState.selectedSize) || product.sizes[0];
-      const msg = `مرحباً فريق شذى 🌸 أرغب في طلب هذه الباقة:\n- الباقة: ${product.name}\n- المقاس/التنسيق: ${selectedSizeObj.name}\n- السعر: ${selectedSizeObj.price} ج.م\n- التفاصيل: ${selectedSizeObj.desc}\n- الرابط: ${window.location.href}`;
-      window.open(`https://wa.me/${SHATHA_CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-    };
-  }
-
   // زر الإضافة للسلة من داخل المودال
   const addBtn = document.getElementById("modalAddToCartBtn");
   if (addBtn) {
@@ -504,60 +557,79 @@ function renderModalReviews(product) {
   }
 
   const isOwner = isCurrentUserOwner();
-  const currentUserEmail = appState.currentUser?.email || null;
+  const myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
 
   container.innerHTML = product.reviews.map((rev, idx) => {
-    const canDelete = isOwner || (currentUserEmail && currentUserEmail === rev.userEmail);
+    if (!rev.id) {
+      rev.id = `pr_${product.id}_${idx}`;
+    }
+    const isMyReview = (rev.id && myReviews.includes(rev.id)) || 
+                       (appState.currentUser && rev.authorEmail && rev.authorEmail.toLowerCase() === appState.currentUser.email.toLowerCase());
+    const canDelete = isOwner || isMyReview;
+
     return `
-    <div style="background: var(--bg-body); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 10px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-        <strong style="color: var(--text-main); font-size: 0.9rem;">${rev.author}</strong>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="color: #F5A623; font-size: 0.85rem;">★ ${rev.rating}</span>
-          ${canDelete ? `<button type="button" class="btn-del-review" onclick="deleteProductReview('${product.id}', ${idx})" title="حذف هذا التقييم"><i class="fas fa-trash-alt"></i></button>` : ''}
+      <div style="background: var(--bg-body); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 10px; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <strong style="color: var(--text-main); font-size: 0.9rem;">${rev.author}</strong>
+            ${isMyReview ? '<span style="font-size: 0.7rem; background: var(--bg-card); color: var(--primary-pink); padding: 2px 6px; border-radius: 6px; font-weight: 600;">تقييمك</span>' : ''}
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #F5A623; font-size: 0.85rem;">★ ${rev.rating}</span>
+            ${canDelete ? `
+              <button type="button" 
+                      class="btn-del-review" 
+                      onclick="event.stopPropagation(); deleteProductReview('${product.id}', ${idx})" 
+                      title="${isOwner ? 'حذف هذا التقييم نهائياً (صلاحية المالك)' : 'حذف تقييمي'}">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            ` : ''}
+          </div>
         </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6; margin: 4px 0;">${rev.comment}</p>
+        <small style="color: var(--text-light); font-size: 0.75rem;">${rev.date || 'مؤخراً'}</small>
       </div>
-      <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">${rev.comment}</p>
-      <small style="color: var(--text-light); font-size: 0.75rem;">${rev.date}</small>
-    </div>
-  `}).join('');
+    `;
+  }).join('');
 }
 
-function deleteProductReview(productId, reviewIndex) {
+// حذف تقييم منتج (للمالك على أي تقييم، وللعميل على تقييمه الخاص)
+function deleteProductReview(productId, reviewIdx) {
   const isOwner = isCurrentUserOwner();
-  const product = appState.products.find(p => p.id === productId);
-  if (!product || !Array.isArray(product.reviews)) return;
+  const prod = appState.products.find(p => p.id === productId);
+  if (!prod || !prod.reviews || !prod.reviews[reviewIdx]) return;
 
-  const rev = product.reviews[reviewIndex];
-  if (!rev) return;
+  const rev = prod.reviews[reviewIdx];
+  const myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
+  const isMyReview = (rev.id && myReviews.includes(rev.id)) || 
+                     (appState.currentUser && rev.authorEmail && rev.authorEmail.toLowerCase() === appState.currentUser.email.toLowerCase());
 
-  // فقط المالك أو صاحب التقييم يستطيع الحذف
-  if (!isOwner && appState.currentUser?.email !== rev.userEmail) {
-    showToast("ليس لديك صلاحية حذف هذا التقييم", "error");
+  if (!isOwner && !isMyReview) {
+    showToast("عذراً، لا تملك صلاحية حذف هذا التقييم", "error");
     return;
   }
 
-  if (!confirm("هل أنت متأكد من حذف هذا التقييم نهائياً؟")) return;
+  if (!confirm("هل أنت متأكد من رغبتك في حذف هذا التقييم نهائياً؟")) return;
 
-  product.reviews.splice(reviewIndex, 1);
-  product.reviewsCount = product.reviews.length;
-  if (product.reviews.length > 0) {
-    const sum = product.reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 5), 0);
-    product.rating = (sum / product.reviews.length).toFixed(1);
+  prod.reviews.splice(reviewIdx, 1);
+  prod.reviewsCount = prod.reviews.length;
+  if (prod.reviews.length > 0) {
+    const sum = prod.reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 5), 0);
+    prod.rating = (sum / prod.reviews.length).toFixed(1);
   } else {
-    product.rating = "5.0";
+    prod.rating = "5.0";
   }
 
   saveAllProductsToStorage();
-  renderModalReviews(product);
+  renderModalReviews(prod);
 
   const rElem = document.getElementById("modalProductRating");
   const cElem = document.getElementById("modalProductReviewsCount");
-  if (rElem) rElem.innerText = product.rating;
-  if (cElem) cElem.innerText = `(${product.reviewsCount} تقييم)`;
+  if (rElem) rElem.innerText = prod.rating;
+  if (cElem) cElem.innerText = `(${prod.reviewsCount} تقييم)`;
 
   renderProducts();
-  showToast("تم حذف التقييم بنجاح 🗑️", "info");
+  showToast(isOwner ? "تم حذف التقييم نهائياً بصلاحية المالك ومزامنته سحابياً 🌸" : "تم حذف تقييمك بنجاح", "success");
 }
 
 // تبديل إظهار/إخفاء نموذج تقييم الباقة
@@ -586,7 +658,7 @@ function handleProductReviewSubmit(e) {
   e.preventDefault();
   if (!appState.selectedProduct) return;
 
-  const author = document.getElementById("prAuthor")?.value.trim() || "عميل شذى";
+  const author = document.getElementById("prAuthor")?.value.trim() || (appState.currentUser?.name || "عميل شذى");
   const rating = parseInt(document.getElementById("prRatingVal")?.value) || 5;
   const comment = document.getElementById("prComment")?.value.trim();
 
@@ -599,12 +671,14 @@ function handleProductReviewSubmit(e) {
     appState.selectedProduct.reviews = [];
   }
 
+  const reviewId = 'pr_' + Date.now();
   const newReview = {
+    id: reviewId,
     author: author,
+    authorEmail: appState.currentUser?.email || '',
     rating: rating,
     comment: comment,
-    date: "الآن",
-    userEmail: appState.currentUser?.email || null
+    date: "الآن"
   };
 
   appState.selectedProduct.reviews.unshift(newReview);
@@ -613,6 +687,11 @@ function handleProductReviewSubmit(e) {
   // إعادة حساب متوسط التقييم
   const sum = appState.selectedProduct.reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 5), 0);
   appState.selectedProduct.rating = (sum / appState.selectedProduct.reviews.length).toFixed(1);
+
+  // حفظ في قائمة تقييماتي للعميل لتمكينه من حذفه
+  const myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
+  myReviews.push(reviewId);
+  localStorage.setItem('shatha_my_reviews', JSON.stringify(myReviews));
 
   saveAllProductsToStorage();
   renderModalReviews(appState.selectedProduct);
@@ -628,26 +707,30 @@ function handleProductReviewSubmit(e) {
   // إفراغ النموذج وإخفائه
   document.getElementById("prComment").value = "";
   toggleProdReviewForm();
-  showToast("شكراً لمشاركتك! تمت إضافة تقييمك للباقة بنجاح 🌸", "success");
+  showToast("شكراً لمشاركتك! تمت إضافة تقييمك ومزامنته سحابياً بنجاح 🌸", "success");
 }
 
 /* ==========================================================================
    نظام آراء وتقييمات المتجر بالكامل (Store-Wide Testimonials)
+   مع إمكانية الحذف الفوري للمالك ومزامنتها سحابياً لجميع الزوار
    ========================================================================== */
 const DEFAULT_STORE_REVIEWS = [
   {
+    id: "sr_def_1",
     author: "نورهان حسين",
     location: "القاهرة • بوكيه ورد ستان أحمر ملكي",
     rating: 5,
     comment: "بوكيه الورد الستان طلع في الحقيقة خيال! لمعة الستان والتغليف الأسود مع الأحمر مدي شياكة مش طبيعية، وأجمل حاجة إنه هيفضل ذكرى دايمة مش بيذبل خالص."
   },
   {
+    id: "sr_def_2",
     author: "محمود عبد العزيز",
     location: "التجمع الخامس • بوكيه النقود الملكي الضخم",
     rating: 5,
     comment: "طلبت بوكيه الفلوس الملكي في خطوبة أختي وكان مفاجأة الحفلة كلها! لف الفلوس متقن جداً ونظيف ومن غير ما تتجرح، ذوق عالي والتزام في الميعاد."
   },
   {
+    id: "sr_def_3",
     author: "سارة منصور",
     location: "الشيخ زايد • بوكيه حلوى اللولي بوب",
     rating: 5,
@@ -659,15 +742,24 @@ function loadStoreReviews() {
   try {
     const saved = localStorage.getItem('shatha_store_reviews');
     if (saved) {
-      const custom = JSON.parse(saved);
-      if (Array.isArray(custom) && custom.length > 0) {
-        return [...custom, ...DEFAULT_STORE_REVIEWS];
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
       }
     }
   } catch (e) {
     console.warn("Error loading store reviews:", e);
   }
-  return DEFAULT_STORE_REVIEWS;
+  return [...DEFAULT_STORE_REVIEWS];
+}
+
+function saveStoreReviews(reviews) {
+  try {
+    localStorage.setItem('shatha_store_reviews', JSON.stringify(reviews));
+    SHATHA_CLOUD.set('store_reviews', reviews);
+  } catch (e) {
+    console.error("Error saving store reviews:", e);
+  }
 }
 
 function renderStoreTestimonials() {
@@ -676,23 +768,31 @@ function renderStoreTestimonials() {
 
   const reviews = loadStoreReviews();
   const isOwner = isCurrentUserOwner();
-  const currentUserEmail = appState.currentUser?.email || null;
+  const myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
 
-  grid.innerHTML = reviews.map((rev, idx) => {
+  grid.innerHTML = reviews.map(rev => {
     const stars = '★'.repeat(rev.rating || 5);
     const initials = rev.author ? rev.author.split(' ').map(w => w[0]).join('.').slice(0, 5) : 'ع.ش';
-    // المالك يحذف أي رأي، العميل يحذف رأيه فقط (مطابقة userEmail المحفوظ)
-    const canDelete = isOwner || (currentUserEmail && currentUserEmail === rev.userEmail);
+    const isMyReview = (rev.id && myReviews.includes(rev.id)) || 
+                       (appState.currentUser && rev.authorEmail && rev.authorEmail.toLowerCase() === appState.currentUser.email.toLowerCase());
+    const canDelete = isOwner || isMyReview;
 
     return `
-      <div class="testimonial-card" style="position: relative;">
-        ${canDelete ? `<button type="button" class="btn-del-store-review" onclick="deleteStoreReview(${idx})" title="حذف هذا الرأي"><i class="fas fa-trash-alt"></i></button>` : ''}
+      <div class="testimonial-card">
+        ${canDelete ? `
+          <button type="button" 
+                  class="btn-del-review" 
+                  onclick="event.stopPropagation(); deleteStoreReview('${rev.id}')" 
+                  title="${isOwner ? 'حذف هذا الرأي نهائياً كمالك للمتجر' : 'حذف رأيي'}">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        ` : ''}
         <div class="testimonial-stars" style="color: #F5A623;">${stars}</div>
         <p class="testimonial-quote">"${rev.comment}"</p>
         <div class="testimonial-author">
           <div class="author-avatar">${initials}</div>
           <div class="author-info">
-            <h5>${rev.author}</h5>
+            <h5>${rev.author} ${isMyReview ? '<span style="font-size: 0.7rem; color: var(--primary-pink);">(رأيك)</span>' : ''}</h5>
             <span>${rev.location || 'عميل موثوق • متجر شذى'}</span>
           </div>
         </div>
@@ -701,47 +801,29 @@ function renderStoreTestimonials() {
   }).join('');
 }
 
-function deleteStoreReview(reviewIndex) {
+// حذف رأي من آراء المتجر
+function deleteStoreReview(revId) {
   const isOwner = isCurrentUserOwner();
-  const currentUserEmail = appState.currentUser?.email || null;
+  const myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
+  const reviews = loadStoreReviews();
+  const targetRev = reviews.find(r => String(r.id) === String(revId));
 
-  // تحميل الآراء المخصصة فقط (الافتراضية غير محفوظة في localStorage)
-  let customReviews = [];
-  try {
-    const saved = localStorage.getItem('shatha_store_reviews');
-    if (saved) customReviews = JSON.parse(saved);
-  } catch (e) {}
+  if (!targetRev) return;
 
-  const allReviews = loadStoreReviews();
-  const rev = allReviews[reviewIndex];
-  if (!rev) return;
+  const isMyReview = (targetRev.id && myReviews.includes(targetRev.id)) || 
+                     (appState.currentUser && targetRev.authorEmail && targetRev.authorEmail.toLowerCase() === appState.currentUser.email.toLowerCase());
 
-  if (!isOwner && currentUserEmail !== rev.userEmail) {
-    showToast("ليس لديك صلاحية حذف هذا الرأي", "error");
+  if (!isOwner && !isMyReview) {
+    showToast("عذراً، لا تملك صلاحية حذف هذا الرأي", "error");
     return;
   }
 
-  if (!confirm("هل أنت متأكد من حذف هذا الرأي نهائياً؟")) return;
+  if (!confirm("هل أنت متأكد من رغبتك في حذف هذا الرأي نهائياً؟ سيتم حذفه من كافة الأجهزة.")) return;
 
-  // البحث في الآراء المخصصة والحذف
-  const customIdx = customReviews.findIndex(r => r.author === rev.author && r.comment === rev.comment);
-  if (customIdx > -1) {
-    customReviews.splice(customIdx, 1);
-    localStorage.setItem('shatha_store_reviews', JSON.stringify(customReviews));
-  } else if (isOwner) {
-    // المالك يحذف حتى الآراء الافتراضية: تحفظ قائمة بدونه
-    const defaultWithout = DEFAULT_STORE_REVIEWS.filter((r, i) => {
-      const allIdx = allReviews.indexOf(rev);
-      return r !== rev;
-    });
-    // حفظ نسخة معدلة من الافتراضيين في localStorage
-    const existingCustom = customReviews;
-    const newCustom = allReviews.filter((r, i) => i !== reviewIndex && customReviews.some(c => c.author === r.author && c.comment === r.comment));
-    localStorage.setItem('shatha_store_reviews', JSON.stringify(newCustom));
-  }
-
+  const updated = reviews.filter(r => String(r.id) !== String(revId));
+  saveStoreReviews(updated);
   renderStoreTestimonials();
-  showToast("تم حذف الرأي بنجاح 🗑️", "info");
+  showToast(isOwner ? "تم حذف الرأي نهائياً بصلاحية المالك ومزامنته سحابياً 🌸" : "تم حذف رأيك بنجاح", "success");
 }
 
 function toggleStoreReviewForm() {
@@ -769,7 +851,7 @@ function setStoreRating(val) {
 
 function handleStoreReviewSubmit(e) {
   e.preventDefault();
-  const author = document.getElementById("srAuthor")?.value.trim();
+  const author = document.getElementById("srAuthor")?.value.trim() || (appState.currentUser?.name || "عميل متجر شذى");
   const location = document.getElementById("srLocation")?.value.trim() || "عميل متجر شذى";
   const rating = parseInt(document.getElementById("srRatingVal")?.value) || 5;
   const comment = document.getElementById("srComment")?.value.trim();
@@ -779,27 +861,32 @@ function handleStoreReviewSubmit(e) {
     return;
   }
 
+  const reviewId = 'sr_' + Date.now();
   const newReview = {
+    id: reviewId,
     author,
+    authorEmail: appState.currentUser?.email || '',
     location,
     rating,
     comment,
-    date: new Date().toLocaleDateString('ar-EG'),
-    userEmail: appState.currentUser?.email || null
+    date: new Date().toLocaleDateString('ar-EG')
   };
 
   try {
-    let customReviews = [];
-    const saved = localStorage.getItem('shatha_store_reviews');
-    if (saved) customReviews = JSON.parse(saved);
-    customReviews.unshift(newReview);
-    localStorage.setItem('shatha_store_reviews', JSON.stringify(customReviews));
+    let reviews = loadStoreReviews();
+    reviews.unshift(newReview);
+    saveStoreReviews(reviews);
+
+    // تسجيل المعرف في تقييماتي للعميل
+    const myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
+    myReviews.push(reviewId);
+    localStorage.setItem('shatha_my_reviews', JSON.stringify(myReviews));
 
     renderStoreTestimonials();
     toggleStoreReviewForm();
     document.getElementById("storeReviewForm")?.reset();
     setStoreRating(5);
-    showToast("شكراً لمشاركتك! تم نشر رأيك في المتجر بنجاح 🌸", "success");
+    showToast("شكراً لمشاركتك! تم نشر رأيك ومزامنته سحابياً بنجاح 🌸", "success");
   } catch (err) {
     console.error(err);
     showToast("حدث خطأ أثناء حفظ تقييمك", "error");
@@ -965,20 +1052,12 @@ function updateCartUI() {
         <div class="cart-item-variant">${item.sizeName}</div>
         <div class="cart-item-price">${item.price * item.quantity} ${SHATHA_CONFIG.currency}</div>
         
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 6px;">
+        <div style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-top: 6px;">
           <div class="cart-qty-controls">
             <button class="qty-btn" onclick="updateCartItemQuantity('${item.cartKey}', -1)">-</button>
             <span class="qty-val">${item.quantity}</span>
             <button class="qty-btn" onclick="updateCartItemQuantity('${item.cartKey}', 1)">+</button>
           </div>
-
-          <!-- زر الطلب المباشر عبر واتساب لهذا المنتج تحديداً -->
-          <button type="button" 
-                  class="btn-item-whatsapp" 
-                  onclick="orderSingleCartItemViaWhatsapp('${item.cartKey}')"
-                  title="طلب هذا المنتج مباشرة عبر واتساب 01102541236">
-            <i class="fab fa-whatsapp"></i> طلب هذا المنتج واتساب
-          </button>
         </div>
       </div>
       <button class="cart-item-remove" onclick="removeCartItem('${item.cartKey}')" title="حذف">
@@ -1039,11 +1118,49 @@ function setupShippingDropdown() {
   const select = document.getElementById("checkoutGovernorate");
   if (!select) return;
 
-  select.innerHTML = appState.shippingZones.map(zone => `
+  const optionsHtml = appState.shippingZones.map(zone => `
     <option value="${zone.id}" ${zone.id === appState.selectedShippingZone ? 'selected' : ''}>
       ${zone.name} - ${zone.price} ج.م
     </option>
-  `).join('');
+  `).join('') + `
+    <option value="custom">✏️ أخرى (كتابة اسم المحافظة يدوياً)</option>
+  `;
+
+  select.innerHTML = optionsHtml;
+
+  select.addEventListener("change", (e) => {
+    const manualWrap = document.getElementById("manualGovWrapper");
+    if (e.target.value === "custom") {
+      if (manualWrap) manualWrap.style.display = "block";
+      const customInput = document.getElementById("customGovInput");
+      customInput?.focus();
+      let customZone = appState.shippingZones.find(z => z.id === "custom");
+      if (!customZone) {
+        customZone = { id: "custom", name: customInput?.value.trim() || "محافظة أخرى", price: 60 };
+        appState.shippingZones.push(customZone);
+      }
+      appState.selectedShippingZone = "custom";
+      updateCheckoutSummary();
+    } else {
+      if (manualWrap) manualWrap.style.display = "none";
+      appState.selectedShippingZone = e.target.value;
+      updateCheckoutSummary();
+    }
+  });
+
+  const customInput = document.getElementById("customGovInput");
+  customInput?.addEventListener("input", (e) => {
+    const val = e.target.value.trim() || "محافظة أخرى";
+    let customZone = appState.shippingZones.find(z => z.id === "custom");
+    if (!customZone) {
+      customZone = { id: "custom", name: val, price: 60 };
+      appState.shippingZones.push(customZone);
+    } else {
+      customZone.name = val;
+    }
+    appState.selectedShippingZone = "custom";
+    updateCheckoutSummary();
+  });
 }
 
 function openCheckoutModal() {
@@ -1103,10 +1220,10 @@ function handleCheckoutSubmit(e) {
   const customerName = document.getElementById("checkoutName")?.value.trim();
   const customerPhone = document.getElementById("checkoutPhone")?.value.trim();
   const customerAddress = document.getElementById("checkoutAddress")?.value.trim();
-  const deliveryTiming = document.getElementById("checkoutDeliveryTiming")?.value.trim() || "في أسرع وقت";
-  const deliveryUrgency = document.querySelector('input[name="modalUrgency"]:checked')?.value || "عادي 🌸";
-  const deliveryReason = document.getElementById("checkoutDeliveryReason")?.value.trim();
-  const notes = document.getElementById("checkoutNotes")?.value.trim() || "";
+  const deliveryDate = document.getElementById("checkoutDate")?.value || document.getElementById("cDeliveryDate")?.value || "في أسرع وقت";
+  const deliveryUrgency = document.querySelector('input[name="checkoutUrgency"]:checked')?.value || document.querySelector('input[name="deliveryUrgency"]:checked')?.value || "standard";
+  const deliveryReason = document.getElementById("checkoutDeliveryReason")?.value?.trim() || document.getElementById("cDeliveryReason")?.value?.trim() || "";
+  const notes = document.getElementById("checkoutNotes")?.value.trim() || "لا توجد ملاحظات إضافية";
 
   const giftSender = document.getElementById("checkoutGiftSender")?.value.trim();
   const giftRecipient = document.getElementById("checkoutGiftRecipient")?.value.trim();
@@ -1130,6 +1247,8 @@ function handleCheckoutSubmit(e) {
   };
   const paymentMethodLabel = paymentNames[appState.selectedPaymentMethod] || "فودافون كاش / محافظ إلكترونية";
 
+  const urgencyLabel = deliveryUrgency === "urgent" ? "⚡ مستعجل (تسليم سريع/نفس اليوم)" : "🌸 عادي (الموعد المحدد)";
+
   let orderMsg = `🌸 *طلب جديد من متجر شذى للهدايا والورد المصنوع (SHATHA)* 🌸\n`;
   orderMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
   orderMsg += `👤 *بيانات العميل:*\n`;
@@ -1137,10 +1256,10 @@ function handleCheckoutSubmit(e) {
   orderMsg += `• رقم الهاتف: ${customerPhone}\n`;
   orderMsg += `• العنوان: ${customerAddress}\n`;
   orderMsg += `• المحافظة/المنطقة: ${currentZone.name}\n`;
-  orderMsg += `• موعد وتوقيت التوصيل المطلوب: ${deliveryTiming}\n`;
-  orderMsg += `• درجة الاستعجال: ${deliveryUrgency}\n`;
+  orderMsg += `• موعد التوصيل المطلوب: ${deliveryDate}\n`;
+  orderMsg += `• نوع التوصيل: ${urgencyLabel}\n`;
   if (deliveryReason) {
-    orderMsg += `• توضيح المناسبة / الاستعجال: ${deliveryReason}\n`;
+    orderMsg += `• تفاصيل الموعد / سبب الاستعجال: ${deliveryReason}\n`;
   }
   orderMsg += `\n`;
 
@@ -1165,7 +1284,7 @@ function handleCheckoutSubmit(e) {
   orderMsg += `• الشحن: ${isFreeShipping ? 'مجاني 🎉' : `${shippingCost} ج.م`}\n`;
   orderMsg += `• *الإجمالي النهائي: ${grandTotal} ج.م*\n`;
   orderMsg += `• طريقة الدفع: ${paymentMethodLabel}\n`;
-  if (notes) {
+  if (notes && notes !== "لا توجد ملاحظات إضافية") {
     orderMsg += `• ملاحظات: ${notes}\n`;
   }
   orderMsg += `━━━━━━━━━━━━━━━━━━━━\n`;
@@ -1248,73 +1367,6 @@ function closeAllModals() {
   document.body.style.overflow = "";
 }
 
-/* ==========================================================================
-   وظائف مساعدة: Auth Modal + Governorate Helpers
-   ========================================================================== */
-
-function openShathaAuthModal() {
-  const modal = document.getElementById("shathaAuthModal");
-  if (!modal) return;
-  modal.classList.add("active");
-  document.body.style.overflow = "hidden";
-  // إعادة رسم زر جوجل داخل المودال
-  if (typeof google !== 'undefined' && google.accounts && google.accounts.id && !appState.currentUser) {
-    setTimeout(() => {
-      const btn = document.getElementById("googleSignInBtnModal");
-      if (btn) {
-        btn.innerHTML = "";
-        google.accounts.id.renderButton(btn, {
-          theme: "outline", size: "large", type: "standard",
-          text: "signin_with", shape: "pill", logo_alignment: "right"
-        });
-      }
-    }, 100);
-  }
-}
-
-function closeShathaAuthModal() {
-  const modal = document.getElementById("shathaAuthModal");
-  modal?.classList.remove("active");
-  document.body.style.overflow = "";
-}
-
-function toggleCustomGovModalInput() {
-  const wrap = document.getElementById("checkoutCustomGovWrap");
-  if (!wrap) return;
-  wrap.style.display = wrap.style.display === "none" ? "block" : "none";
-  if (wrap.style.display === "block") {
-    document.getElementById("checkoutCustomGovInput")?.focus();
-  }
-}
-
-function saveCustomGovModal() {
-  const input = document.getElementById("checkoutCustomGovInput");
-  const val = input?.value.trim();
-  if (!val) {
-    showToast("يرجى كتابة اسم المحافظة أو المنطقة", "info");
-    return;
-  }
-  const select = document.getElementById("checkoutGovernorate");
-  if (select) {
-    const opt = document.createElement("option");
-    opt.value = "custom-" + Date.now();
-    opt.setAttribute("data-price", "80");
-    opt.textContent = `${val} - 80 ج.م`;
-    select.appendChild(opt);
-    select.value = opt.value;
-    appState.selectedShippingZone = opt.value;
-    updateCheckoutSummary();
-    showToast(`تمت إضافة واختيار "${val}" بنجاح! 🌸`, "success");
-    document.getElementById("checkoutCustomGovWrap").style.display = "none";
-    if (input) input.value = "";
-  }
-}
-
-function handleGovernorateChange(selectEl) {
-  appState.selectedShippingZone = selectEl.value;
-  updateCheckoutSummary();
-}
-
 function showToast(message, type = "info") {
   let container = document.getElementById("toastContainer");
   if (!container) {
@@ -1390,21 +1442,29 @@ function initGoogleSignIn() {
       cancel_on_tap_outside: true
     });
 
-    if (!appState.currentUser) {
-      const btnsToRender = ["googleSignInBtnTop", "googleSignInBtnNewsletter", "googleSignInBtnModal"];
-      btnsToRender.forEach(btnId => {
-        const btnContainer = document.getElementById(btnId);
-        if (btnContainer) {
-          btnContainer.innerHTML = "";
-          google.accounts.id.renderButton(btnContainer, {
-            theme: "outline",
-            size: btnId === "googleSignInBtnTop" ? "medium" : "large",
-            type: "standard",
-            text: "signin_with",
-            shape: "pill",
-            logo_alignment: "right"
-          });
-        }
+    const btnContainer = document.getElementById("googleSignInBtnTop");
+    if (btnContainer && !appState.currentUser) {
+      btnContainer.innerHTML = "";
+      google.accounts.id.renderButton(btnContainer, {
+        theme: "outline",
+        size: "medium",
+        type: "standard",
+        text: "signin_with",
+        shape: "pill",
+        logo_alignment: "right"
+      });
+    }
+
+    const newsletterBtn = document.getElementById("googleSignInBtnNewsletter");
+    if (newsletterBtn && !appState.currentUser) {
+      newsletterBtn.innerHTML = "";
+      google.accounts.id.renderButton(newsletterBtn, {
+        theme: "filled_blue",
+        size: "large",
+        type: "standard",
+        text: "continue_with",
+        shape: "pill",
+        logo_alignment: "right"
       });
     }
   } catch (e) {
@@ -1509,6 +1569,7 @@ function updateAuthUI() {
   const loggedOutBar = document.getElementById("authBarLoggedOut");
   const loggedInBar = document.getElementById("authBarLoggedIn");
   const userWidget = document.getElementById("userAuthWidget");
+  const newsletterBtn = document.getElementById("googleSignInBtnNewsletter");
 
   if (appState.currentUser) {
     const user = appState.currentUser;
@@ -1517,6 +1578,7 @@ function updateAuthUI() {
 
     if (loggedOutBar) loggedOutBar.style.display = "none";
     if (loggedInBar) loggedInBar.style.display = "flex";
+    if (newsletterBtn) newsletterBtn.style.display = "none";
 
     const nameElem = document.getElementById("loggedInUserName");
     const codeElem = document.getElementById("userCouponCode");
@@ -1596,23 +1658,36 @@ function updateAuthUI() {
     if (loggedInBar) loggedInBar.style.display = "none";
     if (userWidget) userWidget.style.display = "none";
 
-    // إعادة رسم زر جوجل في كل الأماكن المخصصة
+    if (newsletterBtn) {
+      newsletterBtn.style.display = "flex";
+    }
+
+    // إعادة رسم أزرار جوجل
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-      const btnsToRender = ["googleSignInBtnTop", "googleSignInBtnNewsletter", "googleSignInBtnModal"];
-      btnsToRender.forEach(btnId => {
-        const btnContainer = document.getElementById(btnId);
-        if (btnContainer) {
-          btnContainer.innerHTML = "";
-          google.accounts.id.renderButton(btnContainer, {
-            theme: "outline",
-            size: btnId === "googleSignInBtnTop" ? "medium" : "large",
-            type: "standard",
-            text: "signin_with",
-            shape: "pill",
-            logo_alignment: "right"
-          });
-        }
-      });
+      const btnContainer = document.getElementById("googleSignInBtnTop");
+      if (btnContainer) {
+        btnContainer.innerHTML = "";
+        google.accounts.id.renderButton(btnContainer, {
+          theme: "outline",
+          size: "medium",
+          type: "standard",
+          text: "signin_with",
+          shape: "pill",
+          logo_alignment: "right"
+        });
+      }
+
+      if (newsletterBtn) {
+        newsletterBtn.innerHTML = "";
+        google.accounts.id.renderButton(newsletterBtn, {
+          theme: "filled_blue",
+          size: "large",
+          type: "standard",
+          text: "continue_with",
+          shape: "pill",
+          logo_alignment: "right"
+        });
+      }
     }
   }
 

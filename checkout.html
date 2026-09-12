@@ -367,8 +367,8 @@
 
             <div class="checkout-form-grid">
               <div class="form-group form-group-full">
-                <label for="cGovernorate">المحافظة / المنطقة * (اختر محافظتك من القائمة أو حددها)</label>
-                <select id="cGovernorate" required>
+                <label for="cGovernorate">المحافظة / المنطقة * (اختر محافظتك أو اكتبها يدوياً)</label>
+                <select id="cGovernorate" required onchange="handleGovernorateChange()">
                   <option value="cairo" data-price="50">القاهرة (توصيل سريع 3-5 ساعات) - 50 ج.م</option>
                   <option value="giza" data-price="60">الجيزة و6 أكتوبر والشيخ زايد - 60 ج.م</option>
                   <option value="new-cairo" data-price="50">القاهرة الجديدة والتجمع والرحاب ومدينتي والعاصمة الإدارية - 50 ج.م</option>
@@ -397,16 +397,16 @@
                   <option value="north-sinai" data-price="130">شمال سيناء (العريش) - 130 ج.م</option>
                   <option value="matrouh" data-price="120">مطروح والساحل الشمالي الغربي - 120 ج.م</option>
                   <option value="new-valley" data-price="140">الوادي الجديد - 140 ج.م</option>
+                  <option value="custom" data-price="60">✏️ أخرى (كتابة اسم المحافظة والمنطقة يدوياً) - 60 ج.م</option>
                 </select>
-                <div id="cCustomGovWrap" style="display: none; margin-top: 8px;">
-                  <div style="display: flex; gap: 8px;">
-                    <input type="text" id="cCustomGovInput" placeholder="اكتب اسم محافظتك ومنطقتك..." style="background: #FFFFFF;">
-                    <button type="button" class="btn-primary" onclick="saveCustomGovCheckout()" style="white-space: nowrap; padding: 6px 14px; font-size: 0.85rem;">حفظ</button>
-                  </div>
+
+                <!-- حقل كتابة المحافظة يدوياً إذا اختار العميل أخرى -->
+                <div class="manual-gov-wrap" id="manualGovWrapper" style="display: none; margin-top: 10px; background: #FFF5F7; padding: 12px 14px; border-radius: var(--radius-md); border: 1.5px dashed var(--primary-pink);">
+                  <label for="cManualGov" style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; display: block;">
+                    ✏️ اكتب اسم محافظتك أو مدينتك هنا بالتفصيل: *
+                  </label>
+                  <input type="text" id="cManualGov" placeholder="مثال: مطروح - سيدي عبد الرحمن / الدقهلية - بلقاس..." style="background: #FFFFFF;">
                 </div>
-                <button type="button" class="btn-toggle-custom-gov" onclick="toggleCustomGovCheckout()">
-                  <i class="fas fa-plus-circle"></i> كتابة اسم محافظتي يدوياً إذا لم تكن بالقائمة
-                </button>
               </div>
 
               <div class="form-group form-group-full">
@@ -423,34 +423,45 @@
                 <small style="color: var(--text-muted); display: block; margin-top: 4px;">يساعد هذا المندوب في الوصول إليك مباشرة وبأقصى سرعة.</small>
               </div>
 
-              <!-- توقيت التوصيل ومدى الاستعجال بناءً على طلب العميل -->
-              <div class="form-group form-group-full" style="background: var(--bg-body); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-                <label for="cDeliveryTiming" style="font-weight: 800; color: var(--primary-dark); margin-bottom: 6px; display: block;">
-                  <i class="fas fa-clock" style="color: var(--primary-pink);"></i> متى تريد توصيل الطلب؟ *
+              <!-- قسم: متى تريد توصيل الطلب؟ (مستعجل vs عادي مع تفاصيل الموعد) -->
+              <div class="form-group form-group-full" style="background: rgba(212, 107, 123, 0.05); padding: 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-subtle); margin-top: 10px;">
+                <label style="font-weight: 800; color: var(--primary-dark); font-size: 1rem; margin-bottom: 12px; display: block;">
+                  ⏰ متى تريد توصيل الطلب؟ *
                 </label>
-                <input type="text" id="cDeliveryTiming" placeholder="مثال: اليوم خلال 3 ساعات / غداً بعد المغرب / يوم محدد..." required style="background: #FFFFFF; margin-bottom: 12px;">
-
-                <label style="font-weight: 800; color: var(--primary-dark); margin-bottom: 6px; display: block;">
-                  <i class="fas fa-bolt" style="color: #E67E22;"></i> هل الطلب مستعجل أم عادي؟ *
-                </label>
-                <div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: #fff; padding: 6px 14px; border-radius: var(--radius-full); border: 1.5px solid var(--border-subtle); font-weight: 700; font-size: 0.85rem;">
-                    <input type="radio" name="cUrgency" value="عادي 🌸" checked>
-                    <span>عادي 🌸</span>
+                
+                <div class="delivery-urgency-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                  <label class="urgency-card-option" id="labelUrgent" style="cursor: pointer;">
+                    <input type="radio" name="deliveryUrgency" value="urgent" id="urgencyFast" onchange="toggleUrgencyState()">
+                    <div class="urgency-card-inner">
+                      <span class="urgency-badge" style="background: #FF5722; color: #fff; font-weight: 700; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem;">⚡ مستعجل</span>
+                      <strong style="display: block; margin: 4px 0; color: var(--primary-dark);">في أسرع وقت</strong>
+                      <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4;">تسليم فوري سريع (في نفس اليوم أو خلال ساعات)</p>
+                    </div>
                   </label>
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: #fff; padding: 6px 14px; border-radius: var(--radius-full); border: 1.5px solid var(--border-subtle); font-weight: 700; font-size: 0.85rem; color: #D35400;">
-                    <input type="radio" name="cUrgency" value="مستعجل جداً ⚡">
-                    <span>مستعجل جداً ⚡</span>
+
+                  <label class="urgency-card-option selected" id="labelStandard" style="cursor: pointer;">
+                    <input type="radio" name="deliveryUrgency" value="standard" id="urgencyStandard" checked onchange="toggleUrgencyState()">
+                    <div class="urgency-card-inner">
+                      <span class="urgency-badge" style="background: var(--primary-pink); color: #fff; font-weight: 700; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem;">🌸 عادي</span>
+                      <strong style="display: block; margin: 4px 0; color: var(--primary-dark);">في موعد محدد</strong>
+                      <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4;">التوصيل في تاريخ أو يوم مناسبة خاصة محددة</p>
+                    </div>
                   </label>
                 </div>
 
-                <div id="cUrgencyReasonBox">
-                  <label for="cDeliveryReason" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px; display: block;">
-                    سبب الاستعجال أو توضيح المناسبة (اختياري):
+                <div class="form-group" id="deliveryDateFieldWrap" style="margin-bottom: 12px;">
+                  <label for="cDeliveryDate" style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">تاريخ التوصيل المطلوب (اختياري):</label>
+                  <input type="date" id="cDeliveryDate" style="background: #FFFFFF;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="cDeliveryReason" style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);">
+                    سبب الاستعجال أو تفاصيل الموعد والمناسبة (اختياري):
                   </label>
-                  <input type="text" id="cDeliveryReason" placeholder="مثال: حفلة تخرج الليلة / مفاجأة عيد ميلاد..." style="background: #FFFFFF;">
+                  <input type="text" id="cDeliveryReason" placeholder="مثال: مناسبة خطوبة الليلة، عيد ميلاد غداً الساعة 8 مساءً، حفل تخرج..." style="background: #FFFFFF;">
                 </div>
               </div>
+            </div>
             </div>
           </div>
 
@@ -616,38 +627,12 @@
       document.getElementById("cGovernorate").addEventListener("change", () => {
         calculateCheckoutTotals();
       });
+
+      // وضع تاريخ اليوم كافتراضي
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById("cDate");
+      if (dateInput) dateInput.value = today;
     });
-
-    function toggleCustomGovCheckout() {
-      const wrap = document.getElementById("cCustomGovWrap");
-      if (!wrap) return;
-      wrap.style.display = wrap.style.display === "none" ? "block" : "none";
-      if (wrap.style.display === "block") {
-        document.getElementById("cCustomGovInput")?.focus();
-      }
-    }
-
-    function saveCustomGovCheckout() {
-      const input = document.getElementById("cCustomGovInput");
-      const val = input?.value.trim();
-      if (!val) {
-        showToast("يرجى كتابة اسم المحافظة أو المنطقة", "info");
-        return;
-      }
-      const select = document.getElementById("cGovernorate");
-      if (select) {
-        const opt = document.createElement("option");
-        opt.value = "custom-" + Date.now();
-        opt.setAttribute("data-price", "80");
-        opt.textContent = `${val} (توصيل للمحافظات - 80 ج.م)`;
-        select.appendChild(opt);
-        select.value = opt.value;
-        calculateCheckoutTotals();
-        showToast(`تمت إضافة واختيار "${val}" بنجاح! 🌸`, "success");
-        document.getElementById("cCustomGovWrap").style.display = "none";
-        input.value = "";
-      }
-    }
 
     function loadCheckoutCart() {
       try {
@@ -790,6 +775,32 @@
       }
     }
 
+    function handleGovernorateChange() {
+      const govSelect = document.getElementById("cGovernorate");
+      const manualWrap = document.getElementById("manualGovWrapper");
+      if (govSelect?.value === "custom") {
+        if (manualWrap) manualWrap.style.display = "block";
+        document.getElementById("cManualGov")?.focus();
+      } else {
+        if (manualWrap) manualWrap.style.display = "none";
+      }
+      calculateCheckoutTotals();
+    }
+
+    function toggleUrgencyState() {
+      const isUrgent = document.getElementById("urgencyFast")?.checked;
+      const labelUrgent = document.getElementById("labelUrgent");
+      const labelStandard = document.getElementById("labelStandard");
+
+      if (isUrgent) {
+        labelUrgent?.classList.add("selected");
+        labelStandard?.classList.remove("selected");
+      } else {
+        labelStandard?.classList.add("selected");
+        labelUrgent?.classList.remove("selected");
+      }
+    }
+
     // تأكيد وإرسال الطلب النهائي عبر محادثة الواتساب (يشترط ملء كافة بيانات التواصل)
     function submitFinalOrderToWhatsApp() {
       if (!cartItems || cartItems.length === 0) {
@@ -806,11 +817,14 @@
       const phone = phoneInput?.value.trim();
       const address = addressInput?.value.trim();
       const landmark = landmarkInput?.value.trim();
-      
-      const timingInput = document.getElementById("cDeliveryTiming");
-      const timing = timingInput?.value.trim();
-      const urgency = document.querySelector('input[name="cUrgency"]:checked')?.value || "عادي 🌸";
-      const reason = document.getElementById("cDeliveryReason")?.value.trim();
+
+      // نوع الاستعجال وموعد التوصيل
+      const isUrgent = document.getElementById("urgencyFast")?.checked;
+      const deliveryDateVal = document.getElementById("cDeliveryDate")?.value;
+      const deliveryReason = document.getElementById("cDeliveryReason")?.value?.trim();
+
+      const urgencyLabel = isUrgent ? "⚡ مستعجل (في أسرع وقت ممكن / تسليم فوري)" : "🌸 عادي (في موعد محدد)";
+      const finalDeliveryTiming = isUrgent ? "في أسرع وقت ممكن (فوري)" : (deliveryDateVal || "موعد محدد مع المندوب");
 
       // كارت الإهداء
       const sender = document.getElementById("cSender")?.value.trim();
@@ -818,7 +832,7 @@
       const message = document.getElementById("cMessage")?.value.trim();
 
       // إزالة علامات الخطأ السابقة
-      [nameInput, phoneInput, addressInput, landmarkInput, timingInput].forEach(el => el?.classList.remove("input-field-error"));
+      [nameInput, phoneInput, addressInput, landmarkInput, document.getElementById("cManualGov")].forEach(el => el?.classList.remove("input-field-error"));
 
       const missingFields = [];
       let firstInvalidInput = null;
@@ -855,10 +869,20 @@
         if (!firstInvalidInput) firstInvalidInput = landmarkInput;
       }
 
-      if (!timing) {
-        missingFields.push("موعد وتوقيت التوصيل المطلوب");
-        timingInput?.classList.add("input-field-error");
-        if (!firstInvalidInput) firstInvalidInput = timingInput;
+      const govSelect = document.getElementById("cGovernorate");
+      let govName = govSelect.options[govSelect.selectedIndex].text;
+      let shippingPrice = parseInt(govSelect.options[govSelect.selectedIndex].getAttribute("data-price") || "50");
+
+      if (govSelect.value === "custom") {
+        const manualGovName = document.getElementById("cManualGov")?.value.trim();
+        if (!manualGovName) {
+          missingFields.push("كتابة اسم المحافظة يدوياً");
+          const mInput = document.getElementById("cManualGov");
+          mInput?.classList.add("input-field-error");
+          if (!firstInvalidInput) firstInvalidInput = mInput;
+        } else {
+          govName = `✏️ أخرى (${manualGovName})`;
+        }
       }
 
       // إذا كان هناك أي حقل ناقص، منع الطلب فوراً وتنبيه العميل
@@ -868,10 +892,6 @@
         showToast(`يرجى استكمال بيانات التواصل الإلزامية: ${missingFields.join("، ")}`, "error");
         return;
       }
-
-      const govSelect = document.getElementById("cGovernorate");
-      const govName = govSelect.options[govSelect.selectedIndex].text;
-      const shippingPrice = parseInt(govSelect.options[govSelect.selectedIndex].getAttribute("data-price") || "50");
 
       const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const discount = (appliedCoupon && isCouponValid(appliedCoupon)) ? Math.round(subtotal * 0.10) : 0;
@@ -893,10 +913,10 @@
       waMsg += `• *المحافظة/المنطقة:* ${govName}\n`;
       waMsg += `• *العنوان:* ${address}\n`;
       waMsg += `• *المكان بالتفصيل بجوار:* ${landmark} 📍\n`;
-      waMsg += `• *موعد وتوقيت التوصيل المطلوب:* ${timing}\n`;
-      waMsg += `• *درجة الاستعجال:* ${urgency}\n`;
-      if (reason) {
-        waMsg += `• *توضيح المناسبة / الاستعجال:* ${reason}\n`;
+      waMsg += `• *نوع الطلب والسرعة:* ${urgencyLabel}\n`;
+      waMsg += `• *موعد التسليم:* ${finalDeliveryTiming}\n`;
+      if (deliveryReason) {
+        waMsg += `• *تفاصيل الموعد / سبب الاستعجال:* ${deliveryReason}\n`;
       }
       waMsg += `\n`;
 
