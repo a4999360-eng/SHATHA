@@ -20,6 +20,15 @@
   <!-- Main Website Stylesheet -->
   <link rel="stylesheet" href="assets/css/style.css">
 
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('shatha_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch(e) {}
+    })();
+  </script>
+
   <style>
     /* تنسيقات خاصة بصفحة السلة المستقلة */
     .cart-page-wrap {
@@ -310,6 +319,50 @@
       margin: 0 auto 25px;
       line-height: 1.6;
     }
+
+    /* أنماط الوضع الليلي لصفحة السلة */
+    [data-theme="dark"] .cart-card-box,
+    [data-theme="dark"] .cart-empty-big {
+      background: #121215 !important;
+      border: 1px solid #1E1E24 !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    [data-theme="dark"] .cart-table-header {
+      color: #FFFFFF !important;
+      border-bottom-color: #24242C !important;
+    }
+
+    [data-theme="dark"] .cart-row-item {
+      border-bottom-color: #1E1E24 !important;
+    }
+
+    @media (max-width: 768px) {
+      [data-theme="dark"] .cart-row-item {
+        background: #16161A !important;
+        border-color: #24242C !important;
+      }
+    }
+
+    [data-theme="dark"] .cart-prod-meta h4,
+    [data-theme="dark"] .summary-title,
+    [data-theme="dark"] .cart-empty-big h3 {
+      color: #FFFFFF !important;
+    }
+
+    [data-theme="dark"] .summary-calc-row {
+      color: #D4D4DC !important;
+    }
+
+    [data-theme="dark"] .summary-calc-row.total-row {
+      color: #FFFFFF !important;
+      border-top-color: #24242C !important;
+    }
+
+    [data-theme="dark"] .btn-checkout-cta {
+      background: linear-gradient(135deg, var(--primary-pink), #8C3842) !important;
+      color: #FFFFFF !important;
+    }
   </style>
 </head>
 <body>
@@ -353,6 +406,9 @@
         </nav>
 
         <div class="header-actions">
+          <button class="action-btn theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="التبديل إلى الوضع الداكن" aria-label="التبديل إلى الوضع الداكن">
+            <i class="fas fa-moon"></i>
+          </button>
           <a href="index.html" class="btn-secondary" style="padding: 8px 16px; font-size: 0.88rem; border-radius: var(--radius-full); text-decoration: none;">
             <i class="fas fa-plus"></i> إضافة باقات أخرى
           </a>
@@ -769,7 +825,51 @@
       }, 3000);
     }
 
+    /* ================= إدارة الوضع الليلي في صفحة السلة ================= */
+    const SHATHA_THEME_KEY = 'shatha_theme';
+
+    function updateThemeUI(theme) {
+      const isDark = theme === 'dark';
+      const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+      toggleBtns.forEach(btn => {
+        const title = isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الليلي';
+        btn.setAttribute('aria-label', title);
+        btn.setAttribute('title', title);
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+          icon.classList.remove('theme-icon-rotate');
+          void icon.offsetWidth;
+          icon.classList.add('theme-icon-rotate');
+        }
+      });
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', isDark ? '#140E10' : '#BF7279');
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      try { localStorage.setItem(SHATHA_THEME_KEY, newTheme); } catch (e) {}
+
+      document.documentElement.classList.add('theme-transitioning');
+      setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 450);
+
+      if (newTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        showToast('تم تفعيل الوضع الليلي 🌙', 'info');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        showToast('تم تفعيل الوضع الفاتح ☀️', 'info');
+      }
+      updateThemeUI(newTheme);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      updateThemeUI(currentTheme);
       loadCart();
       renderCartPage();
     });

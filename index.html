@@ -31,6 +31,15 @@
   
   <!-- ملف التنسيقات الفاخر لشذى -->
   <link rel="stylesheet" href="assets/css/style.css">
+
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('shatha_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -107,6 +116,11 @@
               </button>
             </div>
           </div>
+
+          <!-- زر التبديل للوضع الليلي / الفاتح -->
+          <button class="action-btn theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="التبديل إلى الوضع الداكن" aria-label="التبديل إلى الوضع الداكن">
+            <i class="fas fa-moon"></i>
+          </button>
 
           <button class="action-btn" id="headerSearchBtn" onclick="document.getElementById('productSearchInput').focus(); document.getElementById('products').scrollIntoView({behavior: 'smooth'});" title="بحث في المنتجات" aria-label="بحث في المنتجات">
             <i class="fas fa-search"></i>

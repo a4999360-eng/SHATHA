@@ -2204,3 +2204,111 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+/* ==========================================================================
+   إدارة الوضع الليلي والفاتح (Dark / Light Mode)
+   متجر شَـذى - أيقونة تفاعلية متناسقة مع ألوان وهوية الموقع
+   ========================================================================== */
+const SHATHA_THEME_KEY = 'shatha_theme';
+
+function getShathaTheme() {
+  try {
+    const saved = localStorage.getItem(SHATHA_THEME_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+  } catch (e) {}
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+
+function updateThemeUI(theme) {
+  const isDark = theme === 'dark';
+  const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+  
+  toggleBtns.forEach(btn => {
+    const title = isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الليلي';
+    btn.setAttribute('aria-label', title);
+    btn.setAttribute('title', title);
+    
+    const icon = btn.querySelector('i');
+    if (icon) {
+      icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      icon.classList.remove('theme-icon-rotate');
+      void icon.offsetWidth; // إعادة تشغيل الأنيميشن
+      icon.classList.add('theme-icon-rotate');
+    }
+  });
+
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  if (metaThemeColor) {
+    metaThemeColor.setAttribute('content', isDark ? '#140E10' : '#BF7279');
+  }
+}
+
+function applyShathaTheme(theme, animate = false, notify = false) {
+  const root = document.documentElement;
+  if (animate) {
+    root.classList.add('theme-transitioning');
+    window.clearTimeout(window.__themeTimeout);
+    window.__themeTimeout = setTimeout(() => {
+      root.classList.remove('theme-transitioning');
+    }, 450);
+  }
+
+  if (theme === 'dark') {
+    root.setAttribute('data-theme', 'dark');
+  } else {
+    root.removeAttribute('data-theme');
+  }
+
+  updateThemeUI(theme);
+
+  if (notify && typeof showToast === 'function') {
+    if (theme === 'dark') {
+      showToast('تم تفعيل الوضع الليلي الفاخر 🌙', 'info');
+    } else {
+      showToast('تم تفعيل الوضع الفاتح الأنيق ☀️', 'info');
+    }
+  }
+}
+
+window.toggleTheme = function () {
+  const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  try {
+    localStorage.setItem(SHATHA_THEME_KEY, newTheme);
+  } catch (e) {}
+  
+  applyShathaTheme(newTheme, true, true);
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(25); } catch (e) {}
+  }
+};
+
+// تهيئة فورية عند تحميل المستند
+(function initTheme() {
+  const activeTheme = getShathaTheme();
+  applyShathaTheme(activeTheme, false, false);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateThemeUI(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+    
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        window.toggleTheme();
+      };
+    });
+  });
+
+  // الاستماع لتغيير وضع النظام في حال لم يحدد المستخدم يدوياً
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      try {
+        if (!localStorage.getItem(SHATHA_THEME_KEY)) {
+          applyShathaTheme(e.matches ? 'dark' : 'light', true, false);
+        }
+      } catch (err) {}
+    });
+  }
+})();
+
+
