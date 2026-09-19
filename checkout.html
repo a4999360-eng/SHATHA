@@ -684,6 +684,24 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadCheckoutCart();
       
+      // تعبئة بيانات العميل ورقم الهاتف المسجل تلقائياً مع إمكانية تعديلها بحرية
+      try {
+        const savedUserJson = localStorage.getItem('shatha_google_user');
+        if (savedUserJson) {
+          const user = JSON.parse(savedUserJson);
+          const phoneInput = document.getElementById("cPhone");
+          if (phoneInput && !phoneInput.value && user.phone) {
+            phoneInput.value = user.phone;
+          }
+          const nameInput = document.getElementById("cName");
+          if (nameInput && !nameInput.value && user.name) {
+            nameInput.value = user.name;
+          }
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+
       document.getElementById("cGovernorate").addEventListener("change", () => {
         calculateCheckoutTotals();
       });
@@ -1007,16 +1025,19 @@
       }
       waMsg += `شذى.. اختار حاجه تعيش معاك العمر كلووو ✨`;
 
-      // تعليم كود مستخدم جوجل كمستهلك لمرة واحدة فقط
+      // تعليم كود مستخدم جوجل كمستهلك وحفظ رقم الهاتف المحدث إذا رغب العميل
       try {
         const savedUser = localStorage.getItem('shatha_google_user');
         if (savedUser) {
           const user = JSON.parse(savedUser);
+          if (phoneVal && user.phone !== phoneVal) {
+            user.phone = phoneVal;
+          }
           if (user.couponCode === appliedCoupon) {
             localStorage.setItem(`shatha_coupon_used_${user.id}`, 'true');
             user.couponUsed = true;
-            localStorage.setItem('shatha_google_user', JSON.stringify(user));
           }
+          localStorage.setItem('shatha_google_user', JSON.stringify(user));
         }
       } catch (e) {}
 

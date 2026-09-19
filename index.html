@@ -90,31 +90,13 @@
 
         <!-- أدوات الهيدر والسلة وحساب المستخدم -->
         <div class="header-actions">
-          <!-- عنصر ملف المستخدم عند تسجيل الدخول -->
-          <div class="user-auth-widget" id="userAuthWidget" style="display: none;">
-            <div class="user-profile-btn" id="userProfileBtn" title="الملف الشخصي وكود الخصم">
-              <img id="userAvatarImg" src="" alt="صورة الحساب" class="user-avatar-mini">
-              <span class="user-name-short" id="userNameShort"></span>
-              <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
-            </div>
-            <!-- قائمة منسدلة للحساب -->
-            <div class="user-dropdown-menu" id="userDropdownMenu">
-              <div class="dropdown-user-info">
-                <strong id="dropdownFullName"></strong>
-                <small id="dropdownEmail"></small>
-              </div>
-              <div class="dropdown-coupon-box">
-                <span style="font-size: 0.8rem; color: var(--text-muted);">كود الخصم الخاص بك:</span>
-                <div class="dropdown-coupon-code" id="dropdownCouponCode" onclick="copyMyCoupon()">
-                  <span id="dropdownCouponVal">--</span>
-                  <i class="far fa-copy"></i>
-                </div>
-                <small id="dropdownCouponStatus" style="color: #27AE60; font-weight: 600; font-size: 0.78rem;">متاح للاستخدام (مرة واحدة)</small>
-              </div>
-              <button type="button" class="btn-logout" id="logoutBtn" onclick="handleGoogleSignOut()">
-                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
-              </button>
-            </div>
+          <!-- أيقونة حساب المستخدم الدائرية الفاخرة للهيدر (متوافقة 100% مع الهاتف) -->
+          <div class="user-auth-widget" id="userAuthWidget">
+            <button type="button" class="user-circle-btn" id="headerUserCircleBtn" onclick="openAccountOrAuthModal()" title="تسجيل الدخول / حسابي" aria-label="تسجيل الدخول / حسابي">
+              <i class="fas fa-user user-circle-icon" id="userCircleIcon"></i>
+              <img id="userAvatarImg" src="" alt="صورة الحساب" class="user-circle-avatar" style="display: none;">
+              <span class="user-circle-status-dot" id="userStatusDot" style="display: none;"></span>
+            </button>
           </div>
 
           <!-- زر التبديل للوضع الليلي / الفاتح -->
@@ -380,27 +362,29 @@
     </div>
   </section>
 
-  <!-- صندوق النشرة البريدية والعرض الترحيبي -->
+  <!-- صندوق النشرة البريدية والعرض الترحيبي والتسجيل -->
   <section class="newsletter-cta-section">
     <div class="container">
       <div class="newsletter-box">
         <div class="newsletter-text">
           <h3>انضمي لعالم "شذى" الزهري 🌸</h3>
-          <p>سجلي بحسابك الآن للحصول على كود خصم فوري 10%، مع نصائح مجانية دورية للعناية بالزهور وإشعار بأحدث التشكيلات الموسمية.</p>
+          <p>سجلي حسابك الآن برقم هاتفك أو حساب Google للحصول على كود خصم فوري 10%، وكلمة سر خاصة بحسابك مع حفظ بياناتك لسهولة وسرعة الطلب.</p>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 440px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 440px; box-sizing: border-box;">
           <!-- زر تسجيل الدخول السريع بجوجل للحصول على الكود -->
           <div id="googleSignInBtnNewsletter" class="newsletter-auth-cta"></div>
           
-          <div style="display: flex; align-items: center; width: 100%; gap: 10px; opacity: 0.7;">
+          <div style="display: flex; align-items: center; width: 100%; gap: 10px; opacity: 0.75;">
             <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.4);"></div>
-            <span style="font-size: 0.8rem; color: #fff;">أو التسجيل عبر البريد</span>
+            <span style="font-size: 0.82rem; color: #fff; white-space: nowrap;">أو التسجيل برقم الهاتف والبريد</span>
             <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.4);"></div>
           </div>
 
-          <form class="newsletter-form" id="newsletterForm" style="width: 100%;">
-            <input type="email" id="newsletterEmail" placeholder="أدخلي بريدك الإلكتروني..." required aria-label="البريد الإلكتروني للنشرة البريدية">
-            <button type="submit">انضمام</button>
+          <form class="newsletter-form" id="newsletterForm" onsubmit="handleNewsletterJoinSubmit(event)">
+            <input type="tel" id="newsletterPhone" placeholder="رقم الهاتف أو الواتساب (01xxxxxxxxx) *" required aria-label="رقم الهاتف">
+            <input type="email" id="newsletterEmail" placeholder="البريد الإلكتروني (Google/Email) *" required aria-label="البريد الإلكتروني">
+            <input type="text" id="newsletterName" placeholder="الاسم الكريم (اختياري)" aria-label="الاسم">
+            <button type="submit"><i class="fas fa-sparkles"></i> انضمام وتسجيل الحساب فوراً</button>
           </form>
         </div>
       </div>
@@ -1116,6 +1100,305 @@
       <p>يتم التعامل مع نصوص الإهداء الخاصة بسرية وأمانة تامة ويتم طباعتها وتغليفها مباشرة داخل أظرف مغلقة.</p>
     </div>
   </section>
+
+  <!-- ========================================================
+       نوافذ الحساب وتسجيل الدخول المتكاملة (Modals)
+       ======================================================== -->
+  
+  <!-- 1. نافذة تسجيل الدخول وعضوية شذى الكاملة (Auth Modal) -->
+  <div class="account-modal-wrap" id="shathaAuthModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="account-modal-header">
+      <div class="account-modal-title" id="authModalTitle">
+        <i class="fas fa-user-circle" style="color: var(--primary-pink);"></i>
+        <span>عضوية متجر شَـذى 🌸</span>
+      </div>
+      <button type="button" class="account-modal-close" onclick="closeShathaAuthModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="account-modal-body">
+      <!-- تبويبات التبديل بين إنشاء حساب وتسجيل الدخول -->
+      <div class="auth-tabs-nav">
+        <button type="button" class="auth-tab-btn active" id="tabBtnRegister" onclick="switchAuthTab('register')">
+          <i class="fas fa-user-plus"></i> إنشاء حساب جديد
+        </button>
+        <button type="button" class="auth-tab-btn" id="tabBtnLogin" onclick="switchAuthTab('login')">
+          <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+        </button>
+      </div>
+
+      <!-- محتوى التبويب 1: إنشاء حساب جديد -->
+      <div class="auth-tab-pane active" id="paneRegister">
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+          سجلي حسابك للحصول فوراً على كود خصم 10%، مع توليد كلمة سر خاصة لحسابك تحفظينهـا لسرعة الدخول والطلب.
+        </p>
+
+        <!-- تسجيل سريع بجوجل بنقرة واحدة -->
+        <div id="googleSignInBtnModal" style="display: flex; justify-content: center; width: 100%;"></div>
+
+        <div style="display: flex; align-items: center; width: 100%; gap: 10px; opacity: 0.7;">
+          <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">أو التسجيل برقم الهاتف</span>
+          <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+        </div>
+
+        <form id="regForm" onsubmit="handleRegistrationSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="auth-input-group">
+            <label for="regName"><i class="fas fa-user"></i> اسمك الكريم *</label>
+            <div class="auth-input-wrap">
+              <i class="fas fa-user input-icon"></i>
+              <input type="text" id="regName" placeholder="مثال: ياسمين أحمد / سارة محمود" required>
+            </div>
+          </div>
+
+          <div class="auth-input-group">
+            <label for="regPhone"><i class="fas fa-phone"></i> رقم هاتف الواتساب للتواصل والطلبات *</label>
+            <div class="auth-input-wrap">
+              <i class="fas fa-phone input-icon"></i>
+              <input type="tel" id="regPhone" placeholder="01xxxxxxxxx" required>
+            </div>
+          </div>
+
+          <div class="auth-input-group">
+            <label for="regEmail"><i class="fas fa-envelope"></i> البريد الإلكتروني (Google/Email) *</label>
+            <div class="auth-input-wrap">
+              <i class="fas fa-envelope input-icon"></i>
+              <input type="email" id="regEmail" placeholder="yourname@gmail.com" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-auth-submit" style="margin-top: 6px;">
+            <i class="fas fa-sparkles"></i>
+            <span>إنشاء الحساب والحصول على كلمة السر والخصم 🌸</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- محتوى التبويب 2: تسجيل الدخول لحساب سابق -->
+      <div class="auth-tab-pane" id="paneLogin">
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+          أهلاً بعودتك! أدخل رقم هاتفك أو بريدك المسجل مع كلمة السر التي حفظتها سابقاً:
+        </p>
+
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="auth-input-group">
+            <label for="loginIdentifier"><i class="fas fa-id-badge"></i> رقم الهاتف أو البريد الإلكتروني *</label>
+            <div class="auth-input-wrap">
+              <i class="fas fa-user input-icon"></i>
+              <input type="text" id="loginIdentifier" placeholder="01xxxxxxxxx أو البريد" required>
+            </div>
+          </div>
+
+          <div class="auth-input-group">
+            <label for="loginPassword"><i class="fas fa-lock"></i> كلمة السر الخاصة بالحساب *</label>
+            <div class="auth-input-wrap">
+              <i class="fas fa-lock input-icon"></i>
+              <input type="password" id="loginPassword" placeholder="مثال: SH-XXXXXX" required>
+              <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('loginPassword', 'loginEyeIcon')" aria-label="إظهار/إخفاء كلمة السر">
+                <i class="fas fa-eye" id="loginEyeIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-auth-submit" style="margin-top: 6px;">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>تسجيل الدخول إلى حسابي 🌸</span>
+          </button>
+
+          <div style="text-align: center; margin-top: 4px;">
+            <button type="button" onclick="switchAuthTab('register')" style="background: none; border: none; color: var(--primary-pink); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-decoration: underline;">
+              ليس لديك حساب أو فقدت كلمة السر؟ اضغط هنا لإنشاء حساب جديد
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. نافذة كلمة السر والتنبيه بالتقاط سكرين شوت (Secret Password Alert Modal) -->
+  <div class="account-modal-wrap" id="secretPasswordModal" role="dialog" aria-modal="true" aria-labelledby="secretModalTitle">
+    <div class="account-modal-header" style="background: linear-gradient(135deg, #FFF6F0 0%, #FFFFFF 100%);">
+      <div class="account-modal-title" id="secretModalTitle" style="color: #D35400;">
+        <i class="fas fa-shield-alt" style="color: #E67E22;"></i>
+        <span>كلمة السر الخاصة بحسابك الجديد 🔐</span>
+      </div>
+      <button type="button" class="account-modal-close" onclick="closeSecretPasswordModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="account-modal-body">
+      <div style="text-align: center;">
+        <h4 style="color: #27AE60; font-size: 1.15rem; margin-bottom: 6px;">
+          <i class="fas fa-check-circle"></i> مبارك! تم إنشاء حسابك بنجاح
+        </h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">
+          أهلاً بكِ في عائلة شذى. هذه بيانات الدخول المخصصة لك:
+        </p>
+      </div>
+
+      <div class="secret-pwd-box">
+        <span class="secret-pwd-badge">
+          <i class="fas fa-key"></i> كلمة سر حسابك للرجوع لاحقاً
+        </span>
+
+        <div class="secret-pwd-display" id="displaySecretPassword">
+          SH-000000
+        </div>
+
+        <button type="button" class="account-pill-action" onclick="copySecretPassword()" style="font-size: 0.85rem; padding: 6px 14px;">
+          <i class="far fa-copy"></i> نسخ كلمة السر
+        </button>
+
+        <div class="secret-pwd-note">
+          <i class="fas fa-camera" style="color: #E67E22; font-size: 1.25rem; flex-shrink: 0; margin-top: 2px;"></i>
+          <div>
+            <strong style="display: block; margin-bottom: 3px; color: #C0392B;">📸 تنبيه هام جداً: التقط لقطة شاشة الآن (Screenshot)!</strong>
+            كلمة السر هذه <u>تظهر لمرة واحدة فقط</u> لتأمين حسابك. يُرجى تصوير الشاشة أو نسخها وحفظها لتتمكن من تسجيل الدخول بحسابك القديم في أي وقت ومن أي هاتف آخر.
+          </div>
+        </div>
+      </div>
+
+      <!-- كود الخصم الحصري -->
+      <div style="background: var(--bg-body); border-radius: var(--radius-md); padding: 12px 16px; border: 1px dashed var(--primary-pink); text-align: center;">
+        <span style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 4px;">كود الخصم الحصري 10% لطلبك:</span>
+        <strong id="displayCouponAfterReg" style="color: var(--primary-dark); font-size: 1.15rem; letter-spacing: 1.5px;">SHATHA-XXXXX</strong>
+      </div>
+
+      <button type="button" class="btn-auth-submit" onclick="closeSecretPasswordModal()" style="background: #27AE60;">
+        <i class="fas fa-check-circle"></i>
+        <span>التقطت لقطة شاشة، تم والحفظ والمتابعة 🌸</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. صفحة/نافذة معلومات الحساب الكاملة (Full Account Page Modal) -->
+  <div class="account-modal-wrap" id="shathaAccountModal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+    <div class="account-modal-header">
+      <div class="account-modal-title" id="accountModalTitle">
+        <i class="fas fa-id-card" style="color: var(--primary-pink);"></i>
+        <span>صفحة معلومات الحساب 🌸</span>
+      </div>
+      <button type="button" class="account-modal-close" onclick="closeShathaAccountModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="account-modal-body">
+      <!-- البروفايل العلوي -->
+      <div class="account-profile-card">
+        <img id="accModalAvatar" src="assets/images/logo.jpg" alt="صورة المستخدم">
+        <div class="account-profile-info">
+          <h4 id="accModalName">عميل شذى</h4>
+          <span id="accModalRole" style="font-size: 0.8rem; color: #27AE60; font-weight: 700;">
+            <i class="fas fa-heart"></i> عميل مميز لدى متجر شذى
+          </span>
+        </div>
+      </div>
+
+      <!-- بطاقة رقم الهاتف للطلبات مع إمكانية التعديل -->
+      <div class="account-info-tile">
+        <div class="account-info-tile-head">
+          <span><i class="fas fa-phone"></i> رقم هاتف الواتساب للتواصل والطلبات</span>
+          <button type="button" class="account-pill-action" onclick="toggleEditPhone()">
+            <i class="fas fa-edit"></i> تعديل الرقم
+          </button>
+        </div>
+        <div class="account-info-tile-val" id="accPhoneDisplayWrap">
+          <span id="accModalPhone">غير مسجل</span>
+        </div>
+        <!-- فورم تعديل الرقم التفاعلي -->
+        <div id="accEditPhoneWrap" style="display: none; margin-top: 8px; gap: 8px; align-items: center;">
+          <input type="tel" id="accEditPhoneInput" placeholder="01xxxxxxxxx" style="flex: 1; padding: 8px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--primary-pink); font-size: 0.9rem;">
+          <button type="button" class="account-pill-action" onclick="saveEditedPhone()" style="background: #27AE60; color: #fff; padding: 8px 14px;">
+            حفظ
+          </button>
+          <button type="button" class="account-pill-action" onclick="toggleEditPhone()" style="color: #777;">
+            إلغاء
+          </button>
+        </div>
+        <small style="font-size: 0.76rem; color: var(--text-muted);">هذا الرقم يوضع تلقائياً في بيانات الشراء لتسهيل طلبك، ويمكنك تغييره متى شئت.</small>
+      </div>
+
+      <!-- بطاقة البريد الإلكتروني -->
+      <div class="account-info-tile">
+        <div class="account-info-tile-head">
+          <span><i class="fas fa-envelope"></i> البريد الإلكتروني</span>
+        </div>
+        <div class="account-info-tile-val">
+          <span id="accModalEmail">--</span>
+        </div>
+      </div>
+
+      <!-- بطاقة كلمة السر الخاصة بالحساب -->
+      <div class="account-info-tile">
+        <div class="account-info-tile-head">
+          <span><i class="fas fa-key"></i> كلمة السر الخاصة بحسابك</span>
+          <button type="button" class="account-pill-action" onclick="copyMySecretPassword()">
+            <i class="far fa-copy"></i> نسخ كلمة السر
+          </button>
+        </div>
+        <div class="account-info-tile-val">
+          <span id="accModalPassword" style="font-family: monospace; letter-spacing: 2px;">••••••</span>
+          <button type="button" onclick="toggleShowAccountPassword()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;" aria-label="إظهار كلمة السر">
+            <i id="accEyeIcon" class="fas fa-eye"></i>
+          </button>
+        </div>
+        <small style="font-size: 0.76rem; color: var(--text-muted);">استخدم هذه الكلمة لتسجيل الدخول إلى حسابك القديم من أي جهاز آخر.</small>
+      </div>
+
+      <!-- بطاقة كود الخصم الحصري -->
+      <div class="account-info-tile" style="border-color: var(--primary-pink); background: #FFFDFC;">
+        <div class="account-info-tile-head">
+          <span><i class="fas fa-ticket-alt"></i> كود الخصم الخاص بك (10%)</span>
+          <span id="accModalCouponStatus" class="coupon-status-badge">متاح للاستخدام</span>
+        </div>
+        <div class="account-info-tile-val">
+          <strong id="accModalCouponCode" style="color: var(--primary-dark); font-size: 1.15rem; letter-spacing: 1.5px;">--</strong>
+          <button type="button" class="account-pill-action" onclick="copyMyCoupon()">
+            <i class="far fa-copy"></i> نسخ وتطبيق في السلة
+          </button>
+        </div>
+      </div>
+
+      <!-- حالة السلة السريعة -->
+      <div class="account-info-tile">
+        <div class="account-info-tile-head">
+          <span><i class="fas fa-shopping-bag"></i> سلة المشتريات الحالية</span>
+          <a href="cart.html" class="account-pill-action">
+            <i class="fas fa-arrow-left"></i> الانتقال للسلة
+          </a>
+        </div>
+        <div class="account-info-tile-val">
+          <span id="accModalCartItemsCount">0 باقات في السلة</span>
+        </div>
+      </div>
+
+      <!-- أدوات المالك شذى (تظهر فقط للمالك) -->
+      <div id="accOwnerSection" style="display: none; background: #E8F8F5; border: 1.5px solid #27AE60; border-radius: var(--radius-md); padding: 14px; text-align: center;">
+        <strong style="color: #27AE60; display: block; margin-bottom: 6px; font-size: 0.95rem;">
+          <i class="fas fa-crown"></i> لوحة إدارة وتحكم المالك
+        </strong>
+        <p style="font-size: 0.82rem; color: #2C3E50; margin-bottom: 10px;">
+          بصفتك مالك المتجر، يمكنك إضافة أو تعديل باقات الورد والأسعار مباشرة.
+        </p>
+        <button type="button" onclick="closeShathaAccountModal(); openAddProductModal();" class="btn-primary" style="background: #27AE60; padding: 8px 18px; font-size: 0.9rem;">
+          <i class="fas fa-plus-circle"></i> فتح لوحة إضافة باقة جديدة
+        </button>
+      </div>
+
+      <!-- أزرار الإجراءات -->
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+        <button type="button" class="btn-primary" onclick="closeShathaAccountModal(); document.getElementById('products')?.scrollIntoView({behavior: 'smooth'});" style="padding: 11px;">
+          <i class="fas fa-sparkles"></i> تصفح الباقات ومتابعة التسوق
+        </button>
+        <button type="button" class="btn-logout" onclick="closeShathaAccountModal(); handleGoogleSignOut();">
+          <i class="fas fa-sign-out-alt"></i> تسجيل الخروج من الحساب
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ملفات الجافاسكريبت -->
   <script src="assets/js/products-data.js"></script>

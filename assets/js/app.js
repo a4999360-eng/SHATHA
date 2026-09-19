@@ -1167,6 +1167,19 @@ function openCheckoutModal() {
   const modal = document.getElementById("checkoutModal");
   const backdrop = document.getElementById("modalBackdrop");
   updateCheckoutSummary();
+
+  // تعبئة رقم الهاتف والاسم تلقائياً من الحساب مع إمكانية التعديل بحرية
+  if (appState.currentUser) {
+    const phoneInput = document.getElementById("checkoutPhone");
+    if (phoneInput && !phoneInput.value && appState.currentUser.phone) {
+      phoneInput.value = appState.currentUser.phone;
+    }
+    const nameInput = document.getElementById("checkoutName");
+    if (nameInput && !nameInput.value && appState.currentUser.name) {
+      nameInput.value = appState.currentUser.name;
+    }
+  }
+
   backdrop?.classList.add("active");
   modal?.classList.add("active");
   document.body.style.overflow = "hidden";
@@ -1362,6 +1375,9 @@ function closeAllModals() {
   closeProductModal();
   closeCheckoutModal();
   closeSuccessModal();
+  document.getElementById("shathaAuthModal")?.classList.remove("active");
+  document.getElementById("shathaAccountModal")?.classList.remove("active");
+  document.getElementById("secretPasswordModal")?.classList.remove("active");
   document.querySelectorAll(".policy-modal").forEach(m => m.classList.remove("active"));
   document.getElementById("modalBackdrop")?.classList.remove("active");
   document.body.style.overflow = "";
@@ -1403,8 +1419,64 @@ function showToast(message, type = "info") {
    نظام تسجيل الدخول بحساب Google وتوليد كود خصم فردي 10% لكل حساب (استخدام لمرة واحدة)
    ========================================================================== */
 
+/* ==========================================================================
+   نظام حسابات شذى المتكامل (Authentication & Account Management System)
+   - أيقونة دائرية متوافقة 100% مع شاشات الهواتف
+   - تسجيل فوري برقم الهاتف والبريد الإلكتروني وحساب Google
+   - توليد كلمة سر فريدة للحساب مع تنبيه لقطة الشاشة (Screenshot Alert)
+   - تسجيل الدخول بالحساب القديم برقم الهاتف وكلمة السر
+   - التعبئة التلقائية لرقم الهاتف عند الشراء مع إمكانية تعديله
+   ========================================================================== */
+
 /**
- * تحميل المستخدم المخزن محلياً
+ * جلب سجل الحسابات المسجلة محلياً
+ */
+function getRegisteredAccounts() {
+  try {
+    const raw = localStorage.getItem('shatha_registered_accounts');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * حفظ أو تحديث حساب في السجل المحلي
+ */
+function saveRegisteredAccount(account) {
+  try {
+    if (!account || !account.id) return;
+    const list = getRegisteredAccounts();
+    const idx = list.findIndex(a => 
+      a.id === account.id || 
+      (account.email && a.email && a.email.toLowerCase() === account.email.toLowerCase()) || 
+      (account.phone && a.phone && a.phone.replace(/\D/g, '') === account.phone.replace(/\D/g, ''))
+    );
+    if (idx >= 0) {
+      list[idx] = { ...list[idx], ...account };
+    } else {
+      list.push(account);
+    }
+    localStorage.setItem('shatha_registered_accounts', JSON.stringify(list));
+  } catch (e) {
+    console.warn("Error saving account:", e);
+  }
+}
+
+/**
+ * توليد كلمة سر عشوائية فريدة للحساب
+ */
+function generateSecretPassword() {
+  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `SH-${code}`;
+}
+
+/**
+ * تحميل المستخدم الحالي النشط
  */
 function loadCurrentUser() {
   try {
@@ -1414,6 +1486,11 @@ function loadCurrentUser() {
       // فحص حالة استهلاك الكود من سجل الأكواد المستهلكة
       const usedStatus = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
       user.couponUsed = usedStatus;
+      if (!user.secretPassword) {
+        user.secretPassword = generateSecretPassword();
+        saveRegisteredAccount(user);
+        localStorage.setItem('shatha_google_user', JSON.stringify(user));
+      }
       appState.currentUser = user;
     }
   } catch (e) {
@@ -1422,14 +1499,12 @@ function loadCurrentUser() {
 }
 
 /**
- * تهيئة Google Identity Services وزر تسجيل الدخول
+ * تهيئة Google Identity Services وأزرار الدخول
  */
 function initGoogleSignIn() {
   updateAuthUI();
 
-  // فحص توفر مكتبة Google
   if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
-    // محاولة ثانية بعد تحميل السكربت
     setTimeout(initGoogleSignIn, 600);
     return;
   }
@@ -1467,27 +1542,26 @@ function initGoogleSignIn() {
         logo_alignment: "right"
       });
     }
+
+    const modalGoogleBtn = document.getElementById("googleSignInBtnModal");
+    if (modalGoogleBtn && !appState.currentUser) {
+      modalGoogleBtn.innerHTML = "";
+      google.accounts.id.renderButton(modalGoogleBtn, {
+        theme: "outline",
+        size: "large",
+        type: "standard",
+        text: "continue_with",
+        shape: "pill",
+        logo_alignment: "right"
+      });
+    }
   } catch (e) {
     console.error("Google Sign-In Init Error:", e);
   }
-
-  // إعداد نقر الملف الشخصي لفتح وإغلاق القائمة المنسدلة
-  const profileBtn = document.getElementById("userProfileBtn");
-  const dropdown = document.getElementById("userDropdownMenu");
-  profileBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    dropdown?.classList.toggle("show");
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!profileBtn?.contains(e.target) && !dropdown?.contains(e.target)) {
-      dropdown?.classList.remove("show");
-    }
-  });
 }
 
 /**
- * معالجة استجابة تسجيل الدخول بجوجل
+ * معالجة استجابة تسجيل الدخول بحساب Google
  */
 function handleGoogleSignInResponse(response) {
   try {
@@ -1502,30 +1576,15 @@ function handleGoogleSignInResponse(response) {
     const email = payload.email || "";
     const picture = payload.picture || "assets/images/logo.jpg";
 
-    // توليد كود خصم فردي فريد مشتق من Google ID
-    const uniqueCoupon = generateUniqueCouponForUser(googleId);
-    const isUsed = localStorage.getItem(`shatha_coupon_used_${googleId}`) === 'true';
-
-    const userData = {
-      id: googleId,
+    registerOrLoginUser({
       name: name,
       email: email,
+      phone: "",
       picture: picture,
-      couponCode: uniqueCoupon,
-      couponUsed: isUsed
-    };
+      googleId: googleId,
+      fromGoogle: true
+    });
 
-    appState.currentUser = userData;
-    localStorage.setItem('shatha_google_user', JSON.stringify(userData));
-
-    updateAuthUI();
-
-    showToast(`مرحباً بك يا ${name}! حصلت على كود خصم 10% لطلبك 🌸`, "success");
-
-    // تطبيق الكود تلقائياً إذا لم يكن مستخدماً من قبل
-    if (!isUsed) {
-      applyCouponCode(uniqueCoupon);
-    }
   } catch (err) {
     console.error("JWT Decode Error:", err);
     showToast("تعذر إتمام تسجيل الدخول بحساب Google", "error");
@@ -1533,7 +1592,7 @@ function handleGoogleSignInResponse(response) {
 }
 
 /**
- * فك تشفير JWT الخاص بجوجل لاستخراج الاسم والـ ID والصورة
+ * فك تشفير JWT الخاص بجوجل
  */
 function parseJwt(token) {
   try {
@@ -1549,13 +1608,12 @@ function parseJwt(token) {
 }
 
 /**
- * توليد كود خصم فريد 10% لكل حساب جوجل
+ * توليد كود خصم فريد 10% لكل حساب
  */
-function generateUniqueCouponForUser(googleId) {
-  // استخدام جزء من الـ hash للـ ID لإنشاء كود مميز ومختصر
+function generateUniqueCouponForUser(userId) {
   let hash = 0;
-  for (let i = 0; i < googleId.length; i++) {
-    hash = ((hash << 5) - hash) + googleId.charCodeAt(i);
+  for (let i = 0; i < userId.length; i++) {
+    hash = ((hash << 5) - hash) + userId.charCodeAt(i);
     hash |= 0;
   }
   const codeSuffix = Math.abs(hash).toString(36).toUpperCase().padStart(5, '0').slice(0, 5);
@@ -1563,18 +1621,497 @@ function generateUniqueCouponForUser(googleId) {
 }
 
 /**
- * تحديث واجهة المستخدم بعد تسجيل الدخول أو الخروج
+ * تسجيل حساب جديد أو الدخول بحساب مطابق
+ */
+function registerOrLoginUser({ name, email, phone, picture, googleId, fromGoogle = false }) {
+  const cleanEmail = (email || "").trim().toLowerCase();
+  const cleanPhone = (phone || "").trim();
+  const cleanName = (name || "").trim() || "عميل متجر شذى";
+
+  const accounts = getRegisteredAccounts();
+
+  // فحص وجود حساب سابق بنفس الهاتف أو البريد
+  let existingUser = accounts.find(a => 
+    (cleanPhone && a.phone && a.phone.replace(/\D/g, '') === cleanPhone.replace(/\D/g, '')) ||
+    (cleanEmail && a.email && a.email.toLowerCase() === cleanEmail) ||
+    (googleId && a.id === googleId)
+  );
+
+  if (existingUser) {
+    // حساب قديم موجود بالفعل
+    if (cleanPhone && !existingUser.phone) existingUser.phone = cleanPhone;
+    if (picture && picture !== "assets/images/logo.jpg") existingUser.picture = picture;
+    if (!existingUser.secretPassword) existingUser.secretPassword = generateSecretPassword();
+
+    saveRegisteredAccount(existingUser);
+    appState.currentUser = existingUser;
+    localStorage.setItem('shatha_google_user', JSON.stringify(existingUser));
+
+    updateAuthUI();
+    closeShathaAuthModal();
+
+    showToast(`مرحباً بك مجدداً يا ${existingUser.name.split(' ')[0]}! تم تسجيل دخولك لحسابك القديم 🌸`, "success");
+
+    if (!existingUser.couponUsed) {
+      applyCouponCode(existingUser.couponCode);
+    }
+    return existingUser;
+  }
+
+  // إنشاء حساب جديد بالكامل
+  const newId = googleId || `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const secretPassword = generateSecretPassword();
+  const couponCode = generateUniqueCouponForUser(newId);
+
+  const newUser = {
+    id: newId,
+    name: cleanName,
+    email: cleanEmail,
+    phone: cleanPhone,
+    picture: picture || "assets/images/logo.jpg",
+    secretPassword: secretPassword,
+    couponCode: couponCode,
+    couponUsed: false,
+    createdAt: new Date().toISOString()
+  };
+
+  saveRegisteredAccount(newUser);
+  appState.currentUser = newUser;
+  localStorage.setItem('shatha_google_user', JSON.stringify(newUser));
+
+  updateAuthUI();
+  closeShathaAuthModal();
+
+  // إظهار نافذة كلمة السر والتنبيه بأخذ سكرين شوت
+  showSecretPasswordModal(secretPassword, couponCode);
+
+  showToast(`أهلاً بك يا ${cleanName}! تم تفعيل حسابك وحصلت على خصم 10% 🌸`, "success");
+
+  applyCouponCode(couponCode);
+  return newUser;
+}
+
+/**
+ * معالجة استمارة إنشاء حساب جديد من المودال
+ */
+function handleRegistrationSubmit(e) {
+  e?.preventDefault();
+  const name = document.getElementById("regName")?.value.trim();
+  const phone = document.getElementById("regPhone")?.value.trim();
+  const email = document.getElementById("regEmail")?.value.trim();
+
+  if (!phone || phone.length < 9) {
+    showToast("يرجى إدخال رقم هاتف صحيح للتواصل", "error");
+    return;
+  }
+  if (!email || !email.includes("@")) {
+    showToast("يرجى إدخال بريد إلكتروني صحيح", "error");
+    return;
+  }
+
+  registerOrLoginUser({
+    name: name,
+    phone: phone,
+    email: email,
+    picture: "assets/images/logo.jpg"
+  });
+}
+
+/**
+ * معالجة استمارة تسجيل الدخول لحساب سابق بواسطة الهاتف/البريد وكلمة السر
+ */
+function handleLoginSubmit(e) {
+  e?.preventDefault();
+  const identifier = document.getElementById("loginIdentifier")?.value.trim();
+  const password = document.getElementById("loginPassword")?.value.trim();
+
+  if (!identifier || !password) {
+    showToast("يرجى إدخال رقم الهاتف أو البريد وكلمة السر", "error");
+    return;
+  }
+
+  const cleanId = identifier.toLowerCase();
+  const cleanPhone = identifier.replace(/\D/g, '');
+  const cleanPass = password.toUpperCase();
+
+  const accounts = getRegisteredAccounts();
+
+  // فحص الحساب ومطابقة كلمة السر
+  const matched = accounts.find(a => {
+    const phoneMatch = cleanPhone && a.phone && a.phone.replace(/\D/g, '') === cleanPhone;
+    const emailMatch = a.email && a.email.toLowerCase() === cleanId;
+    return (phoneMatch || emailMatch);
+  });
+
+  if (!matched) {
+    showToast("لم نجد حساباً مسجلاً بهذا الهاتف أو البريد. يمكنك إنشاء حساب جديد بسهولة!", "error");
+    return;
+  }
+
+  if (matched.secretPassword && matched.secretPassword.toUpperCase() !== cleanPass) {
+    showToast("كلمة السر غير صحيحة! يرجى مراجعة لقطة الشاشة (السكرين شوت) الخاصة بحسابك.", "error");
+    return;
+  }
+
+  // تم التحقق بنجاح
+  appState.currentUser = matched;
+  localStorage.setItem('shatha_google_user', JSON.stringify(matched));
+
+  updateAuthUI();
+  closeShathaAuthModal();
+
+  showToast(`أهلاً بعودتك يا ${matched.name.split(' ')[0]}! تم تسجيل الدخول بنجاح 🌸`, "success");
+
+  if (!matched.couponUsed) {
+    applyCouponCode(matched.couponCode);
+  }
+}
+
+/**
+ * معالجة استمارة "انضمي لعالم شذى الزهري" في الصفحة الرئيسية
+ */
+function handleNewsletterJoinSubmit(e) {
+  e?.preventDefault();
+  const phone = document.getElementById("newsletterPhone")?.value.trim();
+  const email = document.getElementById("newsletterEmail")?.value.trim();
+  const name = document.getElementById("newsletterName")?.value.trim() || "عميل شذى";
+
+  if (!phone || phone.length < 9) {
+    showToast("يرجى إدخال رقم هاتف واتساب صحيح للتواصل", "error");
+    return;
+  }
+  if (!email || !email.includes("@")) {
+    showToast("يرجى إدخال بريد إلكتروني صحيح", "error");
+    return;
+  }
+
+  registerOrLoginUser({
+    name: name,
+    phone: phone,
+    email: email,
+    picture: "assets/images/logo.jpg"
+  });
+
+  // تفريغ الحقول
+  if (document.getElementById("newsletterPhone")) document.getElementById("newsletterPhone").value = "";
+  if (document.getElementById("newsletterEmail")) document.getElementById("newsletterEmail").value = "";
+  if (document.getElementById("newsletterName")) document.getElementById("newsletterName").value = "";
+}
+
+/**
+ * فتح النافذة المناسبة عند النقر على الأيقونة الدائرية في الهيدر
+ */
+function openAccountOrAuthModal() {
+  if (appState.currentUser) {
+    openShathaAccountModal();
+  } else {
+    openShathaAuthModal();
+  }
+}
+
+/**
+ * فتح نافذة تسجيل الدخول وعضوية شذى
+ */
+function openShathaAuthModal() {
+  const modal = document.getElementById("shathaAuthModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (!modal) return;
+
+  // إعادة ضبط جوجل زر المودال
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    const modalGoogleBtn = document.getElementById("googleSignInBtnModal");
+    if (modalGoogleBtn) {
+      modalGoogleBtn.innerHTML = "";
+      google.accounts.id.renderButton(modalGoogleBtn, {
+        theme: "outline",
+        size: "large",
+        type: "standard",
+        text: "continue_with",
+        shape: "pill",
+        logo_alignment: "right"
+      });
+    }
+  }
+
+  backdrop?.classList.add("active");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+/**
+ * إغلاق نافذة تسجيل الدخول
+ */
+function closeShathaAuthModal() {
+  document.getElementById("shathaAuthModal")?.classList.remove("active");
+  const hasOtherModal = document.querySelector(".checkout-modal.active, .account-modal-wrap.active, .product-modal.active");
+  if (!hasOtherModal) {
+    document.getElementById("modalBackdrop")?.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+}
+
+/**
+ * التبديل بين تبويبات تسجيل الدخول وإنشاء حساب
+ */
+function switchAuthTab(tab) {
+  const btnReg = document.getElementById("tabBtnRegister");
+  const btnLog = document.getElementById("tabBtnLogin");
+  const paneReg = document.getElementById("paneRegister");
+  const paneLog = document.getElementById("paneLogin");
+
+  if (tab === 'register') {
+    btnReg?.classList.add("active");
+    btnLog?.classList.remove("active");
+    paneReg?.classList.add("active");
+    paneLog?.classList.remove("active");
+  } else {
+    btnLog?.classList.add("active");
+    btnReg?.classList.remove("active");
+    paneLog?.classList.add("active");
+    paneReg?.classList.remove("active");
+  }
+}
+
+/**
+ * إظهار نافذة كلمة السر والتنبيه بأخذ سكرين شوت
+ */
+function showSecretPasswordModal(password, coupon) {
+  const modal = document.getElementById("secretPasswordModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (!modal) return;
+
+  const passDisplay = document.getElementById("displaySecretPassword");
+  const couponDisplay = document.getElementById("displayCouponAfterReg");
+
+  if (passDisplay) passDisplay.innerText = password;
+  if (couponDisplay) couponDisplay.innerText = coupon;
+
+  backdrop?.classList.add("active");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+/**
+ * إغلاق نافذة كلمة السر
+ */
+function closeSecretPasswordModal() {
+  document.getElementById("secretPasswordModal")?.classList.remove("active");
+  document.getElementById("modalBackdrop")?.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+/**
+ * نسخ كلمة السر الجديدة
+ */
+function copySecretPassword() {
+  const pass = document.getElementById("displaySecretPassword")?.innerText.trim();
+  if (pass) {
+    navigator.clipboard?.writeText(pass);
+    showToast(`تم نسخ كلمة السر (${pass}) بنجاح! احتفظ بها في مكان آمن 📸`, "success");
+  }
+}
+
+/**
+ * نسخ كلمة السر من صفحة معلومات الحساب
+ */
+function copyMySecretPassword() {
+  if (appState.currentUser && appState.currentUser.secretPassword) {
+    navigator.clipboard?.writeText(appState.currentUser.secretPassword);
+    showToast(`تم نسخ كلمة السر (${appState.currentUser.secretPassword}) بنجاح! 🔐`, "success");
+  } else {
+    showToast("تعذر نسخ كلمة السر", "error");
+  }
+}
+
+/**
+ * إظهار/إخفاء كلمة السر في صفحة معلومات الحساب
+ */
+let isAccountPasswordVisible = false;
+function toggleShowAccountPassword() {
+  const elem = document.getElementById("accModalPassword");
+  const icon = document.getElementById("accEyeIcon");
+  if (!elem || !appState.currentUser) return;
+
+  isAccountPasswordVisible = !isAccountPasswordVisible;
+  if (isAccountPasswordVisible) {
+    elem.innerText = appState.currentUser.secretPassword || "SH-SHATHA";
+    if (icon) icon.className = "fas fa-eye-slash";
+  } else {
+    elem.innerText = (appState.currentUser.secretPassword || "SH-SHATHA").replace(/./g, '•');
+    if (icon) icon.className = "fas fa-eye";
+  }
+}
+
+/**
+ * إظهار/إخفاء حقل كلمة السر في فورم الدخول
+ */
+function togglePasswordVisibility(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  if (!input) return;
+
+  if (input.type === "password") {
+    input.type = "text";
+    if (icon) icon.className = "fas fa-eye-slash";
+  } else {
+    input.type = "password";
+    if (icon) icon.className = "fas fa-eye";
+  }
+}
+
+/**
+ * فتح صفحة/نافذة معلومات الحساب الكاملة
+ */
+function openShathaAccountModal() {
+  const user = appState.currentUser;
+  if (!user) {
+    openShathaAuthModal();
+    return;
+  }
+
+  const modal = document.getElementById("shathaAccountModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (!modal) return;
+
+  // تحديث محتويات النافذة
+  const avatar = document.getElementById("accModalAvatar");
+  const name = document.getElementById("accModalName");
+  const phone = document.getElementById("accModalPhone");
+  const email = document.getElementById("accModalEmail");
+  const pwd = document.getElementById("accModalPassword");
+  const couponCode = document.getElementById("accModalCouponCode");
+  const couponStatus = document.getElementById("accModalCouponStatus");
+  const cartCount = document.getElementById("accModalCartItemsCount");
+  const ownerSec = document.getElementById("accOwnerSection");
+  const role = document.getElementById("accModalRole");
+
+  if (avatar) avatar.src = user.picture || "assets/images/logo.jpg";
+  if (name) name.innerText = user.name;
+  if (phone) phone.innerText = user.phone || "لم يتم تسجيل رقم بعد (اضغط تعديل)";
+  if (email) email.innerText = user.email || "غير متوفر";
+  
+  isAccountPasswordVisible = false;
+  if (pwd) pwd.innerText = (user.secretPassword || "SH-SHATHA").replace(/./g, '•');
+  const eyeIcon = document.getElementById("accEyeIcon");
+  if (eyeIcon) eyeIcon.className = "fas fa-eye";
+
+  if (couponCode) couponCode.innerText = user.couponCode;
+
+  const isUsed = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
+  if (couponStatus) {
+    if (isUsed) {
+      couponStatus.innerText = "تم استهلاك الكود سابقاً";
+      couponStatus.classList.add("used");
+    } else {
+      couponStatus.innerText = "متاح للاستخدام (مرة واحدة)";
+      couponStatus.classList.remove("used");
+    }
+  }
+
+  if (cartCount) {
+    cartCount.innerText = `${appState.cart.length} باقات في السلة`;
+  }
+
+  const isOwner = user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+  if (ownerSec) ownerSec.style.display = isOwner ? "block" : "none";
+  if (role) {
+    role.innerHTML = isOwner 
+      ? '<i class="fas fa-crown" style="color: #F39C12;"></i> مالك ومدير متجر شذى' 
+      : '<i class="fas fa-heart" style="color: var(--primary-pink);"></i> عميل مميز لدى شذى';
+  }
+
+  // إخفاء فورم تعديل الرقم إذا كان مفتوحاً
+  const editWrap = document.getElementById("accEditPhoneWrap");
+  if (editWrap) editWrap.style.display = "none";
+
+  backdrop?.classList.add("active");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+/**
+ * إغلاق نافذة معلومات الحساب
+ */
+function closeShathaAccountModal() {
+  document.getElementById("shathaAccountModal")?.classList.remove("active");
+  const hasOtherModal = document.querySelector(".checkout-modal.active, .account-modal-wrap.active, .product-modal.active");
+  if (!hasOtherModal) {
+    document.getElementById("modalBackdrop")?.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+}
+
+/**
+ * إظهار/إخفاء فورم تعديل رقم الهاتف
+ */
+function toggleEditPhone() {
+  const wrap = document.getElementById("accEditPhoneWrap");
+  const input = document.getElementById("accEditPhoneInput");
+  if (!wrap) return;
+
+  if (wrap.style.display === "none" || !wrap.style.display) {
+    wrap.style.display = "flex";
+    if (input) {
+      input.value = appState.currentUser?.phone || "";
+      input.focus();
+    }
+  } else {
+    wrap.style.display = "none";
+  }
+}
+
+/**
+ * حفظ رقم الهاتف المعدل
+ */
+function saveEditedPhone() {
+  const input = document.getElementById("accEditPhoneInput");
+  const newPhone = input?.value.trim();
+  if (!newPhone || newPhone.length < 8) {
+    showToast("يرجى كتابة رقم هاتف صحيح", "error");
+    return;
+  }
+
+  if (appState.currentUser) {
+    appState.currentUser.phone = newPhone;
+    saveRegisteredAccount(appState.currentUser);
+    localStorage.setItem('shatha_google_user', JSON.stringify(appState.currentUser));
+
+    const phoneDisplay = document.getElementById("accModalPhone");
+    if (phoneDisplay) phoneDisplay.innerText = newPhone;
+
+    toggleEditPhone();
+    showToast(`تم تحديث رقم الهاتف بنجاح (${newPhone}) وسيتم تعبئته تلقائياً عند الشراء 🌸`, "success");
+  }
+}
+
+/**
+ * تحديث واجهة المستخدم (الأيقونة الدائرية، الكوبونات، أزرار الهيدر)
  */
 function updateAuthUI() {
   const loggedOutBar = document.getElementById("authBarLoggedOut");
   const loggedInBar = document.getElementById("authBarLoggedIn");
-  const userWidget = document.getElementById("userAuthWidget");
   const newsletterBtn = document.getElementById("googleSignInBtnNewsletter");
+
+  const userCircleIcon = document.getElementById("userCircleIcon");
+  const userAvatarImg = document.getElementById("userAvatarImg");
+  const userStatusDot = document.getElementById("userStatusDot");
+  const headerUserCircleBtn = document.getElementById("headerUserCircleBtn");
 
   if (appState.currentUser) {
     const user = appState.currentUser;
     const isUsed = localStorage.getItem(`shatha_coupon_used_${user.id}`) === 'true';
     user.couponUsed = isUsed;
+
+    // الأيقونة الدائرية الفاخرة للهيدر: عرض الصورة ونقطة الاتصال الخضراء دون أي نص
+    if (userCircleIcon) userCircleIcon.style.display = "none";
+    if (userAvatarImg) {
+      userAvatarImg.style.display = "block";
+      userAvatarImg.src = user.picture || "assets/images/logo.jpg";
+    }
+    if (userStatusDot) userStatusDot.style.display = "block";
+    if (headerUserCircleBtn) {
+      headerUserCircleBtn.setAttribute("title", `${user.name} (اضغط لعرض صفحة معلومات الحساب)`);
+    }
 
     if (loggedOutBar) loggedOutBar.style.display = "none";
     if (loggedInBar) loggedInBar.style.display = "flex";
@@ -1597,33 +2134,6 @@ function updateAuthUI() {
       }
     }
 
-    // عنصر الهيدر
-    if (userWidget) {
-      userWidget.style.display = "block";
-      const avatar = document.getElementById("userAvatarImg");
-      const shortName = document.getElementById("userNameShort");
-      const fullName = document.getElementById("dropdownFullName");
-      const email = document.getElementById("dropdownEmail");
-      const dropCode = document.getElementById("dropdownCouponVal");
-      const dropStatus = document.getElementById("dropdownCouponStatus");
-
-      if (avatar) avatar.src = user.picture;
-      if (shortName) shortName.innerText = user.name.split(' ')[0];
-      if (fullName) fullName.innerText = user.name;
-      if (email) email.innerText = user.email;
-      if (dropCode) dropCode.innerText = user.couponCode;
-
-      if (dropStatus) {
-        if (isUsed) {
-          dropStatus.innerText = "تم استهلاك الكود";
-          dropStatus.style.color = "#E74C3C";
-        } else {
-          dropStatus.innerText = "متاح للاستخدام (مرة واحدة)";
-          dropStatus.style.color = "#27AE60";
-        }
-      }
-    }
-
     // التحقق الصارم من مالك المتجر: a4999360@gmail.com
     const isOwner = user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
     const navAdmin = document.getElementById("navAdminLink");
@@ -1634,19 +2144,15 @@ function updateAuthUI() {
     if (sectionAddBtn) sectionAddBtn.style.display = isOwner ? "inline-flex" : "none";
     if (footerAdmin) footerAdmin.style.display = isOwner ? "block" : "none";
 
-    // إضافة شارة مالك المتجر للملف الشخصي
-    if (isOwner) {
-      const dropdownInfo = document.querySelector(".dropdown-user-info");
-      if (dropdownInfo && !document.getElementById("ownerBadgeTag")) {
-        const badge = document.createElement("span");
-        badge.id = "ownerBadgeTag";
-        badge.style = "background: #27AE60; color: #fff; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; margin-top: 4px; display: inline-block;";
-        badge.innerHTML = '<i class="fas fa-crown"></i> مالك المتجر والمدير';
-        dropdownInfo.appendChild(badge);
-      }
-    }
   } else {
-    // حالة عدم تسجيل الدخول: إخفاء كافة أدوات الإدارة
+    // حالة عدم تسجيل الدخول: الأيقونة دائرية بأيقونة المستخدم
+    if (userCircleIcon) userCircleIcon.style.display = "inline-block";
+    if (userAvatarImg) userAvatarImg.style.display = "none";
+    if (userStatusDot) userStatusDot.style.display = "none";
+    if (headerUserCircleBtn) {
+      headerUserCircleBtn.setAttribute("title", "تسجيل الدخول / حسابي");
+    }
+
     const navAdmin = document.getElementById("navAdminLink");
     const sectionAddBtn = document.getElementById("sectionAdminAddBtn");
     const footerAdmin = document.getElementById("footerAdminLink");
@@ -1656,11 +2162,7 @@ function updateAuthUI() {
 
     if (loggedOutBar) loggedOutBar.style.display = "flex";
     if (loggedInBar) loggedInBar.style.display = "none";
-    if (userWidget) userWidget.style.display = "none";
-
-    if (newsletterBtn) {
-      newsletterBtn.style.display = "flex";
-    }
+    if (newsletterBtn) newsletterBtn.style.display = "flex";
 
     // إعادة رسم أزرار جوجل
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
@@ -1700,7 +2202,7 @@ function updateAuthUI() {
  */
 function copyMyCoupon() {
   if (!appState.currentUser) {
-    showToast("يرجى تسجيل الدخول بحساب Google أولاً للحصول على كود الخصم", "info");
+    showToast("يرجى تسجيل الدخول بحسابك أولاً للحصول على كود الخصم", "info");
     return;
   }
 
@@ -1728,17 +2230,15 @@ function handleGoogleSignOut() {
   appState.currentUser = null;
   localStorage.removeItem('shatha_google_user');
   
-  // إلغاء الكوبون الحالي إذا كان كوبون المستخدم المسجل
   appState.appliedCoupon = null;
   localStorage.removeItem('shatha_applied_coupon');
   
-  const dropdown = document.getElementById("userDropdownMenu");
-  dropdown?.classList.remove("show");
+  closeShathaAccountModal();
 
   updateAuthUI();
   updateCartUI();
 
-  showToast("تم تسجيل الخروج بنجاح", "info");
+  showToast("تم تسجيل الخروج بنجاح. أهلاً بك دائماً في شذى 🌸", "info");
 }
 
 /* ==========================================================================
