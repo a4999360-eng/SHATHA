@@ -773,7 +773,7 @@
       </div>
     </div>
 
-    <form id="wizardProductForm" onsubmit="handleWizardProductSubmit(event)">
+    <form id="wizardProductForm" novalidate onsubmit="handleWizardProductSubmit(event)">
       <!-- معرّف المنتج عند التعديل -->
       <input type="hidden" id="editingProductId" value="">
 
@@ -785,11 +785,11 @@
         <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 14px;">
           <div class="form-group" style="grid-column: 1 / -1;">
             <label><span style="color: #E74C3C;">*</span> اسم الباقة / المنتج:</label>
-            <input type="text" id="wName" class="form-control" placeholder="مثال: بوكيه ورد ستan موف ملكي هاندميد" required>
+            <input type="text" id="wName" class="form-control" placeholder="مثال: بوكيه ورد ستان موف ملكي هاندميد">
           </div>
           <div class="form-group">
             <label><span style="color: #E74C3C;">*</span> السعر الأساسي (ج.م):</label>
-            <input type="number" id="wBasePrice" class="form-control" placeholder="مثال: 450" min="1" required>
+            <input type="number" id="wBasePrice" class="form-control" placeholder="مثال: 450">
           </div>
           <div class="form-group">
             <label>السعر قبل الخصم (اختياري):</label>
@@ -801,7 +801,7 @@
           </div>
           <div class="form-group" style="grid-column: 1 / -1;">
             <label><span style="color: #E74C3C;">*</span> وصف الباقة ومكوناتها:</label>
-            <textarea id="wShortDesc" class="form-control" rows="3" placeholder="اكتب وصفاً مفصلاً يوضح الخامات ولون الستان وطريقة التغليف..." required></textarea>
+            <textarea id="wShortDesc" class="form-control" rows="3" placeholder="اكتب وصفاً مفصلاً يوضح الخامات ولون الستان وطريقة التغليف..."></textarea>
           </div>
         </div>
         <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
@@ -915,7 +915,7 @@
           <button type="button" class="btn-secondary" onclick="switchWizardStep(3)">
             <i class="fas fa-arrow-right"></i> السابق
           </button>
-          <button type="submit" id="wizardSubmitBtn" class="btn-primary" style="background: #27AE60; padding: 12px 30px; font-size: 1.05rem;">
+          <button type="button" onclick="handleWizardProductSubmit(event)" id="wizardSubmitBtn" class="btn-primary" style="background: #27AE60; padding: 12px 30px; font-size: 1.05rem;">
             <i class="fas fa-save"></i> <span id="wizardSubmitBtnText">حفظ ونشر الباقة فوراً</span>
           </button>
         </div>
@@ -1376,20 +1376,42 @@
       </div>
 
       <!-- أدوات المالك شذى (تظهر فقط للمالك) -->
-      <div id="accOwnerSection" style="display: none; background: #E8F8F5; border: 1.5px solid #27AE60; border-radius: var(--radius-md); padding: 14px; text-align: center;">
-        <strong style="color: #27AE60; display: block; margin-bottom: 6px; font-size: 0.95rem;">
-          <i class="fas fa-crown"></i> لوحة إدارة وتحكم المالك
-        </strong>
-        <p style="font-size: 0.82rem; color: #2C3E50; margin-bottom: 10px;">
-          بصفتك مالك المتجر، يمكنك إضافة أو تعديل باقات الورد والأسعار وتحديث الرابط السحابي مباشرة.
+      <div id="accOwnerSection" style="display: none; background: #F0FBF7; border: 1.5px solid #27AE60; border-radius: var(--radius-md); padding: 14px; text-align: right;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <strong style="color: #27AE60; font-size: 0.95rem;">
+            <i class="fas fa-crown"></i> لوحة إدارة وتحكم المالك
+          </strong>
+          <span style="font-size: 0.72rem; background: #27AE60; color: #fff; padding: 2px 8px; border-radius: 10px; font-weight: 700;">حساب المالك</span>
+        </div>
+        <p style="font-size: 0.82rem; color: #2C3E50; margin-bottom: 12px; line-height: 1.5;">
+          بصفتك مالك المتجر، يمكنك إضافة وتعديل الباقات ومزامنة التعديلات سحابياً مع قاعدة بيانات Firebase لجميع الزوار فوراً.
         </p>
-        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-          <button type="button" onclick="closeShathaAccountModal(); openAddProductModal();" class="btn-primary" style="background: #27AE60; padding: 8px 16px; font-size: 0.88rem;">
-            <i class="fas fa-plus-circle"></i> إضافة باقة جديدة
-          </button>
-          <button type="button" onclick="promptCustomFirebaseUrl();" class="btn-primary" style="background: #2980B9; padding: 8px 14px; font-size: 0.85rem;">
-            <i class="fas fa-cloud"></i> إعداد سحابة Firebase
-          </button>
+
+        <button type="button" onclick="closeShathaAccountModal(); openAddProductModal();" class="btn-primary" style="background: #27AE60; width: 100%; padding: 10px; font-size: 0.92rem; margin-bottom: 12px; justify-content: center;">
+          <i class="fas fa-plus-circle"></i> فتح لوحة إضافة باقة جديدة
+        </button>
+
+        <!-- صندوق إعدادات ومزامنة السحابة التفاعلي المباشر -->
+        <div style="background: #fff; border: 1.5px solid #BDC3C7; border-radius: var(--radius-sm); padding: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+            <label for="ownerFirebaseUrlInput" style="font-size: 0.82rem; font-weight: 700; color: #2980B9; margin: 0;">
+              <i class="fas fa-cloud"></i> رابط قاعدة بيانات Firebase (Live):
+            </label>
+            <span id="cloudStatusIndicator" style="font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; background: #ECEFF1; color: #546E7A; font-weight: 600;">جاري الفحص...</span>
+          </div>
+
+          <input type="url" id="ownerFirebaseUrlInput" style="width: 100%; padding: 8px 10px; font-size: 0.8rem; border: 1.5px solid #BDC3C7; border-radius: var(--radius-sm); direction: ltr; box-sizing: border-box; font-family: monospace; margin-bottom: 8px;" placeholder="https://xxxx.europe-west1.firebasedatabase.app" value="https://shatha-store-default-rtdb.europe-west1.firebasedatabase.app">
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <button type="button" onclick="saveAndTestFirebaseUrl()" style="background: #2980B9; color: #fff; border: none; border-radius: var(--radius-sm); padding: 8px 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <i class="fas fa-save"></i> حفظ واختبار الاتصال
+            </button>
+            <button type="button" onclick="forceUploadAllProductsToCloud()" style="background: #27AE60; color: #fff; border: none; border-radius: var(--radius-sm); padding: 8px 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <i class="fas fa-cloud-upload-alt"></i> رفع المنتجات للسحابة
+            </button>
+          </div>
+
+          <div id="firebaseTestOutput" style="font-size: 0.76rem; margin-top: 8px; color: #555; line-height: 1.4;"></div>
         </div>
       </div>
 

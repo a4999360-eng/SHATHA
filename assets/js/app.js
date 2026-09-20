@@ -173,7 +173,11 @@ function loadAllProducts() {
 // حفظ كافة المنتجات في التخزين المحلي ورفعها سحابياً لكافة المستخدمين
 async function saveAllProductsToStorage() {
   try {
-    localStorage.setItem('shatha_all_products_v2', JSON.stringify(appState.products));
+    try {
+      localStorage.setItem('shatha_all_products_v2', JSON.stringify(appState.products));
+    } catch (quotaErr) {
+      console.warn("LocalStorage full, continuing with cloud upload:", quotaErr);
+    }
     // مزامنة فورية على السحابة لتظهر التعديلات على كافة هواتف العملاء والمالك
     const synced = await SHATHA_CLOUD.set('products', appState.products);
     if (synced) {
@@ -188,31 +192,120 @@ async function saveAllProductsToStorage() {
   }
 }
 
-// نافذة إعداد وتخصيص رابط قاعدة بيانات Firebase للمالك
-function promptCustomFirebaseUrl() {
-  const current = localStorage.getItem('shatha_custom_firebase_url') || SHATHA_CONFIG.firebaseDbUrl;
-  const input = prompt(
-    "أدخل رابط قاعدة بيانات Firebase Realtime Database الخاصة بك:\n(مثال: https://your-project-default-rtdb.firebaseio.com)",
-    current
-  );
+// حفظ واختبار الاتصال بقاعدة بيانات Firebase التفاعلي
+async function saveAndTestFirebaseUrl() {
+  const input = document.getElementById("ownerFirebaseUrlInput");
+  const statusEl = document.getElementById("cloudStatusIndicator");
+  const outputEl = document.getElementById("firebaseTestOutput");
 
-  if (input !== null) {
-    const clean = input.trim().replace(/\/+$/, '');
-    if (clean) {
-      localStorage.setItem('shatha_custom_firebase_url', clean);
-      SHATHA_CONFIG.firebaseDbUrl = clean;
-      showToast("جاري ربط السحابة ورفع كافة المنتجات الحالية...", "info");
-      SHATHA_CLOUD.set('products', appState.products).then(ok => {
-        if (ok) {
-          showToast("تم ربط قاعدة البيانات بنجاح ورفع المنتجات سحابياً! 🎉 التعديلات الآن حية لجميع الزوار.", "success");
-        } else {
-          showToast("تم حفظ الرابط، ولكن يرجى التأكد من ضبط قواعد Firebase إلى write: true و read: true.", "warning");
-        }
-      });
-    } else {
-      localStorage.removeItem('shatha_custom_firebase_url');
-      showToast("تمت استعادة الرابط الافتراضي", "info");
+  const url = input?.value.trim().replace(/\/+$/, '');
+  if (!url || !url.startsWith("http")) {
+    showToast("يرجى إدخال رابط Firebase صحيح يبدأ بـ https://", "error");
+    return;
+  }
+
+  if (statusEl) {
+    statusEl.innerText = "جاري الفحص...";
+    statusEl.style.background = "#FFF3CD";
+    statusEl.style.color = "#856404";
+  }
+  if (outputEl) {
+    outputEl.innerHTML = `<span style="color: #2980B9;"><i class="fas fa-spinner fa-spin"></i> جاري اختبار الاتصال بقاعدة البيانات...</span>`;
+  }
+
+  localStorage.setItem('shatha_custom_firebase_url', url);
+  SHATHA_CONFIG.firebaseDbUrl = url;
+
+  try {
+    // 1. اختبار القراءة
+    const testRead = await fetch(`${url}/shatha_products.json?_t=${Date.now()}`, { cache: 'no-store' });
+    if (!testRead.ok) {
+      if (testRead.status === 401 || testRead.status === 403) {
+        throw new Error("قاعدة البيانات محظورة (Permission Denied)! يرجى فتح تبويب Rules في Firebase وجعل read و write تساوي true ثم الضغط على زر Publish.");
+      } else {
+        throw new Error(`تعذر الاتصال بالرابط (رمز الاستجابة: ${testRead.status})`);
+      }
     }
+
+    // 2. اختبار الكتابة ورفع المنتجات
+    const testWrite = await fetch(`${url}/shatha_products.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(appState.products)
+    });
+
+    if (!testWrite.ok) {
+      if (testWrite.status === 401 || testWrite.status === 403) {
+        throw new Error("صلاحية الكتابة مقفولة! في صفحة Firebase ادخل على تبويب Rules واضبط write: true ثم اضغط Publish.");
+      } else {
+        throw new Error(`فشل رفع البيانات (رمز الخطأ: ${testWrite.status})`);
+      }
+    }
+
+    if (statusEl) {
+      statusEl.innerText = "✅ متصل ونشط";
+      statusEl.style.background = "#D4EDDA";
+      statusEl.style.color = "#155724";
+    }
+    if (outputEl) {
+      outputEl.innerHTML = `<span style="color: #27AE60; font-weight: 700;"><i class="fas fa-check-circle"></i> تم الاتصال بنجاح ورفع ${appState.products.length} باقة للسحابة! التعديلات حية وتظهر لجميع الزوار فوراً.</span>`;
+    }
+    showToast("🎉 تم الاتصال بسحابة Firebase بنجاح ورفع المنتجات!", "success");
+
+  } catch (err) {
+    console.error("Firebase Test Error:", err);
+    if (statusEl) {
+      statusEl.innerText = "⚠️ بحاجة لضبط Rules";
+      statusEl.style.background = "#F8D7DA";
+      statusEl.style.color = "#721C24";
+    }
+    if (outputEl) {
+      outputEl.innerHTML = `<span style="color: #C0392B; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> ${err.message}</span>`;
+    }
+    showToast(err.message, "error");
+  }
+}
+
+// زر رفع كافة المنتجات الحالية إلى السحابة فوراً
+async function forceUploadAllProductsToCloud() {
+  const outputEl = document.getElementById("firebaseTestOutput");
+  if (outputEl) outputEl.innerHTML = `<span style="color: #2980B9;"><i class="fas fa-spinner fa-spin"></i> جاري رفع المنتجات للسحابة...</span>`;
+
+  showToast("جاري رفع كافة المنتجات الحالية للسحابة...", "info");
+  const ok = await SHATHA_CLOUD.set('products', appState.products);
+  if (ok) {
+    showToast("تم رفع كافة المنتجات لسحابة Firebase بنجاح! 🌸", "success");
+    if (outputEl) outputEl.innerHTML = `<span style="color: #27AE60; font-weight: 700;"><i class="fas fa-check-circle"></i> تم رفع ${appState.products.length} باقة سحابياً بنجاح!</span>`;
+  } else {
+    showToast("تعذر الرفع، يرجى التأكد من ضبط قواعد Firebase (Rules).", "error");
+    if (outputEl) outputEl.innerHTML = `<span style="color: #C0392B;"><i class="fas fa-times-circle"></i> فشل الرفع. تأكد من ضبط قواعد Firebase (Rules) إلى true.</span>`;
+  }
+}
+
+// فحص سريع لحالة السحابة في الخلفية
+async function checkCloudStatusBackground() {
+  const statusEl = document.getElementById("cloudStatusIndicator");
+  const input = document.getElementById("ownerFirebaseUrlInput");
+  if (!statusEl) return;
+
+  const url = SHATHA_CONFIG.firebaseDbUrl;
+  if (input) input.value = url;
+
+  try {
+    const res = await fetch(`${url}/shatha_products.json?_t=${Date.now()}`, { cache: 'no-store' });
+    if (res.ok) {
+      statusEl.innerText = "✅ متصل ونشط";
+      statusEl.style.background = "#D4EDDA";
+      statusEl.style.color = "#155724";
+    } else {
+      statusEl.innerText = "⚠️ بحاجة لضبط Rules";
+      statusEl.style.background = "#F8D7DA";
+      statusEl.style.color = "#721C24";
+    }
+  } catch (e) {
+    statusEl.innerText = "⚠️ غير متصل";
+    statusEl.style.background = "#F8D7DA";
+    statusEl.style.color = "#721C24";
   }
 }
 
@@ -2062,7 +2155,10 @@ function openShathaAccountModal() {
   }
 
   const isOwner = user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
-  if (ownerSec) ownerSec.style.display = isOwner ? "block" : "none";
+  if (ownerSec) {
+    ownerSec.style.display = isOwner ? "block" : "none";
+    if (isOwner) checkCloudStatusBackground();
+  }
   if (role) {
     role.innerHTML = isOwner 
       ? '<i class="fas fa-crown" style="color: #F39C12;"></i> مالك ومدير متجر شذى' 
@@ -2477,8 +2573,8 @@ function switchWizardStep(step) {
   }
 }
 
-// ضغط الصورة قبل تحويلها إلى Base64 لتخفيف الحجم (Canvas API)
-function compressImageToBase64(file, maxWidth = 800, quality = 0.72) {
+// ضغط الصورة قبل تحويلها إلى Base64 لتخفيف الحجم وسرعة الرفع (Canvas API)
+function compressImageToBase64(file, maxWidth = 640, quality = 0.65) {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
     const img = new Image();
@@ -2606,21 +2702,45 @@ function addWizardSizeRow() {
   container.appendChild(row);
 }
 
-// حفظ المنتج وإدراجه فوراً في المتجر
+// حفظ ونشر المنتج وإدراجه فوراً في المتجر والسحابة
 function handleWizardProductSubmit(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
 
-  if (wizardImages.length === 0) {
+  const name = document.getElementById("wName")?.value.trim();
+  const basePriceInput = document.getElementById("wBasePrice")?.value;
+  const basePrice = parseFloat(basePriceInput);
+  const shortDesc = document.getElementById("wShortDesc")?.value.trim();
+
+  // التحقق من الحقول الأساسية أولاً
+  if (!name) {
+    switchWizardStep(1);
+    showToast("يرجى كتابة اسم الباقة في الخطوة 1", "error");
+    document.getElementById("wName")?.focus();
+    return;
+  }
+
+  if (!basePrice || isNaN(basePrice) || basePrice <= 0) {
+    switchWizardStep(1);
+    showToast("يرجى كتابة سعر صحيح للباقة في الخطوة 1", "error");
+    document.getElementById("wBasePrice")?.focus();
+    return;
+  }
+
+  if (!shortDesc) {
+    switchWizardStep(1);
+    showToast("يرجى كتابة وصف ومكونات الباقة في الخطوة 1", "error");
+    document.getElementById("wShortDesc")?.focus();
+    return;
+  }
+
+  if (!wizardImages || wizardImages.length === 0) {
     switchWizardStep(2);
     showToast("يرجى اختيار صورة واحدة على الأقل في الخطوة 2", "error");
     return;
   }
 
-  const name = document.getElementById("wName").value.trim();
-  const basePrice = parseFloat(document.getElementById("wBasePrice").value);
   const oldPrice = parseFloat(document.getElementById("wOldPrice")?.value) || null;
   const tag = document.getElementById("wTag")?.value.trim() || "شغل يدوي فاخر";
-  const shortDesc = document.getElementById("wShortDesc").value.trim();
   const materials = document.getElementById("wMaterials")?.value.trim() || "أشرطة ستان حريري تركي فاخر عالي اللمعان، تغليف كوري سموكي أسود أنيق مقاوم للماء.";
   const craftsmanship = document.getElementById("wCraft")?.value.trim() || "صناعة يدوية متقنة 100% - طي وتشكيل بتلات الجوري بحرفية لتدوم للأبد دون أن تذبل.";
 
@@ -2676,16 +2796,16 @@ function handleWizardProductSubmit(e) {
         existing.sizes = sizes;
         existing.advantages = advantages;
 
-        saveAllProductsToStorage();
         renderProducts();
 
-        // إذا كانت نافذة تفاصيل المنتج مفتوحة، نقوم بتحديثها فوراً
         if (document.getElementById("productDetailsModal")?.classList.contains("active") && appState.selectedProduct?.id === editingId) {
           openProductModal(editingId);
         }
 
         closeAddProductModal();
         showToast(`🎉 تم حفظ تعديلات باقة "${existing.name}" بنجاح!`, "success");
+
+        saveAllProductsToStorage();
         return;
       }
     } catch (err) {
@@ -2708,7 +2828,7 @@ function handleWizardProductSubmit(e) {
     stock: "متوفر حسب الطلب (صناعة يدوية خاصة)",
     inStock: true,
     shortDesc: shortDesc,
-    images: wizardImages,
+    images: [...wizardImages],
     materials: materials,
     craftsmanship: craftsmanship,
     sizes: sizes,
@@ -2721,19 +2841,16 @@ function handleWizardProductSubmit(e) {
 
   try {
     appState.products.unshift(newProduct);
-    saveAllProductsToStorage();
-
-    // تحديث حالة المنتجات مباشرة في الصفحة دون الحاجة لإعادة التحميل
     renderProducts();
-
     closeAddProductModal();
-    showToast(`🎉 تم نشر باقة "${newProduct.name}" بنجاح على الموقع وتظهر الآن في المقدمة!`, "success");
+    showToast(`🎉 تم نشر باقة "${newProduct.name}" بنجاح وتظهر الآن في المتجر!`, "success");
 
-    // التمرير التلقائي لقسم المنتجات لرؤية المنتج الجديد
     document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+
+    saveAllProductsToStorage();
   } catch (err) {
     console.error(err);
-    showToast("حدث خطأ أثناء حفظ المنتج، جرب استخدام صور أصغر حجماً", "error");
+    showToast("حدث خطأ أثناء نشر الباقة", "error");
   }
 }
 
