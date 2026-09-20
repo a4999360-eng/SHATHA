@@ -13,7 +13,9 @@ const SHATHA_CONFIG = {
   defaultCoupon: "SHATHA10",
   discountPercent: 10,
   freeShippingThreshold: 1000,
-  currency: "ج.م"
+  currency: "ج.م",
+  // رابط قاعدة البيانات السحابية المركزية لمتجر شذى (Firebase / Cloud Realtime Database)
+  firebaseDbUrl: localStorage.getItem('shatha_custom_firebase_url') || "https://shatha-store-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
 // حالة التطبيق
@@ -73,16 +75,21 @@ function isCurrentUserOwner() {
 }
 
 /* ==========================================================================
-   محرك المزامنة السحابية الفورية (Cloud Sync Engine)
+   محرك المزامنة السحابية الفورية (Cloud Sync Engine) — Firebase REST API
    يتيح مزامنة المنتجات وتعديلات المالك والآراء عبر كافة الأجهزة والهواتف عالمياً
+   يستخدم Firebase Realtime Database مجاناً بدون أي مكتبات خارجية
    ========================================================================== */
 const SHATHA_CLOUD = {
-  endpoint: "https://kvdb.io/4aY47vLpW9vW1pM6L6UuG9/shatha_",
+  get dbUrl() {
+    return SHATHA_CONFIG.firebaseDbUrl;
+  },
   async get(key) {
     try {
-      const res = await fetch(`${this.endpoint}${key}?_t=${Date.now()}`, { cache: 'no-store' });
+      const url = `${this.dbUrl}/shatha_${key}.json?_t=${Date.now()}`;
+      const res = await fetch(url, { cache: 'no-store' });
       if (res.ok) {
-        return await res.json();
+        const data = await res.json();
+        return data;
       }
     } catch (e) {
       console.warn(`Cloud sync read error (${key}):`, e);
@@ -91,13 +98,16 @@ const SHATHA_CLOUD = {
   },
   async set(key, data) {
     try {
-      await fetch(`${this.endpoint}${key}`, {
-        method: 'POST',
+      const url = `${this.dbUrl}/shatha_${key}.json`;
+      const res = await fetch(url, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
+      return res.ok;
     } catch (e) {
       console.warn(`Cloud sync write error (${key}):`, e);
+      return false;
     }
   }
 };
@@ -110,6 +120,10 @@ async function syncProductsFromCloud() {
       appState.products = cloudProds;
       localStorage.setItem('shatha_all_products_v2', JSON.stringify(cloudProds));
       renderProducts();
+    } else if (cloudProds === null && appState.products && appState.products.length > 0) {
+      // قاعدة البيانات سحابياً جديدة أو فارغة — نقوم برفع الباقات الحالية لتأسيس السحابة فوراً
+      await SHATHA_CLOUD.set('products', appState.products);
+      console.log("☁️ تم تأسيس ورفع المنتجات لقاعدة بيانات Firebase بنجاح!");
     }
   } catch (e) {
     console.warn("Products cloud sync note:", e);
@@ -157,13 +171,48 @@ function loadAllProducts() {
 }
 
 // حفظ كافة المنتجات في التخزين المحلي ورفعها سحابياً لكافة المستخدمين
-function saveAllProductsToStorage() {
+async function saveAllProductsToStorage() {
   try {
     localStorage.setItem('shatha_all_products_v2', JSON.stringify(appState.products));
     // مزامنة فورية على السحابة لتظهر التعديلات على كافة هواتف العملاء والمالك
-    SHATHA_CLOUD.set('products', appState.products);
+    const synced = await SHATHA_CLOUD.set('products', appState.products);
+    if (synced) {
+      console.log("☁️ تم رفع المنتجات وتحديثها على السحابة لجميع الزوار بنجاح!");
+    } else {
+      console.warn("تنبيه: تعذر الرفع التلقائي للسحابة، يرجى مراجعة إعدادات Firebase.");
+    }
+    return synced;
   } catch (e) {
     console.error("Error saving products to storage:", e);
+    return false;
+  }
+}
+
+// نافذة إعداد وتخصيص رابط قاعدة بيانات Firebase للمالك
+function promptCustomFirebaseUrl() {
+  const current = localStorage.getItem('shatha_custom_firebase_url') || SHATHA_CONFIG.firebaseDbUrl;
+  const input = prompt(
+    "أدخل رابط قاعدة بيانات Firebase Realtime Database الخاصة بك:\n(مثال: https://your-project-default-rtdb.firebaseio.com)",
+    current
+  );
+
+  if (input !== null) {
+    const clean = input.trim().replace(/\/+$/, '');
+    if (clean) {
+      localStorage.setItem('shatha_custom_firebase_url', clean);
+      SHATHA_CONFIG.firebaseDbUrl = clean;
+      showToast("جاري ربط السحابة ورفع كافة المنتجات الحالية...", "info");
+      SHATHA_CLOUD.set('products', appState.products).then(ok => {
+        if (ok) {
+          showToast("تم ربط قاعدة البيانات بنجاح ورفع المنتجات سحابياً! 🎉 التعديلات الآن حية لجميع الزوار.", "success");
+        } else {
+          showToast("تم حفظ الرابط، ولكن يرجى التأكد من ضبط قواعد Firebase إلى write: true و read: true.", "warning");
+        }
+      });
+    } else {
+      localStorage.removeItem('shatha_custom_firebase_url');
+      showToast("تمت استعادة الرابط الافتراضي", "info");
+    }
   }
 }
 
@@ -2428,20 +2477,53 @@ function switchWizardStep(step) {
   }
 }
 
-// قراءة ملفات الصور المختارة من الجهاز
+// ضغط الصورة قبل تحويلها إلى Base64 لتخفيف الحجم (Canvas API)
+function compressImageToBase64(file, maxWidth = 800, quality = 0.72) {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(objectUrl);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      // fallback: اقرأ الصورة كما هي
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    };
+    img.src = objectUrl;
+  });
+}
+
+// قراءة ملفات الصور المختارة من الجهاز (مع ضغط تلقائي)
 function handleWizardFiles(files) {
   if (!files || files.length === 0) return;
 
-  Array.from(files).forEach(file => {
+  Array.from(files).forEach(async (file) => {
     if (!file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      wizardImages.push(e.target.result);
+    try {
+      const compressed = await compressImageToBase64(file);
+      wizardImages.push(compressed);
       renderWizardImages();
-    };
-    reader.readAsDataURL(file);
+    } catch (e) {
+      // fallback لو الضغط فشل
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        wizardImages.push(ev.target.result);
+        renderWizardImages();
+      };
+      reader.readAsDataURL(file);
+    }
   });
 }
+
 
 // إضافة مسار يدوي من مجلد FLOURS
 function addWizardManualPath() {
