@@ -2941,16 +2941,90 @@ button {
     display: none;
   }
 
-  /* نافذة تفاصيل المنتج Modal على الموبايل */
+  /* نافذة تفاصيل المنتج Modal على الموبايل: مصفوفة رأسية منظمة ومريحة تماماً بدون أي خروج عن الإطار */
   .product-modal {
-    width: 95%;
-    max-height: 90vh;
-    padding: 20px 16px;
-    border-radius: var(--radius-lg);
+    width: 95% !important;
+    max-width: 500px !important;
+    max-height: 90vh !important;
+    padding: 16px 14px !important;
+    border-radius: var(--radius-lg) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
   }
 
-  .modal-main-img-box {
-    height: 250px;
+  .modal-grid,
+  .product-modal-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-gallery-wrap,
+  .modal-gallery-col {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-main-img-box,
+  .modal-main-img-wrap {
+    width: 100% !important;
+    height: 260px !important;
+    max-height: 55vw !important;
+    aspect-ratio: 1/1 !important;
+    border-radius: var(--radius-md) !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-details,
+  .modal-details-col {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-title {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .modal-current-price,
+  .modal-price {
+    font-size: 1.55rem !important;
+  }
+
+  .modal-desc {
+    font-size: 0.88rem !important;
+    line-height: 1.65 !important;
+    margin-bottom: 14px !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .modal-actions-row {
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin-top: 14px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .modal-actions-row .btn-primary,
+  .modal-actions-row .btn-modal-add-cart,
+  .modal-actions-row .btn-modal-whatsapp {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 13px !important;
+    font-size: 0.95rem !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -5984,6 +6058,173 @@ html.theme-transitioning *::after {
 @keyframes pulseThemeDot {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.35); opacity: 0.8; }
+}
+
+/* ========================================================
+   تحسينات مظهر ومحتوى المنتجات داخل الباكدج والعرسان
+   وترتيب العناصر وضمان عدم خروجها عن الإطار في الهواتف
+   ======================================================== */
+.btn-wb-preview {
+  background: rgba(191, 114, 121, 0.12);
+  color: var(--primary-pink);
+  border: 1px solid rgba(191, 114, 121, 0.35);
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-wb-preview:hover {
+  background: var(--primary-pink);
+  color: #FFFFFF;
+}
+
+.wb-actions-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.wedding-bundle-item-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  transition: var(--transition);
+  cursor: pointer;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.wedding-bundle-item-card .wb-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wedding-bundle-item-card .wb-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wedding-bundle-item-card .wb-dept-tag {
+  font-size: 0.76rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.wedding-bundle-item-card .wb-thumb {
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.wedding-bundle-item-card .wb-thumb:hover {
+  transform: scale(1.08);
+}
+
+/* تنسيق أزرار المودال الإضافية */
+.btn-modal-add-cart {
+  background: linear-gradient(135deg, var(--primary-pink), var(--primary-dark));
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 14px 20px;
+  font-weight: 800;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+.btn-modal-add-cart:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: #FFFFFF;
+}
+
+.btn-modal-whatsapp {
+  background: #25D366;
+  color: #FFFFFF !important;
+  border-radius: var(--radius-full);
+  padding: 12px 18px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.btn-modal-whatsapp:hover {
+  background: #1EBE5D;
+  transform: translateY(-2px);
+}
+
+/* استجابة باكدج العرسان للهواتف المحمولة */
+@media (max-width: 600px) {
+  .wedding-bundle-modal {
+    width: 95% !important;
+    padding: 16px 12px !important;
+  }
+
+  .wedding-bundle-item-card {
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+
+  .wedding-bundle-item-card .wb-thumb {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .wedding-bundle-item-card .wb-title {
+    font-size: 0.84rem !important;
+  }
+
+  .wedding-bundle-item-card .wb-price {
+    font-size: 0.88rem !important;
+  }
+
+  .btn-wb-preview {
+    font-size: 0.7rem !important;
+    padding: 3px 7px !important;
+  }
+
+  .wedding-custom-fields-box {
+    padding: 12px !important;
+  }
+
+  .wedding-custom-fields-box .checkout-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
 }
 
 

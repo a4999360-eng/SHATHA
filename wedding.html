@@ -598,173 +598,338 @@
     </div>
   </section>
 
-  <!-- نافذة تفاصيل المنتج المتقدمة (Product Details Modal) -->
-  <section class="product-modal" id="productDetailsModal" aria-label="تفاصيل المنتج">
-    <button class="product-modal-close" onclick="closeProductModal()" aria-label="إغلاق النافذة">
+  <!-- نافذة تفاصيل المنتج المتقدمة (Product Modal) -->
+  <section class="product-modal" id="productDetailsModal" aria-label="تفاصيل الباقة">
+    <button class="product-modal-close" id="closeProductModal" onclick="closeProductModal()" aria-label="إغلاق النافذة">
       <i class="fas fa-times"></i>
     </button>
-    <div class="product-modal-grid">
-      <div class="modal-gallery-col">
-        <div class="modal-main-img-wrap">
-          <img src="" alt="" id="modalMainImg">
+    <div class="modal-grid">
+      <!-- المعرض -->
+      <div class="modal-gallery-wrap">
+        <div class="modal-main-img-box">
+          <img src="" alt="صورة الباقة" id="modalMainImg">
         </div>
         <div class="modal-thumbnails" id="modalThumbnailsContainer"></div>
       </div>
-      <div class="modal-details-col">
-        <div id="modalOwnerTools" class="modal-owner-bar" style="display: none;"></div>
-        <h2 id="modalProductTitle" class="modal-title"></h2>
+
+      <!-- التفاصيل -->
+      <div class="modal-details">
+        <div id="modalOwnerTools" style="display: none; background: #FEF9E7; border: 1.5px dashed #F39C12; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 15px; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;"></div>
+        <span class="modal-category-tag" style="background: var(--primary-soft); color: var(--primary-dark); padding: 4px 14px; border-radius: var(--radius-full); display: inline-block; width: fit-content;">
+          <i class="fas fa-hand-sparkles" style="color: var(--primary-pink);"></i> شغل يدوي هاندميد • تجهيزات ليلة العمر
+        </span>
+        <h2 class="modal-title" id="modalProductTitle" style="margin-top: 8px;">اسم الباقة</h2>
+        
         <div class="modal-rating-row">
-          <div class="stars" style="color: #F5A623;">★★★★★</div>
-          <span id="modalProductRating" style="font-weight: 700;">5.0</span>
-          <span id="modalProductReviewsCount" style="color: var(--text-muted); font-size: 0.85rem;">(0 تقييم)</span>
+          <span>★★★★★</span>
+          <strong id="modalProductRating">5.0</strong>
+          <span style="color: var(--text-light);" id="modalProductReviewsCount">(40 تقييم عرائس)</span>
+          <span class="modal-stock-badge"><i class="fas fa-infinity"></i> يدوم للأبد ولا يذبل</span>
         </div>
-        <div class="modal-price-box">
-          <span class="modal-price" id="modalCurrentPrice">0 ج.م</span>
+
+        <div class="modal-price-wrap">
+          <span class="modal-current-price" id="modalCurrentPrice">0 ج.م</span>
         </div>
-        <p class="modal-desc" id="modalProductDesc"></p>
-        <div class="modal-sizes-box">
-          <h5>المقاسات المتاحة:</h5>
-          <div class="sizes-selector" id="modalSizesContainer"></div>
+
+        <p class="modal-desc" id="modalProductDesc">
+          وصف الباقة وتفاصيلها...
+        </p>
+
+        <!-- الخامات وطريقة الصنع اليدوي -->
+        <div style="background: var(--bg-body); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+          <h5 style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px;">
+            <i class="fas fa-layer-group" style="color: var(--primary-pink);"></i> الخامات المستخدمة:
+          </h5>
+          <p id="modalMaterialsText" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px;"></p>
+          
+          <h5 style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px;">
+            <i class="fas fa-hand-sparkles" style="color: var(--primary-pink);"></i> طريقة الصنع والإتقان:
+          </h5>
+          <p id="modalCraftText" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;"></p>
         </div>
-        <div class="modal-craft-box">
-          <h5>الخامات وطريقة الصنع اليدوية:</h5>
-          <p id="modalMaterialsText"></p>
-          <p id="modalCraftText" style="margin-top: 6px; color: var(--text-muted); font-size: 0.85rem;"></p>
-        </div>
-        <div class="modal-advantages-box">
-          <h5>المميزات والضمانات:</h5>
-          <ul id="modalAdvantagesList" class="advantages-list"></ul>
-        </div>
-        <div class="modal-reviews-section">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h5 style="margin: 0;">تقييمات وتجارب العرائس:</h5>
-            <button type="button" class="btn-secondary" onclick="toggleProdReviewForm()" style="padding: 5px 12px; font-size: 0.8rem; border-radius: var(--radius-full);">
-              <i class="fas fa-edit"></i> إضافة تقييم
-            </button>
+
+        <!-- اختيار الحجم والمقاس (Size Selector) -->
+        <div class="size-selector-wrap">
+          <h5>
+            <span>اختر حجم وتنسيق الباقة:</span>
+            <small style="color: var(--primary-pink); font-weight: normal;">(يحدد عدد الأزهار والتفاصيل)</small>
+          </h5>
+          <div class="size-options-grid" id="modalSizesContainer">
+            <!-- يتم تعبئتها بواسطة JS -->
           </div>
-          <div id="prodReviewFormBox" style="display: none; background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
-            <form onsubmit="handleProductReviewSubmit(event)" style="display: flex; flex-direction: column; gap: 10px;">
-              <input type="text" id="prAuthor" placeholder="اسمك الكريم" style="padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.88rem;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 0.85rem; color: var(--text-muted);">التقييم:</span>
-                <div id="prodRatingStars" style="color: #F5A623; cursor: pointer; font-size: 1.1rem;">
-                  <i class="fas fa-star active" onclick="setProdRating(1)"></i>
-                  <i class="fas fa-star active" onclick="setProdRating(2)"></i>
-                  <i class="fas fa-star active" onclick="setProdRating(3)"></i>
-                  <i class="fas fa-star active" onclick="setProdRating(4)"></i>
-                  <i class="fas fa-star active" onclick="setProdRating(5)"></i>
-                </div>
-                <input type="hidden" id="prRatingVal" value="5">
-              </div>
-              <textarea id="prComment" rows="2" placeholder="اكتبي رأيك الصادق في الباقة وتفاصيلها..." required style="padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.88rem;"></textarea>
-              <button type="submit" class="btn-primary" style="padding: 8px 16px; font-size: 0.88rem; align-self: flex-start; border-radius: var(--radius-full);">نشر التقييم 🌸</button>
-            </form>
-          </div>
-          <div id="modalReviewsList" class="reviews-list"></div>
         </div>
+
+        <!-- زر الإضافة إلى السلة والواتساب -->
         <div class="modal-actions-row">
-          <button type="button" class="btn-modal-add-cart" id="modalAddToCartBtn">
-            <i class="fas fa-shopping-bag"></i> أضف للسلة الآن
+          <button class="btn-primary" id="modalAddToCartBtn" style="flex: 1; justify-content: center; padding: 14px; font-size: 1.05rem; border-radius: var(--radius-full);">
+            <i class="fas fa-shopping-bag"></i>
+            <span>إضافة هذه الباقة إلى السلة 🌸</span>
           </button>
           <a href="https://wa.me/201102541236" target="_blank" class="btn-modal-whatsapp" id="modalWhatsappBtn">
             <i class="fab fa-whatsapp"></i> استفسار عبر واتساب
           </a>
+        </div>
+
+        <!-- أكورديون إرشادات العناية ومراجعات العملاء -->
+        <div class="modal-accordion">
+          <div class="accordion-item">
+            <button class="accordion-header" onclick="this.nextElementSibling.classList.toggle('active')">
+              <span>✨ مميزات وجودة هذا التنسيق لليلة العمر</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="accordion-body active">
+              <ul class="care-tip-list" id="modalAdvantagesList">
+                <!-- الميزات -->
+              </ul>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header" onclick="this.nextElementSibling.classList.toggle('active')">
+              <span>⭐ تقييمات وتجارب العرائس على هذه الباقة</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="accordion-body">
+              <div id="modalReviewsList">
+                <!-- المراجعات -->
+              </div>
+
+              <!-- نموذج إضافة تقييم للباقة الحالية -->
+              <div style="margin-top: 14px; border-top: 1px dashed var(--border-subtle); padding-top: 12px;">
+                <button type="button" class="btn-toggle-store-review" style="width: 100%; justify-content: center; font-size: 0.85rem; padding: 8px 12px;" onclick="toggleProdReviewForm()">
+                  <i class="fas fa-pen-nib"></i>
+                  <span>أضيفي رأيك وتقييمك في هذه الباقة 🌸</span>
+                </button>
+                <div class="product-review-form-box" id="prodReviewFormBox" style="display: none; margin-top: 10px;">
+                  <form id="prodReviewForm" onsubmit="handleProductReviewSubmit(event)">
+                    <div class="form-group" style="margin-bottom: 8px;">
+                      <label style="font-size: 0.8rem; font-weight: 600;"><span style="color: #E74C3C;">*</span> اسمك الكريم:</label>
+                      <input type="text" id="prAuthor" class="form-control" style="font-size: 0.85rem; padding: 7px 10px;" placeholder="اكتب اسمك..." required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                      <label style="font-size: 0.8rem; font-weight: 600;">تقييمك:</label>
+                      <div class="star-rating-select-group" id="prodRatingStars">
+                        <i class="fas fa-star active" data-val="1" onclick="setProdRating(1)"></i>
+                        <i class="fas fa-star active" data-val="2" onclick="setProdRating(2)"></i>
+                        <i class="fas fa-star active" data-val="3" onclick="setProdRating(3)"></i>
+                        <i class="fas fa-star active" data-val="4" onclick="setProdRating(4)"></i>
+                        <i class="fas fa-star active" data-val="5" onclick="setProdRating(5)"></i>
+                      </div>
+                      <input type="hidden" id="prRatingVal" value="5">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                      <label style="font-size: 0.8rem; font-weight: 600;"><span style="color: #E74C3C;">*</span> رأيك في الباقة:</label>
+                      <textarea id="prComment" class="form-control" style="font-size: 0.85rem; padding: 7px 10px;" rows="2" placeholder="ما رأيك في شكل الورد وتفاصيل التغليف والتطريز؟" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 8px; font-size: 0.88rem;">
+                      إرسال تقييمي للباقة 🌸
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- نافذة إضافة وتعديل المنتجات للمالك (Product Wizard Modal) -->
-  <section class="checkout-modal product-wizard-modal" id="addProductModal" aria-label="لوحة إدارة المنتجات للمالك" style="max-width: 720px;">
+  <section class="checkout-modal" id="addProductModal" aria-label="إضافة منتج جديد" style="max-width: 780px;">
     <div class="checkout-modal-header" style="background: linear-gradient(135deg, #F0FBF7, var(--bg-card));">
       <h3 style="color: #27AE60;">
-        <i class="fas fa-plus-circle" id="wizardModalIcon"></i>
+        <i class="fas fa-plus-circle" id="wizardModalIcon" style="color: #27AE60;"></i>
         <span id="wizardModalTitle">إدارة وإضافة منتج جديد (المالك)</span>
       </h3>
       <button class="close-drawer-btn" onclick="closeAddProductModal()" aria-label="إغلاق">
         <i class="fas fa-times"></i>
       </button>
     </div>
-    <form id="wizardProductForm" onsubmit="return false;" style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
+
+    <!-- مؤشر الخطوات الأربع -->
+    <div style="display: flex; justify-content: space-between; background: var(--bg-body); padding: 10px 15px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border-subtle); gap: 6px; overflow-x: auto;">
+      <div class="step-badge-nav active" id="wizardTab1" onclick="switchWizardStep(1)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); padding: 6px 12px; border-radius: var(--radius-full); background: var(--primary-soft);">
+        <span style="background: var(--primary-pink); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">1</span>
+        <span>البيانات والاسم</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab2" onclick="switchWizardStep(2)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">2</span>
+        <span>صور المنتج</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab3" onclick="switchWizardStep(3)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">3</span>
+        <span>السعر والأحجام</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab4" onclick="switchWizardStep(4)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">4</span>
+        <span>الخامات والحفظ</span>
+      </div>
+    </div>
+
+    <form id="wizardProductForm" novalidate onsubmit="handleWizardProductSubmit(event)">
+      <!-- معرّف المنتج عند التعديل -->
       <input type="hidden" id="editingProductId" value="">
-      
-      <!-- الخطوة 1: البيانات الأساسية للقطعة وقسم الفرح -->
-      <div id="wizardStep1" class="wizard-step active">
-        <h4 style="font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 12px;">بيانات الباقة والتسعير وقسم العرسان:</h4>
-        <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+
+      <!-- الخطوة 1: البيانات والاسم -->
+      <div id="wizardStep1">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-tag" style="color: var(--primary-pink);"></i> الخطوة 1: اسم الباقة وسعرها وقسم الفرح
+        </h4>
+        <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 14px;">
           <div class="form-group" style="grid-column: 1 / -1;">
-            <label style="font-size: 0.85rem; font-weight: 700;">اسم الباقة / القطعة *</label>
-            <input type="text" id="wName" class="form-control" placeholder="مثال: بوكيه عروسة ملكي ستان أوف وايت ولؤلؤ" required>
+            <label><span style="color: #E74C3C;">*</span> اسم الباقة / المنتج:</label>
+            <input type="text" id="wName" class="form-control" placeholder="مثال: بوكيه عروسة ملكي ستان أوف وايت ولؤلؤ">
           </div>
           <div class="form-group">
-            <label style="font-size: 0.85rem; font-weight: 700;">السعر الحالي (ج.م) *</label>
-            <input type="number" id="wPrice" class="form-control" placeholder="650" required>
+            <label><span style="color: #E74C3C;">*</span> السعر الأساسي (ج.م):</label>
+            <input type="number" id="wBasePrice" class="form-control" placeholder="مثال: 650">
           </div>
           <div class="form-group">
-            <label style="font-size: 0.85rem; font-weight: 700;">السعر قبل الخصم (اختياري)</label>
-            <input type="number" id="wOldPrice" class="form-control" placeholder="800">
+            <label>السعر قبل الخصم (اختياري):</label>
+            <input type="number" id="wOldPrice" class="form-control" placeholder="مثال: 800">
           </div>
-          <div class="form-group" style="grid-column: 1 / -1; background: rgba(212,175,55,0.08); padding: 12px; border-radius: var(--radius-sm); border: 1px dashed rgba(212,175,55,0.4);">
-            <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #875c10; cursor: pointer;">
-              <input type="checkbox" id="wIsWeddingProduct" checked onchange="toggleWeddingCategoryGroup(this.checked)">
-              <span>💍 هذا المنتج مخصص لقسم باكدج العرسان</span>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>شارة التمييز (Tag):</label>
+            <input type="text" id="wTag" class="form-control" placeholder="مثال: شغل يدوي فاخر • ليلة العمر">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label><span style="color: #E74C3C;">*</span> وصف الباقة ومكوناتها:</label>
+            <textarea id="wShortDesc" class="form-control" rows="3" placeholder="اكتب وصفاً مفصلاً يوضح الخامات ولون الستان وتفاصيل التطريز والتغليف..."></textarea>
+          </div>
+
+          <!-- خيار تخصيص المنتج داخل باكدج العرسان والأفراح -->
+          <div class="form-group" style="grid-column: 1 / -1; background: var(--primary-soft); padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid rgba(191, 114, 121, 0.25);">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 0; font-weight: 700; color: var(--primary-dark); font-size: 0.95rem;">
+              <input type="checkbox" id="wIsWeddingProduct" checked style="width: 20px; height: 20px; accent-color: var(--primary-pink); cursor: pointer;" onchange="toggleWeddingCategoryGroup(this.checked)">
+              <span>💍 إضافة هذا المنتج إلى قسم "باكدج العرسان والأفراح"</span>
             </label>
-            <div id="wWeddingCategoryGroup" style="margin-top: 8px;">
-              <label style="font-size: 0.82rem; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 4px;">اختر قسم الفرح المخصص:</label>
-              <select id="wWeddingCategory" class="form-control" style="font-size: 0.88rem;">
-                <option value="bridal_bouquet">💐 بوكيهات العروسة</option>
-                <option value="katb_ketab">📜 كتب الكتاب والأقلام</option>
-                <option value="frames">🖼️ البراويز التذكارية</option>
-                <option value="mandil_fingerprint">🕊️ المنديل وبصمة الفرح</option>
-                <option value="crowns">👑 الأطواق والتيجان</option>
-                <option value="favors">🎁 هدايا وتوزيعات المعازيم</option>
+            <div id="wWeddingCategoryGroup" style="display: block; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-subtle);">
+              <label style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; display: block;">
+                اختر قسم الفرح المناسب للمنتج:
+              </label>
+              <select id="wWeddingCategory" class="form-control" style="font-size: 0.9rem;">
+                <option value="bridal_bouquet">💐 قسم: بوكيهات العروسة</option>
+                <option value="katb_ketab">📜 قسم: كتب الكتاب (أطقم ومستلزمات)</option>
+                <option value="frames">🖼️ قسم: البراويز التذكارية</option>
+                <option value="mandil_fingerprint">🕊️ قسم: المنديل والبصمة</option>
+                <option value="crowns">👑 قسم: الأطواق والتيجان</option>
+                <option value="favors">🎁 قسم: هدايا المعازيم</option>
               </select>
+              <span style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+                <i class="fas fa-info-circle"></i> سيظهر المنتج في تبويب القسم المختار داخل باكدج العرسان وأيضاً بالمعرض الرئيسي للموقع.
+              </span>
             </div>
           </div>
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label style="font-size: 0.85rem; font-weight: 700;">وصف قصير للمنتج *</label>
-            <textarea id="wShortDesc" class="form-control" rows="2" placeholder="وصف جذاب يوضح الخامات ولمعة الستان وطريقة التنسيق..." required></textarea>
-          </div>
-          <div class="form-group">
-            <label style="font-size: 0.85rem; font-weight: 700;">الخامات المستخدمة</label>
-            <input type="text" id="wMaterials" class="form-control" placeholder="ستان حريري تركي، لؤلؤ، أشرطة مذهبة...">
-          </div>
-          <div class="form-group">
-            <label style="font-size: 0.85rem; font-weight: 700;">طريقة الصنع اليدوية</label>
-            <input type="text" id="wCraftsmanship" class="form-control" placeholder="طي يدوي دقيق لكل بتلة وتثبيت كريستال...">
-          </div>
         </div>
-
-        <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" class="btn-primary" onclick="switchWizardStep(2)" style="background: #27AE60; padding: 10px 24px;">
-            <span>التالي: صور الباقة والمقاسات</span> <i class="fas fa-arrow-left"></i>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" class="btn-primary" onclick="switchWizardStep(2)">
+            <span>متابعة لصور المنتج</span>
+            <i class="fas fa-arrow-left"></i>
           </button>
         </div>
       </div>
 
-      <!-- الخطوة 2: رفع الصور والمقاسات -->
-      <div id="wizardStep2" class="wizard-step" style="display: none;">
-        <h4 style="font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 8px;">صور الباقة ومقاساتها:</h4>
-        <div style="margin-bottom: 14px;">
-          <label style="font-size: 0.84rem; font-weight: 700; display: block; margin-bottom: 6px;">رفع صور الباقة (أو رابط الصورة):</label>
-          <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-            <input type="url" id="wImageUrlInput" class="form-control" placeholder="ضع رابط صورة مباشرة أو اختر من الجهاز...">
-            <button type="button" class="btn-secondary" onclick="addWizardImageFromUrl()" style="white-space: nowrap; padding: 8px 14px;">إضافة الرابط</button>
-          </div>
-          <input type="file" id="wImageFileInput" accept="image/*" multiple onchange="handleWizardImageUpload(event)" style="font-size: 0.85rem;">
-          <div id="wizardImagesList" class="wizard-thumbs-preview" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;"></div>
+      <!-- الخطوة 2: الصور وتعدد الزوايا -->
+      <div id="wizardStep2" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-camera" style="color: var(--primary-pink);"></i> الخطوة 2: صور الباقة وتعدد الزوايا
+        </h4>
+        
+        <!-- رفع الصور من الجهاز -->
+        <div onclick="document.getElementById('wFileInput').click()" style="border: 2px dashed var(--primary-pink); background: var(--primary-soft); padding: 25px 15px; border-radius: var(--radius-md); text-align: center; cursor: pointer; margin-bottom: 14px;">
+          <i class="fas fa-cloud-upload-alt" style="font-size: 2.2rem; color: var(--primary-pink); margin-bottom: 8px;"></i>
+          <h5 style="color: var(--primary-dark); margin-bottom: 4px;">اضغط لاختيار صور من جهازك (موبايل أو كمبيوتر)</h5>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">يمكنك رفع صورة أو عدة صور للباقة من زوايا مختلفة</p>
+          <input type="file" id="wFileInput" accept="image/*" multiple style="display: none;" onchange="handleWizardFiles(this.files)">
         </div>
 
-        <div id="wizardSizesSection" style="margin-top: 15px;">
-          <h5 style="font-size: 0.88rem; color: var(--primary-dark); margin-bottom: 8px;">المقاسات والأسعار:</h5>
-          <div id="wizardSizesContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
-          <button type="button" class="btn-secondary" onclick="addWizardSizeRow()" style="margin-top: 8px; font-size: 0.8rem; padding: 6px 12px; align-self: flex-start;">
-            <i class="fas fa-plus"></i> إضافة خيار مقاس آخر
+        <!-- إضافة مسار صورة من FLOURS -->
+        <div style="background: var(--bg-body); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 15px;">
+          <label style="font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 6px;">أو اكتب مسار صورة داخل فولدر FLOURS:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="wManualPath" class="form-control" style="font-size: 0.88rem;" placeholder="مثال: FLOURS/اسم_الصورة.jpeg">
+            <button type="button" class="btn-secondary" style="white-space: nowrap; padding: 8px 16px;" onclick="addWizardManualPath()">
+              <i class="fas fa-plus"></i> إضافة
+            </button>
+          </div>
+        </div>
+
+        <!-- المعاينة -->
+        <label style="font-size: 0.88rem; font-weight: 700;">الصور المرفوعة (<span id="wImagesCount">0</span>):</label>
+        <div id="wImagesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; margin-top: 8px; min-height: 90px; padding: 8px; background: var(--bg-body); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <!-- تظهر الصور هنا -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(1)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" class="btn-primary" onclick="switchWizardStep(3)">
+            <span>متابعة لضبط الأحجام</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 3: الأحجام والمقاسات -->
+      <div id="wizardStep3" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-sliders-h" style="color: var(--primary-pink);"></i> الخطوة 3: تحديد أحجام وتنسيقات الباقة
+        </h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 0.88rem; color: var(--text-muted);">حدد مقاسات وأسعار الباقة:</span>
+          <button type="button" class="btn-secondary" style="padding: 5px 12px; font-size: 0.82rem;" onclick="addWizardSizeRow()">
+            <i class="fas fa-plus"></i> إضافة مقاس
           </button>
         </div>
 
-        <div style="margin-top: 20px; display: flex; justify-content: space-between;">
-          <button type="button" class="btn-secondary" onclick="switchWizardStep(1)">
+        <div id="wSizesContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
+          <!-- صفوف المقاسات -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(2)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" class="btn-primary" onclick="switchWizardStep(4)">
+            <span>متابعة للخامات والنشر</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 4: الخامات والمميزات والنشر -->
+      <div id="wizardStep4" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-magic" style="color: var(--primary-pink);"></i> الخطوة 4: الخامات والمميزات والنشر الفوري
+        </h4>
+        
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>الخامات المستخدمة:</label>
+          <input type="text" id="wMaterials" class="form-control" placeholder="مثال: ستان حريري تركي لامع، لؤلؤ، أشرطة مذهبة.">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>طريقة الصنع والإتقان اليدوي:</label>
+          <input type="text" id="wCraft" class="form-control" placeholder="مثال: طي وتشكيل بتلات الجوري بحرفية يدوية 100% تدوم العمر كله.">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>المميزات الإضافية (ميزة في كل سطر):</label>
+          <textarea id="wAdvantages" class="form-control" rows="3" placeholder="ورد ستان مصنوع يدوياً يدوم مدى الحياة ولا يذبل أبداً.&#10;تطريز مخصص بأسماء العروسين وتاريخ ليلة العمر.&#10;كارت إهداء ملكي مطبوع مجاناً مع كل باقة."></textarea>
+        </div>
+
+        <div style="background: #E8F8F5; padding: 12px 16px; border-radius: var(--radius-md); border-right: 4px solid #27AE60; margin-bottom: 16px;">
+          <strong style="color: #27AE60; font-size: 0.95rem; display: block; margin-bottom: 3px;">
+            <i class="fas fa-check-circle"></i> نشر مباشر وفوري بقسم العرسان
+          </strong>
+          <span style="font-size: 0.85rem; color: #2C3E50;">
+            سيظهر المنتج فوراً في قسم العرسان، وباقة العروسة، والسلة، وتفاصيل الحساب دون أي كود!
+          </span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(3)">
             <i class="fas fa-arrow-right"></i> السابق
           </button>
           <button type="button" onclick="handleWizardProductSubmit(event)" id="wizardSubmitBtn" class="btn-primary" style="background: #27AE60; padding: 12px 30px; font-size: 1.05rem;">

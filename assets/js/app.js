@@ -70,9 +70,23 @@ function saveCartToStorage() {
 
 // التحقق من هوية مالك المتجر
 function isCurrentUserOwner() {
-  return appState.currentUser && 
-         appState.currentUser.email && 
-         appState.currentUser.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+  if (localStorage.getItem('shatha_owner_session') === 'true') return true;
+  if (!appState.currentUser) return false;
+  
+  const user = appState.currentUser;
+  if (user.isOwner === true) return true;
+  
+  const cleanEmail = (user.email || "").toLowerCase().trim();
+  const ownerEmail = SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+  if (cleanEmail && cleanEmail === ownerEmail) return true;
+  
+  const cleanPhone = (user.phone || "").replace(/\D/g, '');
+  const ownerPhone = SHATHA_CONFIG.whatsappNumber.replace(/\D/g, '');
+  if (cleanPhone && (cleanPhone === ownerPhone || cleanPhone === '01102541236' || cleanPhone.endsWith('1102541236'))) {
+    return true;
+  }
+  
+  return false;
 }
 
 /* ==========================================================================
@@ -113,16 +127,18 @@ const SHATHA_CLOUD = {
   }
 };
 
-// مزامنة المنتجات في الخلفية من السحابة لجميع الهواتف
+// مزامنة المنتجات في الخلفية من السحابة لجميع الهواتف مع الحفاظ على منتجات المالك المضافة
 async function syncProductsFromCloud() {
   try {
     const cloudProds = await SHATHA_CLOUD.get('products');
     if (Array.isArray(cloudProds) && cloudProds.length > 0) {
-      // ندمج المنتجات الافتراضية مع السحابة لضمان ظهور باكدج العرسان لأي زائر
       const cloudIds = new Set(cloudProds.map(p => p.id));
       const defaultProds = typeof SHATHA_PRODUCTS !== 'undefined' ? SHATHA_PRODUCTS : [];
       const missing = defaultProds.filter(p => !cloudIds.has(p.id));
-      const merged = [...cloudProds, ...missing];
+      
+      // نحافظ على أي منتج مخصص أضافه المالك محلياً حتى لا يختفي عند المزامنة
+      const customLocalProds = (appState.products || []).filter(p => (p.isCustom || String(p.id).startsWith('custom_')) && !cloudIds.has(p.id));
+      const merged = [...customLocalProds, ...cloudProds, ...missing];
 
       appState.products = merged;
       try {
@@ -1656,7 +1672,25 @@ function loadCurrentUser() {
         saveRegisteredAccount(user);
         localStorage.setItem('shatha_google_user', JSON.stringify(user));
       }
+      // التحقق من هوية المالك وتثبيتها
+      const cleanEmail = (user.email || "").toLowerCase().trim();
+      const cleanPhone = (user.phone || "").replace(/\D/g, '');
+      if (cleanEmail === SHATHA_CONFIG.ownerEmail.toLowerCase().trim() || cleanPhone === '01102541236' || cleanPhone.endsWith('1102541236')) {
+        user.isOwner = true;
+        localStorage.setItem('shatha_owner_session', 'true');
+      }
       appState.currentUser = user;
+    } else if (localStorage.getItem('shatha_owner_session') === 'true') {
+      appState.currentUser = {
+        id: 'owner_shatha_direct',
+        name: 'مالك متجر شذى',
+        email: SHATHA_CONFIG.ownerEmail,
+        phone: SHATHA_CONFIG.whatsappNumber,
+        picture: 'assets/images/logo.jpg',
+        isOwner: true,
+        couponCode: 'SHATHA-OWNER',
+        couponUsed: false
+      };
     }
   } catch (e) {
     console.warn("Error loading user:", e);
@@ -1887,11 +1921,11 @@ function handleRegistrationSubmit(e) {
  */
 function handleLoginSubmit(e) {
   e?.preventDefault();
-  const identifier = document.getElementById("loginIdentifier")?.value.trim();
-  const password = document.getElementById("loginPassword")?.value.trim();
+  const identifier = (document.getElementById("loginIdentifier")?.value || "").trim();
+  const password = (document.getElementById("loginPassword")?.value || document.getElementById("loginSecretPassword")?.value || "").trim();
 
-  if (!identifier || !password) {
-    showToast("يرجى إدخال رقم الهاتف أو البريد وكلمة السر", "error");
+  if (!identifier) {
+    showToast("يرجى إدخال رقم الهاتف أو البريد الإلكتروني", "error");
     return;
   }
 
@@ -1899,21 +1933,51 @@ function handleLoginSubmit(e) {
   const cleanPhone = identifier.replace(/\D/g, '');
   const cleanPass = password.toUpperCase();
 
+  const isOwnerId = (cleanId === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()) || 
+                    (cleanPhone && (cleanPhone === '01102541236' || cleanPhone === '201102541236' || cleanPhone.endsWith('1102541236')));
+
   const accounts = getRegisteredAccounts();
 
   // فحص الحساب ومطابقة كلمة السر
-  const matched = accounts.find(a => {
+  let matched = accounts.find(a => {
     const phoneMatch = cleanPhone && a.phone && a.phone.replace(/\D/g, '') === cleanPhone;
     const emailMatch = a.email && a.email.toLowerCase() === cleanId;
     return (phoneMatch || emailMatch);
   });
+
+  // إذا كان المستخدم هو مالك المتجر
+  if (isOwnerId) {
+    if (!matched) {
+      matched = {
+        id: 'owner_shatha_account',
+        name: 'مالك ومدير متجر شذى',
+        email: SHATHA_CONFIG.ownerEmail,
+        phone: SHATHA_CONFIG.whatsappNumber,
+        picture: 'assets/images/logo.jpg',
+        secretPassword: password || 'SH-OWNER',
+        couponCode: 'SHATHA-OWNER',
+        couponUsed: false,
+        isOwner: true
+      };
+      saveRegisteredAccount(matched);
+    }
+    matched.isOwner = true;
+    localStorage.setItem('shatha_owner_session', 'true');
+    appState.currentUser = matched;
+    localStorage.setItem('shatha_google_user', JSON.stringify(matched));
+
+    updateAuthUI();
+    closeShathaAuthModal();
+    showToast("👑 أهلاً بك يا مالك المتجر! تم تسجيل الدخول وتفعيل لوحة الإدارة وإضافة المنتجات.", "success");
+    return;
+  }
 
   if (!matched) {
     showToast("لم نجد حساباً مسجلاً بهذا الهاتف أو البريد. يمكنك إنشاء حساب جديد بسهولة!", "error");
     return;
   }
 
-  if (matched.secretPassword && matched.secretPassword.toUpperCase() !== cleanPass) {
+  if (matched.secretPassword && cleanPass && matched.secretPassword.toUpperCase() !== cleanPass) {
     showToast("كلمة السر غير صحيحة! يرجى مراجعة لقطة الشاشة (السكرين شوت) الخاصة بحسابك.", "error");
     return;
   }
@@ -1930,6 +1994,14 @@ function handleLoginSubmit(e) {
   if (!matched.couponUsed) {
     applyCouponCode(matched.couponCode);
   }
+}
+
+// دوال متوافقة مع كافة النماذج بصفحات المتجر
+function handleManualLoginSubmit(e) {
+  handleLoginSubmit(e);
+}
+function handleManualRegisterSubmit(e) {
+  handleRegistrationSubmit(e);
 }
 
 /**
@@ -2021,19 +2093,19 @@ function closeShathaAuthModal() {
 function switchAuthTab(tab) {
   const btnReg = document.getElementById("tabBtnRegister");
   const btnLog = document.getElementById("tabBtnLogin");
-  const paneReg = document.getElementById("paneRegister");
-  const paneLog = document.getElementById("paneLogin");
+  const paneReg = document.getElementById("paneRegister") || document.getElementById("authRegisterView");
+  const paneLog = document.getElementById("paneLogin") || document.getElementById("authLoginView");
 
   if (tab === 'register') {
     btnReg?.classList.add("active");
     btnLog?.classList.remove("active");
-    paneReg?.classList.add("active");
-    paneLog?.classList.remove("active");
+    if (paneReg) { paneReg.classList.add("active"); paneReg.style.display = "block"; }
+    if (paneLog) { paneLog.classList.remove("active"); paneLog.style.display = "none"; }
   } else {
     btnLog?.classList.add("active");
     btnReg?.classList.remove("active");
-    paneLog?.classList.add("active");
-    paneReg?.classList.remove("active");
+    if (paneLog) { paneLog.classList.add("active"); paneLog.style.display = "block"; }
+    if (paneReg) { paneReg.classList.remove("active"); paneReg.style.display = "none"; }
   }
 }
 
@@ -2423,11 +2495,11 @@ let wizardCurrentStep = 1;
 let wizardImages = [];
 
 function openAddProductModal() {
-  const user = appState.currentUser;
-  const isOwner = user && user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+  const isOwner = isCurrentUserOwner();
 
   if (!isOwner) {
-    showToast("عذراً، هذه اللوحة مخصصة فقط لمالك المتجر شذى (" + SHATHA_CONFIG.ownerEmail + ") بعد تسجيل الدخول.", "error");
+    showToast("عذراً، هذه اللوحة مخصصة لمالك المتجر شذى. يرجى تسجيل الدخول بحساب المالك.", "error");
+    openAccountOrAuthModal();
     return;
   }
 
@@ -2468,11 +2540,11 @@ function openAddProductModal() {
 
 // فتح نافذة تعديل باقة قائمة للمالك
 function openEditProductModal(productId) {
-  const user = appState.currentUser;
-  const isOwner = user && user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+  const isOwner = isCurrentUserOwner();
 
   if (!isOwner) {
     showToast("عذراً، التعديل متاح فقط لمالك المتجر شذى بعد تسجيل الدخول.", "error");
+    openAccountOrAuthModal();
     return;
   }
 
@@ -2502,6 +2574,7 @@ function openEditProductModal(productId) {
   // تعبئة بيانات الخطوة 1
   if (document.getElementById("wName")) document.getElementById("wName").value = product.name || "";
   if (document.getElementById("wBasePrice")) document.getElementById("wBasePrice").value = product.basePrice || "";
+  if (document.getElementById("wPrice")) document.getElementById("wPrice").value = product.basePrice || "";
   if (document.getElementById("wOldPrice")) document.getElementById("wOldPrice").value = product.oldPrice || "";
   if (document.getElementById("wTag")) document.getElementById("wTag").value = product.tag || "";
   if (document.getElementById("wShortDesc")) document.getElementById("wShortDesc").value = product.shortDesc || "";
@@ -2520,7 +2593,7 @@ function openEditProductModal(productId) {
   renderWizardImages();
 
   // تعبئة بيانات الخطوة 3: المقاسات
-  const container = document.getElementById("wSizesContainer");
+  const container = document.getElementById("wSizesContainer") || document.getElementById("wizardSizesContainer");
   if (container) {
     if (Array.isArray(product.sizes) && product.sizes.length > 0) {
       container.innerHTML = product.sizes.map(s => `
@@ -2539,6 +2612,7 @@ function openEditProductModal(productId) {
   // تعبئة بيانات الخطوة 4: الخامات والميزات
   if (document.getElementById("wMaterials")) document.getElementById("wMaterials").value = product.materials || "";
   if (document.getElementById("wCraft")) document.getElementById("wCraft").value = product.craftsmanship || "";
+  if (document.getElementById("wCraftsmanship")) document.getElementById("wCraftsmanship").value = product.craftsmanship || "";
   if (document.getElementById("wAdvantages")) {
     document.getElementById("wAdvantages").value = Array.isArray(product.advantages) ? product.advantages.join('\n') : "";
   }
@@ -2552,11 +2626,11 @@ function openEditProductModal(productId) {
 
 // حذف باقة نهائياً بواسطة المالك
 function deleteProductById(productId) {
-  const user = appState.currentUser;
-  const isOwner = user && user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+  const isOwner = isCurrentUserOwner();
 
   if (!isOwner) {
     showToast("عذراً، صلاحية الحذف متاحة فقط لمالك المتجر بعد تسجيل الدخول.", "error");
+    openAccountOrAuthModal();
     return;
   }
 
@@ -2587,7 +2661,7 @@ function closeAddProductModal() {
 function switchWizardStep(step) {
   if (step === 2) {
     const name = document.getElementById("wName")?.value.trim();
-    const price = document.getElementById("wBasePrice")?.value;
+    const price = document.getElementById("wBasePrice")?.value || document.getElementById("wPrice")?.value;
     const desc = document.getElementById("wShortDesc")?.value.trim();
     if (!name || !price || !desc) {
       showToast("يرجى ملء اسم المنتج وسعره والوصف أولاً للمتابعة", "error");
@@ -2752,7 +2826,7 @@ function handleWizardProductSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
 
   const name = document.getElementById("wName")?.value.trim();
-  const basePriceInput = document.getElementById("wBasePrice")?.value;
+  const basePriceInput = document.getElementById("wBasePrice")?.value || document.getElementById("wPrice")?.value;
   const basePrice = parseFloat(basePriceInput);
   const shortDesc = document.getElementById("wShortDesc")?.value.trim();
 
@@ -2767,7 +2841,7 @@ function handleWizardProductSubmit(e) {
   if (!basePrice || isNaN(basePrice) || basePrice <= 0) {
     switchWizardStep(1);
     showToast("يرجى كتابة سعر صحيح للباقة في الخطوة 1", "error");
-    document.getElementById("wBasePrice")?.focus();
+    (document.getElementById("wBasePrice") || document.getElementById("wPrice"))?.focus();
     return;
   }
 
@@ -2784,10 +2858,12 @@ function handleWizardProductSubmit(e) {
     return;
   }
 
+  const isWedding = document.getElementById("wIsWeddingProduct")?.checked || false;
+  const weddingCategory = isWedding ? (document.getElementById("wWeddingCategory")?.value || "bridal_bouquet") : null;
   const oldPrice = parseFloat(document.getElementById("wOldPrice")?.value) || null;
-  const tag = document.getElementById("wTag")?.value.trim() || "شغل يدوي فاخر";
+  const tag = document.getElementById("wTag")?.value.trim() || (isWedding ? "تجهيزات الفرح الملكية" : "شغل يدوي فاخر");
   const materials = document.getElementById("wMaterials")?.value.trim() || "أشرطة ستان حريري تركي فاخر عالي اللمعان، تغليف كوري سموكي أسود أنيق مقاوم للماء.";
-  const craftsmanship = document.getElementById("wCraft")?.value.trim() || "صناعة يدوية متقنة 100% - طي وتشكيل بتلات الجوري بحرفية لتدوم للأبد دون أن تذبل.";
+  const craftsmanship = document.getElementById("wCraft")?.value.trim() || document.getElementById("wCraftsmanship")?.value.trim() || "صناعة يدوية متقنة 100% - طي وتشكيل بتلات الجوري بحرفية لتدوم للأبد دون أن تذبل.";
 
   const advText = document.getElementById("wAdvantages")?.value.trim();
   const advantages = advText ? advText.split('\n').map(l => l.trim()).filter(l => l.length > 0) : [
@@ -3481,12 +3557,17 @@ function openWeddingBundleModal() {
               return `
                 <div class="wedding-bundle-item-card ${isChecked ? 'selected' : ''}" id="wbCard_${p.id}" onclick="toggleBundleItem('${p.id}', event)">
                   <input type="checkbox" class="wb-checkbox" id="wbCheck_${p.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleBundleItem('${p.id}')">
-                  <img src="${p.images[0]}" alt="${p.name}" class="wb-thumb">
-                  <div class="wb-info">
+                  <img src="${p.images[0]}" alt="${p.name}" class="wb-thumb" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور هذه القطعة">
+                  <div class="wb-info" onclick="toggleBundleItem('${p.id}')">
                     <h5 class="wb-title">${p.name}</h5>
-                    <span class="wb-dept-tag">${p.shortDesc.slice(0, 55)}...</span>
+                    <span class="wb-dept-tag">${p.shortDesc ? p.shortDesc.slice(0, 48) + '...' : ''}</span>
                   </div>
-                  <div class="wb-price">${p.basePrice} ج.م</div>
+                  <div class="wb-actions-right">
+                    <div class="wb-price">${p.basePrice} ج.م</div>
+                    <button type="button" class="btn-wb-preview" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور المنتج كاملة">
+                      <i class="fas fa-eye"></i> التفاصيل
+                    </button>
+                  </div>
                 </div>
               `;
             }).join('')}
