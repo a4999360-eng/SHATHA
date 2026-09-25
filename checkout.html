@@ -374,12 +374,16 @@
         </a>
 
         <div style="display: flex; align-items: center; gap: 12px;">
+          <a href="wedding.html" class="back-to-store-link" style="color: #B8860B; font-weight: 700; border-color: rgba(212,175,55,0.4);">
+            <i class="fas fa-ring"></i>
+            <span>باكدج العرسان 💍</span>
+          </a>
           <button class="action-btn theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="التبديل إلى الوضع الداكن" aria-label="التبديل إلى الوضع الداكن">
             <i class="fas fa-moon"></i>
           </button>
           <a href="index.html" class="back-to-store-link">
             <i class="fas fa-arrow-right"></i>
-            <span>العودة للمتجر وإضافة باقات أخرى</span>
+            <span>العودة للمتجر</span>
           </a>
         </div>
       </div>
@@ -743,6 +747,7 @@
           <div class="cart-summary-item-details">
             <h4>${item.name}</h4>
             <p>${item.sizeName} × ${item.quantity}</p>
+            ${item.customText ? `<div style="font-size:0.75rem; color:#B8860B; margin-top:4px; line-height:1.4; background:rgba(212,175,55,0.08); padding:4px 8px; border-radius:6px; border:1px dashed rgba(212,175,55,0.3);"><i class="fas fa-ring"></i> ${item.customText}</div>` : ''}
           </div>
           <strong style="color: var(--primary-dark); font-size: 0.95rem;">${item.price * item.quantity} ج.م</strong>
         </div>
@@ -1000,7 +1005,10 @@
 
       waMsg += `💐 *المنتجات والباقات المطلوبة:*\n`;
       cartItems.forEach((item, index) => {
-        waMsg += `${index + 1}. *${item.name}*\n   - المقاس: ${item.sizeName}\n   - الكمية: ${item.quantity}\n   - السعر: ${item.price * item.quantity} ج.م\n`;
+        waMsg += `${index + 1}. *${item.name}*\n   - المقاس / التفاصيل: ${item.sizeName}\n   - الكمية: ${item.quantity}\n   - السعر: ${item.price * item.quantity} ج.م\n`;
+        if (item.customText) {
+          waMsg += `   - بيانات التخصيص: ${item.customText}\n`;
+        }
       });
       waMsg += `\n`;
 

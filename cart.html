@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   
-  <title>سلة المشتريات | شَـذى - زهور طبيعية وهدايا فاخرة</title>
-  <meta name="description" content="راجعي باقاتك وهداياكِ في سلة متجر شذى للزهور الطبيعية المصنوعة يدوياً. احصلي على كارت إهداء مجاني وشحن مجاني للطلبات فوق 1000 ج.م.">
+  <title>سلة المشتريات | شَـذى - زهور ستان وهدايا فاخرة</title>
+  <meta name="description" content="راجعي باقاتك وهداياكِ في سلة متجر شذى لزهور الستان المصنوعة يدوياً. احصلي على كارت إهداء مجاني وشحن مجاني للطلبات فوق 1000 ج.م.">
   <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
 
   <!-- Google Fonts: Cairo & Playfair Display -->
@@ -397,6 +397,7 @@
         <nav>
           <ul class="nav-menu" id="navMenu">
             <li><a href="index.html#home" class="nav-link">الرئيسية</a></li>
+            <li><a href="wedding.html" class="nav-link" style="color: var(--accent-gold); font-weight: 700;"><i class="fas fa-ring"></i> باكدج العرسان</a></li>
             <li><a href="index.html#products" class="nav-link">تشكيلة الباقات</a></li>
             <li><a href="index.html#about" class="nav-link">عن شذى</a></li>
             <li><a href="index.html#testimonials" class="nav-link">آراء العملاء</a></li>
@@ -649,6 +650,7 @@
             <div class="cart-prod-meta">
               <h4>${item.name}</h4>
               <span class="size-badge">${item.sizeName}</span>
+              ${item.customText ? `<div style="font-size: 0.75rem; color: var(--accent-gold); margin-top: 4px; line-height: 1.4; background: rgba(212,175,55,0.08); padding: 4px 8px; border-radius: 6px; border: 1px dashed rgba(212,175,55,0.3);"><i class="fas fa-ring"></i> ${item.customText}</div>` : ''}
             </div>
           </div>
 

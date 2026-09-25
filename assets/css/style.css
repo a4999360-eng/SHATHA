@@ -4911,6 +4911,1082 @@ html.theme-transitioning *::after {
   color: #FFB3B8 !important;
 }
 
+/* ==========================================================================
+   قسم باكدج العرسان الملكي (Wedding Package Styles)
+   "كل حاجة محتاجاها في فرحك في مكان واحد"
+   ========================================================================== */
+
+/* بادج رابط العرسان بالهيدر */
+.wedding-nav-highlight {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-badge-sparkle {
+  background: linear-gradient(135deg, #E67E22, #D35400);
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+  animation: weddingSparklePulse 2s infinite ease-in-out;
+}
+
+@keyframes weddingSparklePulse {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 10px rgba(230, 126, 34, 0.6); }
+}
+
+/* سكشن باكدج العرسان الرئيسي */
+.wedding-package-section {
+  padding: 60px 0 70px;
+  background: linear-gradient(180deg, #FFFDFD 0%, #FCF7F6 50%, #FAF2F1 100%);
+  border-top: 1px solid rgba(191, 114, 121, 0.15);
+  border-bottom: 1px solid rgba(191, 114, 121, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+/* البانر التعريفي الفاخر */
+.wedding-hero-banner {
+  background: linear-gradient(135deg, #FFF5F5 0%, #FDF0EE 40%, #F9E7E5 100%);
+  border: 1.5px solid rgba(201, 161, 91, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 45px 35px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 12px 35px rgba(191, 114, 121, 0.1);
+  margin-bottom: 45px;
+  overflow: hidden;
+}
+
+.wedding-hero-banner::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(201, 161, 91, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.wedding-hero-banner::after {
+  content: "";
+  position: absolute;
+  bottom: -40%;
+  left: -15%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(191, 114, 121, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.wedding-banner-decor-ring {
+  position: absolute;
+  color: var(--accent-gold);
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.wedding-banner-decor-ring.ring-1 {
+  top: 25px;
+  right: 35px;
+  font-size: 3.5rem;
+  animation: floatRing 6s infinite ease-in-out;
+}
+
+.wedding-banner-decor-ring.ring-2 {
+  bottom: 25px;
+  left: 35px;
+  font-size: 2.8rem;
+  animation: floatRing 5s infinite ease-in-out reverse;
+}
+
+@keyframes floatRing {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(8deg); }
+}
+
+.wedding-banner-content {
+  position: relative;
+  z-index: 2;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.wedding-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1px solid rgba(201, 161, 91, 0.45);
+  color: var(--primary-dark);
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+
+.wedding-pill-badge i {
+  color: #E74C3C;
+  font-size: 0.85rem;
+}
+
+.wedding-banner-title {
+  font-family: var(--font-arabic);
+  font-size: 2.3rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+  margin: 0 0 14px;
+  line-height: 1.35;
+}
+
+.wedding-banner-highlight {
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  display: inline-block;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+
+.wedding-banner-desc {
+  font-size: 1.02rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin: 0 auto 26px;
+  max-width: 740px;
+}
+
+.wedding-banner-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.btn-wedding-bundle {
+  background: linear-gradient(135deg, var(--primary-pink) 0%, #A6575E 100%);
+  color: #FFFFFF;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(191, 114, 121, 0.35);
+  transition: var(--transition-bounce);
+}
+
+.btn-wedding-bundle:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(191, 114, 121, 0.5);
+}
+
+.btn-wedding-whatsapp {
+  background: #FFFFFF;
+  color: #27AE60;
+  border: 1.5px solid #27AE60;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 13px 26px;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+}
+
+.btn-wedding-whatsapp:hover {
+  background: #27AE60;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.25);
+}
+
+.wedding-banner-perks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  padding-top: 20px;
+  border-top: 1px dashed rgba(191, 114, 121, 0.25);
+}
+
+.wedding-banner-perks .perk-item {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wedding-banner-perks .perk-item i {
+  color: #27AE60;
+  font-size: 0.95rem;
+}
+
+/* ترويسة الأقسام وأزرار المالك */
+.wedding-departments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.wedding-dept-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin: 4px 0 0;
+}
+
+.btn-wedding-owner-add {
+  background: #27AE60;
+  color: #FFFFFF;
+  border: none;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(39, 174, 96, 0.3);
+  transition: var(--transition);
+}
+
+.btn-wedding-owner-add:hover {
+  background: #219653;
+  transform: translateY(-2px);
+}
+
+/* تبويبات الأقسام التفاعلية */
+.wedding-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 30px;
+  scrollbar-width: thin;
+}
+
+.wedding-nav-tabs::-webkit-scrollbar {
+  height: 5px;
+}
+
+.wedding-nav-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 10px;
+}
+
+.wedding-tab-btn {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 10px 18px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.wedding-tab-btn:hover {
+  border-color: var(--primary-pink);
+  color: var(--primary-pink);
+  transform: translateY(-2px);
+}
+
+.wedding-tab-btn.active {
+  background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-dark) 100%);
+  color: #FFFFFF;
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(191, 114, 121, 0.35);
+}
+
+.wedding-tab-btn .tab-count {
+  background: rgba(0, 0, 0, 0.07);
+  color: inherit;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  min-width: 20px;
+  text-align: center;
+}
+
+.wedding-tab-btn.active .tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+/* شبكة منتجات العرسان */
+.wedding-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* مودال باكدج العرسان الكاملة */
+.wedding-discount-pill {
+  background: linear-gradient(135deg, #27AE60, #2ECC71);
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  margin-right: 10px;
+}
+
+.wedding-bundle-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+  max-height: 290px;
+  overflow-y: auto;
+  padding: 4px;
+  scrollbar-width: thin;
+}
+
+.wedding-bundle-item-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.wedding-bundle-item-card:hover {
+  border-color: var(--primary-pink);
+  box-shadow: var(--shadow-sm);
+}
+
+.wedding-bundle-item-card.selected {
+  background: var(--primary-soft);
+  border-color: var(--primary-pink);
+}
+
+.wb-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary-pink);
+  cursor: pointer;
+}
+
+.wb-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-subtle);
+}
+
+.wb-info {
+  flex: 1;
+}
+
+.wb-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 0 0 2px;
+}
+
+.wb-dept-tag {
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+.wb-price {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  white-space: nowrap;
+}
+
+/* صندوق حساب الباكدج */
+.wedding-bundle-calc-box {
+  background: linear-gradient(135deg, #FFF9F9, #FCF4F3);
+  border: 1.5px dashed rgba(191, 114, 121, 0.4);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.calc-row.discount-row {
+  color: #27AE60;
+  font-weight: 700;
+}
+
+.calc-row.final-row {
+  padding-top: 8px;
+  border-top: 1px solid rgba(191, 114, 121, 0.2);
+  color: var(--primary-dark);
+  font-size: 1.15rem;
+}
+
+.calc-row.final-row strong:last-child {
+  color: var(--primary-pink);
+  font-size: 1.35rem;
+}
+
+/* متجاوب مع الهواتف للشاشات الصغيرة */
+@media (max-width: 768px) {
+  .wedding-package-section {
+    padding: 40px 0 50px;
+  }
+
+  .wedding-hero-banner {
+    padding: 30px 18px;
+    margin-bottom: 30px;
+  }
+
+  .wedding-banner-title {
+    font-size: 1.7rem;
+  }
+
+  .wedding-banner-highlight {
+    font-size: 1.3rem;
+  }
+
+  .wedding-banner-desc {
+    font-size: 0.92rem;
+  }
+
+  .wedding-banner-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-wedding-bundle,
+  .btn-wedding-whatsapp {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wedding-banner-perks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    text-align: right;
+  }
+
+  .wedding-departments-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wedding-products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+}
+
+/* دعم الوضع الليلي */
+[data-theme="dark"] .wedding-package-section {
+  background: linear-gradient(180deg, #150F11 0%, #1A1215 50%, #150E10 100%);
+  border-color: rgba(229, 135, 144, 0.15);
+}
+
+[data-theme="dark"] .wedding-hero-banner {
+  background: linear-gradient(135deg, #241418 0%, #1D1013 50%, #201317 100%);
+  border-color: rgba(229, 190, 115, 0.3);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .wedding-pill-badge {
+  background: #2C181D;
+  border-color: rgba(229, 190, 115, 0.4);
+  color: #FFE4E7;
+}
+
+[data-theme="dark"] .wedding-banner-title,
+[data-theme="dark"] .wedding-dept-title {
+  color: #FFE4E7;
+}
+
+[data-theme="dark"] .wedding-banner-desc {
+  color: #D1B8BD;
+}
+
+[data-theme="dark"] .wedding-banner-perks .perk-item {
+  color: #F7E9E8;
+}
+
+[data-theme="dark"] .wedding-tab-btn {
+  background: #201317;
+  border-color: #381E24;
+  color: #E2D3D6;
+}
+
+[data-theme="dark"] .wedding-tab-btn.active {
+  background: linear-gradient(135deg, #E58790 0%, #87363E 100%);
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .wedding-bundle-item-card {
+  background: #1E1316;
+  border-color: #381E24;
+}
+
+[data-theme="dark"] .wedding-bundle-item-card.selected {
+  background: #2E181D;
+  border-color: #E58790;
+}
+
+[data-theme="dark"] .wedding-bundle-item-card .wb-title {
+  color: #FFE4E7;
+}
+
+[data-theme="dark"] .wedding-bundle-calc-box {
+  background: #201317;
+  border-color: rgba(229, 135, 144, 0.3);
+}
+
+[data-theme="dark"] .calc-row.final-row {
+  color: #FFE4E7;
+}
+
+/* ========================================================
+   كارت باكدج العرسان المستطيل التفاعلي في الصفحة الرئيسية
+   (Compact Product-Card Style Wedding Showcase)
+   ======================================================== */
+.wedding-showcase-section {
+  padding: 35px 0 25px;
+  position: relative;
+}
+
+.wedding-showcase-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wedding-showcase-card {
+  position: relative;
+  background: linear-gradient(135deg, #FFF9FA 0%, #FFFFFF 60%, #FFF3F5 100%);
+  border-radius: 20px;
+  padding: 13px;
+  max-width: 310px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(104, 48, 54, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  z-index: 1;
+}
+
+/* شريط الإطار المتحرك اللامع (Animated Shimmering Border) */
+.wedding-showcase-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 22px;
+  background: linear-gradient(115deg, #BF7279, #D4AF37, #E58790, #D4AF37, #BF7279);
+  background-size: 300% 300%;
+  z-index: -1;
+  animation: weddingBorderGlow 5s ease infinite;
+}
+
+@keyframes weddingBorderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.wedding-showcase-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 45px rgba(104, 48, 54, 0.2), 0 0 25px rgba(212, 175, 55, 0.3);
+}
+
+/* عمود الصورة الخاص بالعريس والعروسة */
+.wedding-showcase-image-col {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 4 / 3.4;
+}
+
+.wedding-showcase-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  display: block;
+}
+
+.wedding-showcase-card:hover .wedding-showcase-img {
+  transform: scale(1.06);
+}
+
+/* تأثير التدرج على الصورة */
+.wedding-showcase-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(104, 48, 54, 0.4) 100%);
+  pointer-events: none;
+}
+
+/* شارات عائمة على الصورة */
+.wedding-floating-pill {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #683036;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+.wedding-floating-sparkle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+  animation: pulseBadge 2.5s infinite;
+}
+
+@keyframes pulseBadge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* تفاصيل المحتوى للبطاقة الصغيرة */
+.wedding-showcase-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: right;
+}
+
+.wedding-showcase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: rgba(191, 114, 121, 0.1);
+  color: #BF7279;
+  border: 1px solid rgba(191, 114, 121, 0.25);
+  padding: 3px 12px;
+  border-radius: 50px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.wedding-showcase-title {
+  font-size: 1.12rem;
+  font-weight: 900;
+  color: #683036;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.wedding-showcase-highlight {
+  display: block;
+  font-size: 0.85rem;
+  color: #B8860B;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.wedding-showcase-desc {
+  font-size: 0.78rem;
+  color: #666666;
+  line-height: 1.45;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* شارات الأقسام المصغرة */
+.wedding-depts-mini-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 2px 0;
+}
+
+.dept-mini-pill {
+  background: #FFFFFF;
+  border: 1px solid rgba(191, 114, 121, 0.2);
+  border-radius: 50px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #683036;
+}
+
+/* الأزرار الثلاثة المطلوبة */
+.wedding-showcase-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.btn-showcase-enter {
+  background: linear-gradient(135deg, #BF7279 0%, #683036 100%);
+  color: #FFFFFF !important;
+  padding: 10px 14px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.86rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(104, 48, 54, 0.25);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-showcase-enter:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(104, 48, 54, 0.35);
+  color: #FFFFFF;
+}
+
+.btn-showcase-bundle {
+  background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%);
+  color: #683036;
+  border: 1.5px solid #BF7279;
+  padding: 9px 14px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-showcase-bundle:hover {
+  background: #BF7279;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.btn-showcase-whatsapp {
+  background: #25D366;
+  color: #FFFFFF !important;
+  padding: 9px 14px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-showcase-whatsapp:hover {
+  background: #1EBE5D;
+  transform: translateY(-2px);
+}
+
+/* الوضع الليلي للبطاقة */
+[data-theme="dark"] .wedding-showcase-card {
+  background: linear-gradient(135deg, #1A1215 0%, #150F11 50%, #1E1317 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .wedding-showcase-title {
+  color: #FFE4E7;
+}
+
+[data-theme="dark"] .wedding-showcase-desc {
+  color: #D1B8BD;
+}
+
+[data-theme="dark"] .dept-mini-pill {
+  background: #23161A;
+  border-color: #381E24;
+  color: #E2D3D6;
+}
+
+[data-theme="dark"] .btn-showcase-bundle {
+  background: #23161A;
+  border-color: #E58790;
+  color: #FFE4E7;
+}
+
+/* ========================================================
+   نظام تغيير لون صفحة الباكدج التفاعلي لكل قسم ولكل منتج
+   (Dynamic Color Theme Engine for Wedding Page)
+   ألوان واضحة، ملحوظة، مشبعة وفاخرة
+   ======================================================== */
+.wedding-package-section {
+  transition: background 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.4s ease;
+  position: relative;
+  min-height: 100vh;
+}
+
+.wedding-hero-banner {
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease !important;
+}
+
+.wedding-tab-btn.active {
+  transition: all 0.4s ease;
+}
+
+/* ثيم افتراضي (الكل) - وردي لؤلؤي دافئ */
+.wedding-package-section[data-wedding-theme="all"],
+.wedding-package-section:not([data-wedding-theme]) {
+  background: linear-gradient(180deg, #FDE2E4 0%, #FFF0F5 30%, #FDF4F5 70%, #FFE9ED 100%) !important;
+  --wedding-theme-accent: #D81B60;
+  --wedding-theme-glow: rgba(216, 27, 96, 0.35);
+}
+
+/* ثيم 1: بوكيهات العروسة - وردي بينك رومانسي فاقع وواضح */
+.wedding-package-section[data-wedding-theme="bridal_bouquet"],
+.wedding-package-section[data-wedding-theme="pink"] {
+  background: linear-gradient(180deg, #FFC2D1 0%, #FFE5EC 25%, #FFF0F5 60%, #FFB5A7 100%) !important;
+  --wedding-theme-accent: #D81B60;
+  --wedding-theme-glow: rgba(216, 27, 96, 0.45);
+}
+.wedding-package-section[data-wedding-theme="bridal_bouquet"] .wedding-hero-banner,
+.wedding-package-section[data-wedding-theme="pink"] .wedding-hero-banner {
+  background: linear-gradient(135deg, #FFE4EC 0%, #FFB3C6 50%, #FF8FAB 100%) !important;
+  border-color: #FB6F92 !important;
+  box-shadow: 0 16px 40px rgba(216, 27, 96, 0.2) !important;
+}
+.wedding-package-section[data-wedding-theme="bridal_bouquet"] .wedding-tab-btn.active,
+.wedding-package-section[data-wedding-theme="pink"] .wedding-tab-btn.active {
+  background: linear-gradient(135deg, #FF4D80 0%, #C2185B 100%) !important;
+  box-shadow: 0 6px 20px rgba(233, 30, 99, 0.45) !important;
+}
+
+/* ثيم 2: كتب الكتاب - زمردي أخضر ملكي ساطع وواضح */
+.wedding-package-section[data-wedding-theme="katb_ketab"],
+.wedding-package-section[data-wedding-theme="green"] {
+  background: linear-gradient(180deg, #A7F3D0 0%, #D1FAE5 25%, #ECFDF5 60%, #BBF7D0 100%) !important;
+  --wedding-theme-accent: #059669;
+  --wedding-theme-glow: rgba(5, 150, 105, 0.45);
+}
+.wedding-package-section[data-wedding-theme="katb_ketab"] .wedding-hero-banner,
+.wedding-package-section[data-wedding-theme="green"] .wedding-hero-banner {
+  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 50%, #6EE7B7 100%) !important;
+  border-color: #10B981 !important;
+  box-shadow: 0 16px 40px rgba(16, 185, 129, 0.25) !important;
+}
+.wedding-package-section[data-wedding-theme="katb_ketab"] .wedding-tab-btn.active,
+.wedding-package-section[data-wedding-theme="green"] .wedding-tab-btn.active {
+  background: linear-gradient(135deg, #10B981 0%, #047857 100%) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
+}
+
+/* ثيم 3: البراويز - ذهبي كهرماني وشامبين صريح */
+.wedding-package-section[data-wedding-theme="frames"],
+.wedding-package-section[data-wedding-theme="gold"] {
+  background: linear-gradient(180deg, #FDE68A 0%, #FEF3C7 25%, #FFFBEB 60%, #FCD34D 100%) !important;
+  --wedding-theme-accent: #D97706;
+  --wedding-theme-glow: rgba(217, 119, 6, 0.45);
+}
+.wedding-package-section[data-wedding-theme="frames"] .wedding-hero-banner,
+.wedding-package-section[data-wedding-theme="gold"] .wedding-hero-banner {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FBBF24 100%) !important;
+  border-color: #F59E0B !important;
+  box-shadow: 0 16px 40px rgba(245, 158, 11, 0.25) !important;
+}
+.wedding-package-section[data-wedding-theme="frames"] .wedding-tab-btn.active,
+.wedding-package-section[data-wedding-theme="gold"] .wedding-tab-btn.active {
+  background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%) !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45) !important;
+}
+
+/* ثيم 4: المنديل والبصمة - بنفسجي وموف حريري ملكي غني */
+.wedding-package-section[data-wedding-theme="mandil_fingerprint"],
+.wedding-package-section[data-wedding-theme="purple"] {
+  background: linear-gradient(180deg, #DDD6FE 0%, #EDE9FE 25%, #FAF5FF 60%, #C4B5FD 100%) !important;
+  --wedding-theme-accent: #7C3AED;
+  --wedding-theme-glow: rgba(124, 58, 237, 0.45);
+}
+.wedding-package-section[data-wedding-theme="mandil_fingerprint"] .wedding-hero-banner,
+.wedding-package-section[data-wedding-theme="purple"] .wedding-hero-banner {
+  background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 50%, #C4B5FD 100%) !important;
+  border-color: #8B5CF6 !important;
+  box-shadow: 0 16px 40px rgba(139, 92, 246, 0.25) !important;
+}
+.wedding-package-section[data-wedding-theme="mandil_fingerprint"] .wedding-tab-btn.active,
+.wedding-package-section[data-wedding-theme="purple"] .wedding-tab-btn.active {
+  background: linear-gradient(135deg, #8B5CF6 0%, #5B21B6 100%) !important;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45) !important;
+}
+
+/* ثيم 5: الأطواق والتيجان - سماوي كريستال بحري منعش */
+.wedding-package-section[data-wedding-theme="crowns"],
+.wedding-package-section[data-wedding-theme="blue"] {
+  background: linear-gradient(180deg, #BAE6FD 0%, #E0F2FE 25%, #F0F9FF 60%, #7DD3FC 100%) !important;
+  --wedding-theme-accent: #0284C7;
+  --wedding-theme-glow: rgba(2, 132, 199, 0.45);
+}
+.wedding-package-section[data-wedding-theme="crowns"] .wedding-hero-banner,
+.wedding-package-section[data-wedding-theme="blue"] .wedding-hero-banner {
+  background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 50%, #7DD3FC 100%) !important;
+  border-color: #0EA5E9 !important;
+  box-shadow: 0 16px 40px rgba(14, 165, 233, 0.25) !important;
+}
+.wedding-package-section[data-wedding-theme="crowns"] .wedding-tab-btn.active,
+.wedding-package-section[data-wedding-theme="blue"] .wedding-tab-btn.active {
+  background: linear-gradient(135deg, #0EA5E9 0%, #0369A1 100%) !important;
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45) !important;
+}
+
+/* ثيم 6: هدايا المعازيم - بوردو عنابي دافئ ومخملي قوي */
+.wedding-package-section[data-wedding-theme="favors"],
+.wedding-package-section[data-wedding-theme="bordeaux"] {
+  background: linear-gradient(180deg, #FECDD3 0%, #FFE4E6 25%, #FFF1F2 60%, #FDA4AF 100%) !important;
+  --wedding-theme-accent: #E11D48;
+  --wedding-theme-glow: rgba(225, 29, 72, 0.45);
+}
+.wedding-package-section[data-wedding-theme="favors"] .wedding-hero-banner,
+.wedding-package-section[data-wedding-theme="bordeaux"] .wedding-hero-banner {
+  background: linear-gradient(135deg, #FFE4E6 0%, #FECDD3 50%, #FB7185 100%) !important;
+  border-color: #F43F5E !important;
+  box-shadow: 0 16px 40px rgba(244, 63, 94, 0.25) !important;
+}
+.wedding-package-section[data-wedding-theme="favors"] .wedding-tab-btn.active,
+.wedding-package-section[data-wedding-theme="bordeaux"] .wedding-tab-btn.active {
+  background: linear-gradient(135deg, #F43F5E 0%, #9F1239 100%) !important;
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.45) !important;
+}
+
+/* الوضع الليلي للثيمات المتغيرة (Dark Mode) - ألوان عميقة وواضحة جداً */
+[data-theme="dark"] .wedding-package-section[data-wedding-theme="bridal_bouquet"] {
+  background: linear-gradient(180deg, #5C152B 0%, #300C16 50%, #4D1224 100%) !important;
+}
+[data-theme="dark"] .wedding-package-section[data-wedding-theme="katb_ketab"] {
+  background: linear-gradient(180deg, #13522C 0%, #0A2916 50%, #104224 100%) !important;
+}
+[data-theme="dark"] .wedding-package-section[data-wedding-theme="frames"] {
+  background: linear-gradient(180deg, #594411 0%, #2E2309 50%, #4A380E 100%) !important;
+}
+[data-theme="dark"] .wedding-package-section[data-wedding-theme="mandil_fingerprint"] {
+  background: linear-gradient(180deg, #4A1368 0%, #260A36 50%, #3D1056 100%) !important;
+}
+[data-theme="dark"] .wedding-package-section[data-wedding-theme="crowns"] {
+  background: linear-gradient(180deg, #10486D 0%, #092538 50%, #0D3A57 100%) !important;
+}
+[data-theme="dark"] .wedding-package-section[data-wedding-theme="favors"] {
+  background: linear-gradient(180deg, #5E1420 0%, #310B11 50%, #4E111B 100%) !important;
+}
+
+/* كارت منتج العرسان التفاعلي */
+.wedding-product-card {
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease !important;
+  border-width: 2px !important;
+}
+
+.wedding-product-card:hover,
+.wedding-product-card.active-theme-card {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--card-theme-color, #BF7279) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15), 0 0 28px var(--card-theme-glow, rgba(191, 114, 121, 0.45)) !important;
+}
+
+/* شريط ومؤشر الثيم النشط البارز */
+.wedding-active-theme-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 22px;
+  border-radius: 50px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  background: #FFFFFF;
+  border: 2px solid var(--wedding-theme-accent, #BF7279);
+  color: var(--wedding-theme-accent, #683036);
+  box-shadow: 0 6px 20px var(--wedding-theme-glow, rgba(191, 114, 121, 0.25));
+  transition: all 0.4s ease;
+}
+
+.theme-color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--wedding-theme-accent, #BF7279);
+  display: inline-block;
+  box-shadow: 0 0 12px var(--wedding-theme-accent, #BF7279);
+  animation: pulseThemeDot 1.8s infinite ease-in-out;
+  transition: background 0.4s ease;
+}
+
+@keyframes pulseThemeDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.8; }
+}
+
+
 
 
 

@@ -25,6 +25,7 @@ let appState = {
   shippingZones: typeof SHATHA_SHIPPING_ZONES !== 'undefined' ? SHATHA_SHIPPING_ZONES : [],
   searchQuery: "",
   sortBy: "default",
+  activeWeddingDept: "all",
   selectedProduct: null,
   selectedSize: "standard",
   cart: [],
@@ -117,9 +118,18 @@ async function syncProductsFromCloud() {
   try {
     const cloudProds = await SHATHA_CLOUD.get('products');
     if (Array.isArray(cloudProds) && cloudProds.length > 0) {
-      appState.products = cloudProds;
-      localStorage.setItem('shatha_all_products_v2', JSON.stringify(cloudProds));
+      // ندمج المنتجات الافتراضية مع السحابة لضمان ظهور باكدج العرسان لأي زائر
+      const cloudIds = new Set(cloudProds.map(p => p.id));
+      const defaultProds = typeof SHATHA_PRODUCTS !== 'undefined' ? SHATHA_PRODUCTS : [];
+      const missing = defaultProds.filter(p => !cloudIds.has(p.id));
+      const merged = [...cloudProds, ...missing];
+
+      appState.products = merged;
+      try {
+        localStorage.setItem('shatha_all_products_v2', JSON.stringify(merged));
+      } catch(e){}
       renderProducts();
+      renderWeddingSection();
     } else if (cloudProds === null && appState.products && appState.products.length > 0) {
       // قاعدة البيانات سحابياً جديدة أو فارغة — نقوم برفع الباقات الحالية لتأسيس السحابة فوراً
       await SHATHA_CLOUD.set('products', appState.products);
@@ -146,24 +156,35 @@ async function syncStoreReviewsFromCloud() {
 // تحميل ودمج المنتجات مع التعديلات المحفوظة
 function loadAllProducts() {
   try {
+    const defaultProds = typeof SHATHA_PRODUCTS !== 'undefined' ? [...SHATHA_PRODUCTS] : [];
     const savedAll = localStorage.getItem('shatha_all_products_v2');
     if (savedAll) {
       const parsed = JSON.parse(savedAll);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // ندمج المنتجات الافتراضية الجديدة (مثل باكدج العرسان) لتظهر فوراً
+        const parsedIds = new Set(parsed.map(p => p.id));
+        const newDefaults = defaultProds.filter(p => !parsedIds.has(p.id));
+        if (newDefaults.length > 0) {
+          const merged = [...parsed, ...newDefaults];
+          try {
+            localStorage.setItem('shatha_all_products_v2', JSON.stringify(merged));
+          } catch(e){}
+          return merged;
+        }
         return parsed;
       }
     }
 
-    let defaultProds = typeof SHATHA_PRODUCTS !== 'undefined' ? [...SHATHA_PRODUCTS] : [];
     const customProdsJson = localStorage.getItem('shatha_custom_products');
+    let mergedList = [...defaultProds];
     if (customProdsJson) {
       const customProds = JSON.parse(customProdsJson);
       if (Array.isArray(customProds) && customProds.length > 0) {
-        defaultProds = [...customProds, ...defaultProds];
+        mergedList = [...customProds, ...defaultProds];
       }
     }
-    localStorage.setItem('shatha_all_products_v2', JSON.stringify(defaultProds));
-    return defaultProds;
+    localStorage.setItem('shatha_all_products_v2', JSON.stringify(mergedList));
+    return mergedList;
   } catch (e) {
     console.warn("Error loading products:", e);
   }
@@ -322,6 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCurrentUser();
   loadCartFromStorage();
   renderProducts();
+  renderWeddingSection();
   renderStoreTestimonials();
   updateCartUI();
   setupEventListeners();
@@ -862,7 +884,7 @@ const DEFAULT_STORE_REVIEWS = [
     author: "نورهان حسين",
     location: "القاهرة • بوكيه ورد ستان أحمر ملكي",
     rating: 5,
-    comment: "بوكيه الورد الستان طلع في الحقيقة خيال! لمعة الستان والتغليف الأسود مع الأحمر مدي شياكة مش طبيعية، وأجمل حاجة إنه هيفضل ذكرى دايمة مش بيذبل خالص."
+    comment: "بوكيه الورد الستان طلع في الحقيقة خيال! لمعة الستان والتغليف الأسود مع الأحمر مدي شياكة وفخامة خيالية، وأجمل حاجة إنه هيفضل ذكرى دايمة مش بيذبل خالص."
   },
   {
     id: "sr_def_2",
@@ -1192,6 +1214,7 @@ function updateCartUI() {
       <div class="cart-item-info">
         <h4>${item.name}</h4>
         <div class="cart-item-variant">${item.sizeName}</div>
+        ${item.customText ? `<div style="font-size: 0.73rem; color: var(--accent-gold); line-height: 1.35; margin: 4px 0; background: rgba(212,175,55,0.08); padding: 4px 8px; border-radius: 6px; border: 1px dashed rgba(212,175,55,0.3);"><i class="fas fa-ring" style="font-size:0.68rem;"></i> ${item.customText}</div>` : ''}
         <div class="cart-item-price">${item.price * item.quantity} ${SHATHA_CONFIG.currency}</div>
         
         <div style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-top: 6px;">
@@ -2284,10 +2307,12 @@ function updateAuthUI() {
     const navAdmin = document.getElementById("navAdminLink");
     const sectionAddBtn = document.getElementById("sectionAdminAddBtn");
     const footerAdmin = document.getElementById("footerAdminLink");
+    const weddingAddBtn = document.getElementById("weddingOwnerAddBtn");
 
     if (navAdmin) navAdmin.style.display = isOwner ? "block" : "none";
     if (sectionAddBtn) sectionAddBtn.style.display = isOwner ? "inline-flex" : "none";
     if (footerAdmin) footerAdmin.style.display = isOwner ? "block" : "none";
+    if (weddingAddBtn) weddingAddBtn.style.display = isOwner ? "inline-flex" : "none";
 
   } else {
     // حالة عدم تسجيل الدخول: الأيقونة دائرية بأيقونة المستخدم
@@ -2301,9 +2326,11 @@ function updateAuthUI() {
     const navAdmin = document.getElementById("navAdminLink");
     const sectionAddBtn = document.getElementById("sectionAdminAddBtn");
     const footerAdmin = document.getElementById("footerAdminLink");
+    const weddingAddBtn = document.getElementById("weddingOwnerAddBtn");
     if (navAdmin) navAdmin.style.display = "none";
     if (sectionAddBtn) sectionAddBtn.style.display = "none";
     if (footerAdmin) footerAdmin.style.display = "none";
+    if (weddingAddBtn) weddingAddBtn.style.display = "none";
 
     if (loggedOutBar) loggedOutBar.style.display = "flex";
     if (loggedInBar) loggedInBar.style.display = "none";
@@ -2340,6 +2367,7 @@ function updateAuthUI() {
 
   // تحديث أدوات المالك فوراً على كروت المنتجات
   renderProducts();
+  renderWeddingSection();
 }
 
 /**
@@ -2421,6 +2449,13 @@ function openAddProductModal() {
 
   document.getElementById("wizardProductForm")?.reset();
 
+  const isWeddingCb = document.getElementById("wIsWeddingProduct");
+  const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
+  const weddingCatSelect = document.getElementById("wWeddingCategory");
+  if (isWeddingCb) isWeddingCb.checked = false;
+  if (weddingCatGroup) weddingCatGroup.style.display = "none";
+  if (weddingCatSelect) weddingCatSelect.value = "bridal_bouquet";
+
   wizardImages = [];
   renderWizardImages();
   initWizardSizes();
@@ -2470,6 +2505,15 @@ function openEditProductModal(productId) {
   if (document.getElementById("wOldPrice")) document.getElementById("wOldPrice").value = product.oldPrice || "";
   if (document.getElementById("wTag")) document.getElementById("wTag").value = product.tag || "";
   if (document.getElementById("wShortDesc")) document.getElementById("wShortDesc").value = product.shortDesc || "";
+
+  // تعبئة بيانات باكدج العرسان
+  const isWeddingCb = document.getElementById("wIsWeddingProduct");
+  const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
+  const weddingCatSelect = document.getElementById("wWeddingCategory");
+  const isWedding = !!(product.isWedding || product.weddingCategory);
+  if (isWeddingCb) isWeddingCb.checked = isWedding;
+  if (weddingCatGroup) weddingCatGroup.style.display = isWedding ? "block" : "none";
+  if (weddingCatSelect && product.weddingCategory) weddingCatSelect.value = product.weddingCategory;
 
   // تعبئة بيانات الخطوة 2: الصور
   wizardImages = Array.isArray(product.images) ? [...product.images] : [];
@@ -2527,6 +2571,7 @@ function deleteProductById(productId) {
 
   closeProductModal();
   renderProducts();
+  renderWeddingSection();
 
   showToast(`تم حذف باقة "${product.name}" بنجاح 🗑️`, "info");
 }
@@ -2779,6 +2824,8 @@ function handleWizardProductSubmit(e) {
   }
 
   const editingId = document.getElementById("editingProductId")?.value;
+  const isWedding = document.getElementById("wIsWeddingProduct")?.checked || false;
+  const weddingCategory = isWedding ? (document.getElementById("wWeddingCategory")?.value || "bridal_bouquet") : null;
 
   if (editingId) {
     try {
@@ -2795,15 +2842,18 @@ function handleWizardProductSubmit(e) {
         existing.craftsmanship = craftsmanship;
         existing.sizes = sizes;
         existing.advantages = advantages;
+        existing.isWedding = isWedding;
+        existing.weddingCategory = weddingCategory;
 
         renderProducts();
+        renderWeddingSection();
 
         if (document.getElementById("productDetailsModal")?.classList.contains("active") && appState.selectedProduct?.id === editingId) {
           openProductModal(editingId);
         }
 
         closeAddProductModal();
-        showToast(`🎉 تم حفظ تعديلات باقة "${existing.name}" بنجاح!`, "success");
+        showToast(`🎉 تم حفظ تعديلات منتج "${existing.name}" بنجاح!`, "success");
 
         saveAllProductsToStorage();
         return;
@@ -2821,6 +2871,8 @@ function handleWizardProductSubmit(e) {
     slug: "shatha-custom-" + Date.now(),
     tag: tag,
     isBestSeller: true,
+    isWedding: isWedding,
+    weddingCategory: weddingCategory,
     basePrice: basePrice,
     oldPrice: oldPrice,
     rating: 5.0,
@@ -2842,10 +2894,19 @@ function handleWizardProductSubmit(e) {
   try {
     appState.products.unshift(newProduct);
     renderProducts();
+    renderWeddingSection();
     closeAddProductModal();
-    showToast(`🎉 تم نشر باقة "${newProduct.name}" بنجاح وتظهر الآن في المتجر!`, "success");
+    showToast(`🎉 تم نشر منتج "${newProduct.name}" بنجاح وتظهر الآن في المتجر!`, "success");
 
-    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+    if (isWedding) {
+      if (document.getElementById("weddingProductsGrid")) {
+        document.getElementById("weddingProductsGrid")?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        document.getElementById("wedding")?.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+    }
 
     saveAllProductsToStorage();
   } catch (err) {
@@ -3009,5 +3070,590 @@ window.toggleTheme = function () {
     });
   }
 })();
+
+/* ==========================================================================
+   إدارة باكدج العرسان الملكي (Wedding Package System)
+   "كل حاجة محتاجاها في فرحك في مكان واحد"
+   ========================================================================== */
+
+// تبديل إظهار قائمة أقسام الفرح في لوحة إضافة المنتج للمالك
+function toggleWeddingCategoryGroup(isChecked) {
+  const group = document.getElementById("wWeddingCategoryGroup");
+  if (group) group.style.display = isChecked ? "block" : "none";
+}
+
+// فتح لوحة إضافة منتج مخصصة مباشرة لقسم العرسان
+function openAddProductModalForWedding(defaultDept) {
+  openAddProductModal();
+  const isWeddingCb = document.getElementById("wIsWeddingProduct");
+  const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
+  const weddingCatSelect = document.getElementById("wWeddingCategory");
+
+  if (isWeddingCb) isWeddingCb.checked = true;
+  if (weddingCatGroup) weddingCatGroup.style.display = "block";
+
+  const targetDept = (defaultDept && defaultDept !== 'all') 
+    ? defaultDept 
+    : (appState.activeWeddingDept !== 'all' ? appState.activeWeddingDept : 'bridal_bouquet');
+
+  if (weddingCatSelect) weddingCatSelect.value = targetDept;
+}
+
+// ثيمات أقسام ومنتجات ليلة العمر الملكية (Dynamic Color Themes) - ألوان مشبعة وواضحة جداً
+const WEDDING_THEMES = {
+  all: {
+    name: "ثيم ليلة العمر: كل مستلزمات الفرح الملكية ✨",
+    color: "#D81B60",
+    glow: "rgba(216, 27, 96, 0.4)",
+    bodyBg: "#FDF2F4",
+    themeKey: "all"
+  },
+  bridal_bouquet: {
+    name: "ثيم بوكيهات العروسة: وردي رومانسي زاهي ولؤلؤ 💐",
+    color: "#D81B60",
+    glow: "rgba(216, 27, 96, 0.45)",
+    bodyBg: "#FFDDE4",
+    themeKey: "bridal_bouquet"
+  },
+  katb_ketab: {
+    name: "ثيم كتب الكتاب: زمردي أخضر ملكي ساطع 📜",
+    color: "#059669",
+    glow: "rgba(5, 150, 105, 0.45)",
+    bodyBg: "#D1F2DF",
+    themeKey: "katb_ketab"
+  },
+  frames: {
+    name: "ثيم البراويز التذكارية: ذهبي كهرماني مشمس فخم 🖼️",
+    color: "#D97706",
+    glow: "rgba(217, 119, 6, 0.45)",
+    bodyBg: "#FDE68A",
+    themeKey: "frames"
+  },
+  mandil_fingerprint: {
+    name: "ثيم المنديل والبصمة: بنفسجي وموف حريري ملكي بارز 🕊️",
+    color: "#7C3AED",
+    glow: "rgba(124, 58, 237, 0.45)",
+    bodyBg: "#DDD6FE",
+    themeKey: "mandil_fingerprint"
+  },
+  crowns: {
+    name: "ثيم الأطواق والتيجان: سماوي كريستال بحري منعش 👑",
+    color: "#0284C7",
+    glow: "rgba(2, 132, 199, 0.45)",
+    bodyBg: "#BAE6FD",
+    themeKey: "crowns"
+  },
+  favors: {
+    name: "ثيم هدايا المعازيم: بوردو عنابي دافئ ومخملي قوي 🎁",
+    color: "#E11D48",
+    glow: "rgba(225, 29, 72, 0.45)",
+    bodyBg: "#FECDD3",
+    themeKey: "favors"
+  }
+};
+
+// تخصيص لوني متفرد وواضح لكل منتج من منتجات الفرح
+const WEDDING_PRODUCT_THEMES = {
+  "shatha-bridal-royal-bouquet": {
+    name: "لون البوكيه الملكي: وردي رومانسي زاهي وأوف وايت 🌸",
+    color: "#D81B60",
+    glow: "rgba(216, 27, 96, 0.5)",
+    bodyBg: "#FFDDE4",
+    themeKey: "bridal_bouquet"
+  },
+  "shatha-wedding-katb-ketab-set": {
+    name: "لون طقم كتب الكتاب: زمردي أخضر ملكي وذهب عتيق 📜",
+    color: "#059669",
+    glow: "rgba(5, 150, 105, 0.5)",
+    bodyBg: "#D1F2DF",
+    themeKey: "katb_ketab"
+  },
+  "shatha-wedding-mini-hand-bouquet": {
+    name: "لون ميني بوكيه العروسة: مشمشي خوخي دافئ وعاجي 🍑",
+    color: "#EA580C",
+    glow: "rgba(234, 88, 12, 0.5)",
+    bodyBg: "#FED7AA",
+    themeKey: "pink"
+  },
+  "shatha-wedding-frame-glass": {
+    name: "لون برواز عقد القران: شامبين وذهبي براق مشمس 🖼️",
+    color: "#D97706",
+    glow: "rgba(217, 119, 6, 0.5)",
+    bodyBg: "#FDE68A",
+    themeKey: "frames"
+  },
+  "shatha-wedding-frame-memory-3d": {
+    name: "لون برواز الذاكرة 3D: كهرماني مخملي دافئ 🏺",
+    color: "#B45309",
+    glow: "rgba(180, 83, 9, 0.5)",
+    bodyBg: "#FCD34D",
+    themeKey: "gold"
+  },
+  "shatha-wedding-mandil-luxury": {
+    name: "لون المنديل الحريري: موف ملكي وبنفسجي حرير غني 🕊️",
+    color: "#7C3AED",
+    glow: "rgba(124, 58, 237, 0.5)",
+    bodyBg: "#DDD6FE",
+    themeKey: "mandil_fingerprint"
+  },
+  "shatha-wedding-fingerprint-tree": {
+    name: "لون لوحة البصمة: لافندر وأرجواني باستيل بارز 🎨",
+    color: "#9333EA",
+    glow: "rgba(147, 51, 234, 0.5)",
+    bodyBg: "#E9D5FF",
+    themeKey: "purple"
+  },
+  "shatha-wedding-bridal-crown": {
+    name: "لون تاج العروسة: سماوي كريستال وبحري ملكي 👑",
+    color: "#0284C7",
+    glow: "rgba(2, 132, 199, 0.5)",
+    bodyBg: "#BAE6FD",
+    themeKey: "crowns"
+  },
+  "shatha-wedding-favors-box": {
+    name: "لون بوكس التوزيعات: عنابي بوردو مخملي صريح 🎁",
+    color: "#E11D48",
+    glow: "rgba(225, 29, 72, 0.5)",
+    bodyBg: "#FECDD3",
+    themeKey: "favors"
+  }
+};
+
+// تطبيق تغيير لون صفحة الباكدج ديناميكياً بألوان واضحة جداً
+function applyWeddingPageTheme(themeKey, customName, customColor, customGlow, customBodyBg) {
+  const section = document.querySelector(".wedding-package-section");
+  if (!section) return;
+
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const themeData = WEDDING_THEMES[themeKey] || WEDDING_THEMES.all;
+
+  section.setAttribute("data-wedding-theme", themeKey);
+  const color = customColor || themeData.color;
+  const glow = customGlow || themeData.glow;
+  const label = customName || themeData.name;
+  const bodyBg = customBodyBg || themeData.bodyBg;
+
+  section.style.setProperty("--wedding-theme-accent", color);
+  section.style.setProperty("--wedding-theme-glow", glow);
+
+  if (!isDark && bodyBg) {
+    document.body.style.backgroundColor = bodyBg;
+    document.body.style.transition = "background-color 0.5s ease";
+  } else if (isDark) {
+    document.body.style.backgroundColor = "";
+  }
+
+  // تحديث المؤشر اللوني التفاعلي في ترويسة الصفحة
+  const indicator = document.getElementById("weddingActiveThemeIndicator");
+  const dot = document.getElementById("weddingThemeDot");
+  const labelEl = document.getElementById("weddingThemeLabel");
+
+  if (dot) {
+    dot.style.background = color;
+    dot.style.boxShadow = `0 0 14px ${color}`;
+  }
+  if (labelEl) {
+    labelEl.innerHTML = `<strong>${label}</strong>`;
+  }
+  if (indicator) {
+    indicator.style.borderColor = color;
+    indicator.style.color = isDark ? "#FFFFFF" : color;
+    indicator.style.boxShadow = `0 8px 24px ${glow}`;
+  }
+}
+
+// التفاعل عند تحريك الماوس أو اللمس على أي كارت منتج
+function handleWeddingProductHover(productId) {
+  const prod = appState.products.find(p => p.id === productId);
+  if (!prod) return;
+
+  const pt = WEDDING_PRODUCT_THEMES[productId];
+  const themeKey = pt ? pt.themeKey : (prod.weddingCategory || 'all');
+  const customName = pt ? pt.name : `لون المنتج: ${prod.name}`;
+  const customColor = pt ? pt.color : (WEDDING_THEMES[prod.weddingCategory]?.color || '#D81B60');
+  const customGlow = pt ? pt.glow : 'rgba(216, 27, 96, 0.45)';
+  const customBodyBg = pt ? pt.bodyBg : (WEDDING_THEMES[prod.weddingCategory]?.bodyBg || '#FFDDE4');
+
+  applyWeddingPageTheme(themeKey, customName, customColor, customGlow, customBodyBg);
+
+  document.querySelectorAll(".wedding-product-card").forEach(c => {
+    c.classList.toggle("active-theme-card", c.getAttribute("data-id") === productId);
+  });
+}
+
+function handleWeddingProductSelect(productId) {
+  handleWeddingProductHover(productId);
+}
+
+// تصفية قسم العرسان حسب التبويب المختار
+function filterWeddingDept(deptId) {
+  appState.activeWeddingDept = deptId || "all";
+  document.querySelectorAll(".wedding-tab-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-dept") === appState.activeWeddingDept);
+  });
+  applyWeddingPageTheme(appState.activeWeddingDept);
+  renderWeddingSection();
+}
+
+// رسم وعرض منتجات باكدج العرسان وتحديث العدادات
+function renderWeddingSection() {
+  const grid = document.getElementById("weddingProductsGrid");
+  if (!grid) return;
+
+  // إعادة ضبط اللون للثيم النشط عند خروج الماوس من شبكة المنتجات
+  grid.onmouseleave = () => {
+    applyWeddingPageTheme(appState.activeWeddingDept || 'all');
+    document.querySelectorAll(".wedding-product-card").forEach(c => c.classList.remove("active-theme-card"));
+  };
+
+  const allWeddingProds = appState.products.filter(p => p.isWedding === true || p.weddingCategory);
+
+  // تحديث عدادات الأقسام
+  const countAll = document.getElementById("count-dept-all");
+  if (countAll) countAll.innerText = allWeddingProds.length;
+
+  const deptCounts = {
+    bridal_bouquet: 0,
+    katb_ketab: 0,
+    frames: 0,
+    mandil_fingerprint: 0,
+    crowns: 0,
+    favors: 0
+  };
+
+  allWeddingProds.forEach(p => {
+    if (p.weddingCategory && deptCounts[p.weddingCategory] !== undefined) {
+      deptCounts[p.weddingCategory]++;
+    }
+  });
+
+  Object.keys(deptCounts).forEach(cat => {
+    const el = document.getElementById(`count-dept-${cat}`);
+    if (el) el.innerText = deptCounts[cat];
+  });
+
+  // تصفية حسب القسم النشط
+  let displayed = [...allWeddingProds];
+  if (appState.activeWeddingDept && appState.activeWeddingDept !== "all") {
+    displayed = displayed.filter(p => p.weddingCategory === appState.activeWeddingDept);
+  }
+
+  const isOwner = isCurrentUserOwner();
+  const ownerAddBtn = document.getElementById("weddingOwnerAddBtn");
+  if (ownerAddBtn) ownerAddBtn.style.display = isOwner ? "inline-flex" : "none";
+
+  if (displayed.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: var(--bg-card); border-radius: var(--radius-md); border: 1.5px dashed var(--border-subtle);">
+        <i class="fas fa-ring" style="font-size: 2.8rem; color: var(--accent-gold); margin-bottom: 12px; opacity: 0.6;"></i>
+        <h4 style="color: var(--primary-dark); margin-bottom: 6px;">لا توجد منتجات معروضة حالياً في هذا القسم</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">يمكنكِ تصفح باقي أقسام الفرح أو استشارة منسقة شذى عبر الواتساب لتجهيز طلبكِ الخاص.</p>
+        ${isOwner ? `<button type="button" class="btn-primary" onclick="openAddProductModalForWedding('${appState.activeWeddingDept}')" style="background: #27AE60;"><i class="fas fa-plus"></i> إضافة منتج في هذا القسم الآن (المالك)</button>` : ''}
+      </div>
+    `;
+    return;
+  }
+
+  const deptNames = {
+    bridal_bouquet: "💐 بوكيهات العروسة",
+    katb_ketab: "📜 كتب الكتاب",
+    frames: "🖼️ البراويز",
+    mandil_fingerprint: "🕊️ المنديل والبصمة",
+    crowns: "👑 الأطواق والتيجان",
+    favors: "🎁 هدايا المعازيم"
+  };
+
+  grid.innerHTML = displayed.map(product => {
+    const discountPercent = product.oldPrice ? Math.round(((product.oldPrice - product.basePrice) / product.oldPrice) * 100) : null;
+    const badgeText = product.tag || (product.weddingCategory ? deptNames[product.weddingCategory] : (discountPercent ? `خصم ${discountPercent}%` : "تجهيزات الفرح"));
+
+    const pt = WEDDING_PRODUCT_THEMES[product.id];
+    const productColor = pt ? pt.color : (WEDDING_THEMES[product.weddingCategory]?.color || '#BF7279');
+    const productGlow = pt ? pt.glow : 'rgba(191, 114, 121, 0.4)';
+
+    return `
+      <div class="product-card wedding-card wedding-product-card" 
+           data-id="${product.id}"
+           data-wedding-cat="${product.weddingCategory || 'all'}"
+           onmouseenter="handleWeddingProductHover('${product.id}')"
+           onclick="handleWeddingProductSelect('${product.id}')"
+           style="--card-theme-color: ${productColor}; --card-theme-glow: ${productGlow}; cursor: pointer;">
+        <div class="product-thumb-wrap" onclick="openProductModal('${product.id}')">
+          <img src="${product.images[0]}" alt="${product.name}" class="product-img" loading="lazy">
+          ${badgeText ? `<span class="product-badge" style="background: linear-gradient(135deg, var(--accent-gold), #B38639);">${badgeText}</span>` : ''}
+          ${isOwner ? `
+            <div class="admin-card-badge-tools">
+              <button type="button" class="btn-admin-icon edit" onclick="event.stopPropagation(); openEditProductModal('${product.id}')" title="تعديل بيانات وصور المنتج">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button type="button" class="btn-admin-icon delete" onclick="event.stopPropagation(); deleteProductById('${product.id}')" title="حذف المنتج نهائياً من المتجر">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          ` : ''}
+          <button class="quick-view-overlay-btn" type="button">
+            <i class="fas fa-eye"></i> تفاصيل وزوايا ليلة العمر (${product.images.length} صور)
+          </button>
+        </div>
+        
+        <div class="product-info">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: ${productColor};">
+              ${deptNames[product.weddingCategory] || "تجهيزات ليلة العمر"}
+            </span>
+            <span style="font-size: 0.75rem; color: #27AE60; font-weight: 600;"><i class="fas fa-check-circle"></i> هاندميد أبدي</span>
+          </div>
+
+          <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.name}</h3>
+          
+          <p class="product-short-desc-text" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            ${product.shortDesc}
+          </p>
+
+          <div class="product-rating">
+            <span>★</span>
+            <strong>${product.rating}</strong>
+            <span class="reviews-count">(${product.reviewsCount} تقييم عرائس)</span>
+          </div>
+
+          <div class="product-price-row">
+            <span class="current-price">${product.basePrice} <span class="currency">ج.م</span></span>
+            ${product.oldPrice ? `<span class="old-price">${product.oldPrice} ج.م</span>` : ''}
+          </div>
+
+          <div class="product-card-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn-add-cart" onclick="quickAddToCart('${product.id}')" style="padding: 9px 8px; font-size: 0.88rem;">
+              <i class="fas fa-shopping-bag"></i> أضف للسلة
+            </button>
+            <button class="btn-secondary" onclick="openProductModal('${product.id}')" style="padding: 9px 8px; font-size: 0.88rem; border-color: var(--accent-gold); color: var(--accent-gold);">
+              <i class="fas fa-feather-alt"></i> تخصيص
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // استدعاء أولي لتحديث لون الصفحة بالقسم النشط
+  applyWeddingPageTheme(appState.activeWeddingDept || 'all');
+}
+
+/* ==========================================================================
+   إدارة مودال طلب باكدج العرسان الكاملة (Wedding Bundle Modal)
+   مع خصم 15% فوري على إجمالي الباكدج
+   ========================================================================== */
+
+let selectedBundleProductIds = new Set();
+
+function openWeddingBundleModal() {
+  const modal = document.getElementById("weddingBundleModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (!modal) return;
+
+  const weddingProds = appState.products.filter(p => p.isWedding === true || p.weddingCategory);
+  const container = document.getElementById("weddingBundleItemsList");
+
+  const categories = [
+    { id: "bridal_bouquet", name: "💐 بوكيه العروسة" },
+    { id: "katb_ketab", name: "📜 طقم كتب الكتاب" },
+    { id: "frames", name: "🖼️ البرواز التذكاري" },
+    { id: "mandil_fingerprint", name: "🕊️ المنديل وبصمة الفرح" },
+    { id: "crowns", name: "👑 الأطواق والتيجان" },
+    { id: "favors", name: "🎁 هدايا المعازيم" }
+  ];
+
+  selectedBundleProductIds.clear();
+
+  if (container) {
+    let html = "";
+    categories.forEach(cat => {
+      const prodsInCat = weddingProds.filter(p => p.weddingCategory === cat.id);
+      if (prodsInCat.length > 0) {
+        // تحديد أول منتج من كل قسم افتراضياً
+        const defaultProd = prodsInCat[0];
+        selectedBundleProductIds.add(defaultProd.id);
+
+        html += `
+          <div style="margin-bottom: 10px;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px;">${cat.name}:</div>
+            ${prodsInCat.map((p, idx) => {
+              const isChecked = idx === 0;
+              return `
+                <div class="wedding-bundle-item-card ${isChecked ? 'selected' : ''}" id="wbCard_${p.id}" onclick="toggleBundleItem('${p.id}', event)">
+                  <input type="checkbox" class="wb-checkbox" id="wbCheck_${p.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleBundleItem('${p.id}')">
+                  <img src="${p.images[0]}" alt="${p.name}" class="wb-thumb">
+                  <div class="wb-info">
+                    <h5 class="wb-title">${p.name}</h5>
+                    <span class="wb-dept-tag">${p.shortDesc.slice(0, 55)}...</span>
+                  </div>
+                  <div class="wb-price">${p.basePrice} ج.م</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+    });
+    container.innerHTML = html;
+  }
+
+  calcWeddingBundleTotal();
+
+  backdrop?.classList.add("active");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeWeddingBundleModal() {
+  const modal = document.getElementById("weddingBundleModal");
+  const backdrop = document.getElementById("modalBackdrop");
+  modal?.classList.remove("active");
+  backdrop?.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+function toggleBundleItem(prodId, ev) {
+  if (ev && ev.target && ev.target.type === 'checkbox') {
+    // تم النقر على مربع الاختيار مباشرة
+  } else {
+    const cb = document.getElementById(`wbCheck_${prodId}`);
+    if (cb) cb.checked = !cb.checked;
+  }
+
+  const isChecked = document.getElementById(`wbCheck_${prodId}`)?.checked;
+  const card = document.getElementById(`wbCard_${prodId}`);
+  if (isChecked) {
+    selectedBundleProductIds.add(prodId);
+    card?.classList.add("selected");
+  } else {
+    selectedBundleProductIds.delete(prodId);
+    card?.classList.remove("selected");
+  }
+
+  calcWeddingBundleTotal();
+}
+
+function calcWeddingBundleTotal() {
+  let rawTotal = 0;
+  selectedBundleProductIds.forEach(id => {
+    const p = appState.products.find(item => item.id === id);
+    if (p) rawTotal += p.basePrice;
+  });
+
+  const discount = Math.round(rawTotal * 0.15); // 15% خصم باكدج العروسة الكاملة
+  const finalPrice = Math.max(0, rawTotal - discount);
+
+  const rawEl = document.getElementById("wbRawTotal");
+  const discEl = document.getElementById("wbDiscountAmount");
+  const finalEl = document.getElementById("wbFinalPrice");
+
+  if (rawEl) rawEl.innerText = `${rawTotal} ج.م`;
+  if (discEl) discEl.innerText = `-${discount} ج.م`;
+  if (finalEl) finalEl.innerText = `${finalPrice} ج.م`;
+
+  return { rawTotal, discount, finalPrice };
+}
+
+function addWeddingBundleToCart() {
+  if (selectedBundleProductIds.size === 0) {
+    showToast("يرجى اختيار قطعة واحدة على الأقل من باكدج العرسان", "error");
+    return;
+  }
+
+  const { rawTotal, discount, finalPrice } = calcWeddingBundleTotal();
+  const coupleNames = document.getElementById("wbCoupleNames")?.value.trim() || "عروسي شذى";
+  const weddingDate = document.getElementById("wbWeddingDate")?.value || "قريباً";
+  const colorTheme = document.getElementById("wbColorTheme")?.value || "أوف وايت عاجي ولؤلؤ";
+  const notes = document.getElementById("wbNotes")?.value.trim() || "";
+
+  const selectedProducts = Array.from(selectedBundleProductIds)
+    .map(id => appState.products.find(p => p.id === id))
+    .filter(Boolean);
+
+  const itemNames = selectedProducts.map(p => p.name.split(' - ')[0]).join(' + ');
+  const mainImage = selectedProducts[0]?.images[0] || "assets/images/logo.jpg";
+  const bundleCartKey = `wb_bundle_${Date.now()}`;
+
+  const bundleCartItem = {
+    cartKey: bundleCartKey,
+    productId: "wedding-bundle-custom",
+    name: `باكدج العرسان الملكي المتكامل 💍 (${selectedProducts.length} قطع)`,
+    image: mainImage,
+    sizeId: "wedding_bundle",
+    sizeName: `باكدج متكامل (${selectedProducts.length} قطع) - وفرتِ ${discount} ج.م`,
+    price: finalPrice,
+    quantity: 1,
+    customText: `العروسين: ${coupleNames} • الموعد: ${weddingDate} • الثيم: ${colorTheme} • القطع: [${itemNames}]${notes ? ` • ملاحظات: ${notes}` : ''}`,
+    isWeddingBundle: true,
+    bundleDetails: {
+      rawTotal,
+      discount,
+      coupleNames,
+      weddingDate,
+      colorTheme,
+      notes,
+      items: selectedProducts.map(p => p.name)
+    }
+  };
+
+  appState.cart.push(bundleCartItem);
+  saveCartToStorage();
+  updateCartUI();
+  closeWeddingBundleModal();
+
+  showToast(`🎉 ألف مبروك! تمت إضافة باكدج العرسان بسعر ${finalPrice} ج.م (وفرتِ ${discount} ج.م) لسلتك!`, "success");
+  openCartDrawer();
+}
+
+function sendWeddingBundleToWhatsApp() {
+  if (selectedBundleProductIds.size === 0) {
+    showToast("يرجى اختيار قطعة واحدة على الأقل من باكدج العرسان", "error");
+    return;
+  }
+
+  const { rawTotal, discount, finalPrice } = calcWeddingBundleTotal();
+  const coupleNames = document.getElementById("wbCoupleNames")?.value.trim() || "غير محدد بعد";
+  const weddingDate = document.getElementById("wbWeddingDate")?.value || "سيتم تحديده لاحقاً";
+  const colorTheme = document.getElementById("wbColorTheme")?.value || "أوف وايت عاجي ولؤلؤ";
+  const notes = document.getElementById("wbNotes")?.value.trim() || "لا توجد ملاحظات إضافية";
+
+  const selectedProducts = Array.from(selectedBundleProductIds)
+    .map(id => appState.products.find(p => p.id === id))
+    .filter(Boolean);
+
+  let msg = `🌸 *طلب باكدج العرسان الملكي من متجر شذى* 💍\n\n`;
+  msg += `👰🤵 *أسماء العروسين:* ${coupleNames}\n`;
+  msg += `📅 *تاريخ الفرح / عقد القران:* ${weddingDate}\n`;
+  msg += `🎨 *لون ثيم الفرح المفضل:* ${colorTheme}\n\n`;
+  msg += `✨ *القطع المختارة في الباكدج (${selectedProducts.length} قطع):*\n`;
+
+  selectedProducts.forEach((p, idx) => {
+    msg += `${idx + 1}. ${p.name} (${p.basePrice} ج.م)\n`;
+  });
+
+  msg += `\n💵 *إجمالي القطع قبل الخصم:* ${rawTotal} ج.م\n`;
+  msg += `🎁 *خصم باكدج العروسة (15%):* -${discount} ج.م\n`;
+  msg += `💎 *السعر النهائي للباكدج:* *${finalPrice} ج.م*\n`;
+  if (notes) {
+    msg += `📝 *ملاحظات خاصة:* ${notes}\n`;
+  }
+  msg += `\nيسعدني تأكيد الحجز والتنسيق معكم لليلة العمر 🌸💍`;
+
+  const waUrl = `https://wa.me/${SHATHA_CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, "_blank");
+}
+
+function closeAllModals() {
+  closeProductModal();
+  closeCheckoutModal();
+  closeAddProductModal();
+  closeWeddingBundleModal();
+  if (typeof closeShathaAuthModal === 'function') closeShathaAuthModal();
+  if (typeof closeShathaAccountModal === 'function') closeShathaAccountModal();
+  if (typeof closeSuccessModal === 'function') closeSuccessModal();
+  const backdrop = document.getElementById("modalBackdrop");
+  if (backdrop) backdrop.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
 
 

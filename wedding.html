@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>باكدج العرسان الملكي 💍 | متجر شَـذى SHATHA - كل حاجة محتاجاها في فرحك</title>
+  <meta name="description" content="كل ما تحتاجه العروس في مكان واحد: بوكيهات العروسة الستان، أطقم ومنديل كتب الكتاب المطرز، البراويز التذكارية، لوحات البصمة، التيجان، وتوزيعات المعازيم. صناعة يدوية تدوم للأبد.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
+  
+  <!-- الخطوط العربية الراقية (Cairo & Amiri) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Sign-In SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- ملف التصميم العام -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    /* أنماط مخصصة لصفحة العرسان المستقلة */
+    .wedding-page-header-wrap {
+      padding: 30px 0 20px;
+    }
+
+    .wedding-breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 25px;
+    }
+
+    .wedding-breadcrumbs a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .wedding-breadcrumbs a:hover {
+      color: var(--primary-pink);
+    }
+
+    .wedding-breadcrumbs .current {
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+
+    .wedding-stats-ribbon {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 18px 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 35px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .wedding-stat-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: right;
+    }
+
+    .wedding-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .wedding-stat-info h5 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 2px;
+    }
+
+    .wedding-stat-info p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    @media (max-width: 860px) {
+      .wedding-stats-ribbon {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .wedding-stats-ribbon {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شريط الإعلان العلوي المتقدم -->
+  <aside class="top-announcement-bar" id="topAnnouncementBar">
+    <div class="container bar-content">
+      <div class="bar-right" id="authBarLoggedOut">
+        <span>✨ عضوية شذى: سجّل دخولك واكسب <strong>خصم 10% فوري</strong> على أول طلب!</span>
+        <div id="googleSignInBtnTop" class="google-btn-slot"></div>
+      </div>
+      <div class="bar-right" id="authBarLoggedIn" style="display: none;">
+        <span>🌸 مرحباً بكِ يا <strong id="loggedInUserName">زائرة شذى</strong>! كود خصمك الحصري: <strong id="userCouponCode" class="user-code-highlight">SHATHA-USER</strong></span>
+        <span id="couponStatusBadge" class="coupon-status-badge">متاح للاستخدام مرة واحدة</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ترويسة الموقع الرئيسية (Header & Nav) -->
+  <header class="main-header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- الشعار الرسمي لشذى -->
+        <a href="index.html" class="brand-logo-wrap">
+          <img src="assets/images/logo.jpg" alt="شعار شذى SHATHA" class="brand-logo-img">
+          <div class="brand-names">
+            <span class="brand-title">شَـذى</span>
+            <span class="brand-subtitle">HANDMADE FLOWERS & GIFTS</span>
+          </div>
+        </a>
+
+        <!-- قائمة التصفح -->
+        <nav>
+          <ul class="nav-menu" id="navMenu">
+            <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+            <li><a href="wedding.html" class="nav-link active wedding-nav-highlight" style="color: var(--accent-gold); font-weight: 800;"><i class="fas fa-ring"></i> باكدج العرسان <span class="nav-badge-sparkle">جديد</span></a></li>
+            <li><a href="index.html#products" class="nav-link">تشكيلة الباقات</a></li>
+            <li><a href="index.html#about" class="nav-link">عن شذى</a></li>
+            <li><a href="index.html#testimonials" class="nav-link">آراء العملاء</a></li>
+            <li><a href="cart.html" class="nav-link" style="color: var(--primary-pink); font-weight: 700;"><i class="fas fa-shopping-bag"></i> سلة المشتريات</a></li>
+            <li><a href="checkout.html" class="nav-link" style="font-weight: 700;">إتمام الطلب والدفع</a></li>
+            <li id="navAdminLink" style="display: none;"><a href="javascript:void(0)" onclick="openAddProductModal()" class="nav-link" style="color: #27AE60; font-weight: 700;"><i class="fas fa-plus-circle"></i> لوحة إضافة المنتجات (المالك)</a></li>
+          </ul>
+        </nav>
+
+        <!-- أدوات الهيدر والسلة وحساب المستخدم -->
+        <div class="header-actions">
+          <div class="user-auth-widget" id="userAuthWidget">
+            <button type="button" class="user-circle-btn" id="headerUserCircleBtn" onclick="openAccountOrAuthModal()" title="تسجيل الدخول / حسابي" aria-label="تسجيل الدخول / حسابي">
+              <i class="fas fa-user user-circle-icon" id="userCircleIcon"></i>
+              <img id="userAvatarImg" src="" alt="صورة الحساب" class="user-circle-avatar" style="display: none;">
+              <span class="user-circle-status-dot" id="userStatusDot" style="display: none;"></span>
+            </button>
+          </div>
+
+          <button class="action-btn theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="التبديل إلى الوضع الداكن" aria-label="التبديل إلى الوضع الداكن">
+            <i class="fas fa-moon"></i>
+          </button>
+          
+          <button class="action-btn" id="cartTriggerBtn" title="سلة المشتريات" aria-label="سلة المشتريات">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="cart-count-badge" id="cartCountBadge">0</span>
+          </button>
+
+          <button class="action-btn mobile-menu-toggle" id="mobileToggle" aria-label="فتح القائمة">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- الصفحة الرئيسية لباكدج العرسان -->
+  <main class="wedding-package-section" style="padding-top: 25px;">
+    <div class="container">
+      
+      <!-- مسار التنقل Breadcrumbs -->
+      <div class="wedding-breadcrumbs">
+        <a href="index.html"><i class="fas fa-home"></i> الرئيسية</a>
+        <i class="fas fa-chevron-left" style="font-size: 0.75rem;"></i>
+        <span class="current">باكدج العرسان الملكي 💍</span>
+      </div>
+
+      <!-- بانر العرسان الفاخر والمبهر -->
+      <div class="wedding-hero-banner">
+        <div class="wedding-banner-decor-ring ring-1"><i class="fas fa-ring"></i></div>
+        <div class="wedding-banner-decor-ring ring-2"><i class="fas fa-sparkles"></i></div>
+        
+        <div class="wedding-banner-content">
+          <div class="wedding-pill-badge">
+            <i class="fas fa-heart"></i>
+            <span>تجهيزات ليلة العمر هاندميد 100% • تدوم للأبد</span>
+          </div>
+          
+          <h1 class="wedding-banner-title" style="margin-bottom: 12px;">
+            باكدج العرسان الملكي 💍<br>
+            <span class="wedding-banner-highlight">"كل حاجة محتاجاها في فرحك في مكان واحد"</span>
+          </h1>
+          
+          <p class="wedding-banner-desc">
+            تجهيزات ليلة العمر المصنوعة يدوياً بكل فخامة وإتقان: بوكيهات العروسة الستان الأبدية المرصعة باللؤلؤ والكريستال، أطقم ومنديل كتب الكتاب المطرز بالأسماء وتاريخ الفرح، البراويز التذكارية، الأطواق والتيجان، وتوزيعات المعازيم الاستثنائية. تصفحي كل قسم بمفرده، أو اطلبي الباكدج كاملة بخصم 15% فوري!
+          </p>
+
+          <div class="wedding-banner-actions">
+            <button type="button" class="btn-wedding-bundle" onclick="openWeddingBundleModal()">
+              <i class="fas fa-gift"></i>
+              <span>اطلبي الباكدج الكاملة (خصم 15% هدية العروسة) 🌸</span>
+            </button>
+            <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%D8%8C%20%D8%B9%D8%A7%D9%8A%D8%B2%D8%A9%20%D8%A3%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D8%A7%D9%84%D8%B9%D8%B1%D8%B3%D8%A7%D9%86%20%D9%88%D8%AA%D9%81%D8%A7%D8%B5%D9%8A%D9%84%20%D9%84%D9%8A%D9%84%D8%A9%20%D8%A7%D9%84%D8%B9%D9%85%D8%B1" target="_blank" class="btn-wedding-whatsapp">
+              <i class="fab fa-whatsapp"></i>
+              <span>استشارة وتنسيق ليلة العمر مع المصممة</span>
+            </a>
+          </div>
+
+          <!-- شريط مميزات باكدج العروسة -->
+          <div class="wedding-banner-perks">
+            <div class="perk-item"><i class="fas fa-check-circle"></i> تطريز يدوي بالأسماء وتاريخ الفرح مجاناً</div>
+            <div class="perk-item"><i class="fas fa-check-circle"></i> ورد ستان أصلي يدوم للأبد لا يذبل نهائياً</div>
+            <div class="perk-item"><i class="fas fa-check-circle"></i> شحن سريع وتغليف آمن لباب بيتك</div>
+            <div class="perk-item"><i class="fas fa-check-circle"></i> كارت إهداء ملكي مذهب مجاناً</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- شريط إحصائيات ومزايا تجهيز العرائس -->
+      <div class="wedding-stats-ribbon">
+        <div class="wedding-stat-box">
+          <div class="wedding-stat-icon"><i class="fas fa-infinity"></i></div>
+          <div class="wedding-stat-info">
+            <h5>ذكرى تدوم للأبد</h5>
+            <p>خامات ستان لا تذبل أو تتغير</p>
+          </div>
+        </div>
+        <div class="wedding-stat-box">
+          <div class="wedding-stat-icon"><i class="fas fa-feather-alt"></i></div>
+          <div class="wedding-stat-info">
+            <h5>تطريز مخصص بالأسماء</h5>
+            <p>على المنديل والأشرطة والبراويز</p>
+          </div>
+        </div>
+        <div class="wedding-stat-box">
+          <div class="wedding-stat-icon"><i class="fas fa-percent"></i></div>
+          <div class="wedding-stat-info">
+            <h5>وفر 15% فوري</h5>
+            <p>عند طلب الباكدج المتكاملة</p>
+          </div>
+        </div>
+        <div class="wedding-stat-box">
+          <div class="wedding-stat-icon"><i class="fas fa-truck-fast"></i></div>
+          <div class="wedding-stat-info">
+            <h5>توصيل لجميع المحافظات</h5>
+            <p>تغليف محمي وفاخر لباب بيتك</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ترويسة أقسام الفرح وأزرار التصفح -->
+      <div class="wedding-departments-header">
+        <div class="wedding-dept-intro">
+          <span class="section-subtitle">أقسام وتجهيزات ليلة العمر</span>
+          <h3 class="wedding-dept-title">تصفحي مستلزمات العروسة حسب القسم (يمكنك إضافة أي قطعة للسلة بمفردها)</h3>
+        </div>
+
+        <!-- زر المالك لإضافة منتج فرح مباشر -->
+        <button type="button" class="btn-wedding-owner-add" id="weddingOwnerAddBtn" onclick="openAddProductModalForWedding()" style="display: none;">
+          <i class="fas fa-plus-circle"></i>
+          <span>إضافة منتج جديد داخل قسم العرسان (المالك)</span>
+        </button>
+      </div>
+
+      <!-- تبويبات الأقسام الاحترافية مع العدادات -->
+      <div class="wedding-nav-tabs" role="tablist">
+        <button type="button" class="wedding-tab-btn active" data-dept="all" onclick="filterWeddingDept('all')">
+          <span class="tab-icon">✨</span>
+          <span class="tab-label">الكل (كل مستلزمات الفرح)</span>
+          <span class="tab-count" id="count-dept-all">0</span>
+        </button>
+        <button type="button" class="wedding-tab-btn" data-dept="bridal_bouquet" onclick="filterWeddingDept('bridal_bouquet')">
+          <span class="tab-icon">💐</span>
+          <span class="tab-label">بوكيهات العروسة</span>
+          <span class="tab-count" id="count-dept-bridal_bouquet">0</span>
+        </button>
+        <button type="button" class="wedding-tab-btn" data-dept="katb_ketab" onclick="filterWeddingDept('katb_ketab')">
+          <span class="tab-icon">📜</span>
+          <span class="tab-label">كتب الكتاب</span>
+          <span class="tab-count" id="count-dept-katb_ketab">0</span>
+        </button>
+        <button type="button" class="wedding-tab-btn" data-dept="frames" onclick="filterWeddingDept('frames')">
+          <span class="tab-icon">🖼️</span>
+          <span class="tab-label">البراويز</span>
+          <span class="tab-count" id="count-dept-frames">0</span>
+        </button>
+        <button type="button" class="wedding-tab-btn" data-dept="mandil_fingerprint" onclick="filterWeddingDept('mandil_fingerprint')">
+          <span class="tab-icon">🕊️</span>
+          <span class="tab-label">المنديل والبصمة</span>
+          <span class="tab-count" id="count-dept-mandil_fingerprint">0</span>
+        </button>
+        <button type="button" class="wedding-tab-btn" data-dept="crowns" onclick="filterWeddingDept('crowns')">
+          <span class="tab-icon">👑</span>
+          <span class="tab-label">الأطواق والتيجان</span>
+          <span class="tab-count" id="count-dept-crowns">0</span>
+        </button>
+        <button type="button" class="wedding-tab-btn" data-dept="favors" onclick="filterWeddingDept('favors')">
+          <span class="tab-icon">🎁</span>
+          <span class="tab-label">هدايا المعازيم</span>
+          <span class="tab-count" id="count-dept-favors">0</span>
+        </button>
+      </div>
+
+      <!-- شريط مؤشر الثيم اللوني التفاعلي لصفحة الفرح -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px;">
+        <div class="wedding-active-theme-indicator" id="weddingActiveThemeIndicator">
+          <span class="theme-color-dot" id="weddingThemeDot"></span>
+          <span id="weddingThemeLabel">ثيم ليلة العمر: كل مستلزمات الفرح الملكية ✨</span>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; font-weight: 600;">
+          <i class="fas fa-palette" style="color: var(--accent-gold);"></i>
+          <span>يتغير لون وتدرج صفحة الباكدج تلقائياً مع كل قسم ومنتج تختارينه 💍</span>
+        </div>
+      </div>
+
+      <!-- شبكة منتجات العرسان -->
+      <div class="wedding-products-grid" id="weddingProductsGrid">
+        <!-- يتم رسم كروت منتجات العرسان ديناميكياً بواسطة JavaScript -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- تذييل الموقع -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col brand-col">
+          <div class="footer-brand-wrap">
+            <img src="assets/images/logo.jpg" alt="شعار شذى" class="footer-logo">
+            <span class="footer-brand-title">شَـذى</span>
+          </div>
+          <p class="footer-text">
+            العلامة المصرية المتخصصة في إبداع ورود الستان المصنوعة يدوياً، باكدجات العرسان الملكية، وبوكيهات الهدايا الاستثنائية التي تدوم للأبد.
+          </p>
+          <div class="social-links">
+            <a href="https://wa.me/201102541236" target="_blank" aria-label="واتساب"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://instagram.com" target="_blank" aria-label="انستغرام"><i class="fab fa-instagram"></i></a>
+            <a href="https://facebook.com" target="_blank" aria-label="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://tiktok.com" target="_blank" aria-label="تيك توك"><i class="fab fa-tiktok"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">روابط سريعة</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">الرئيسية</a></li>
+            <li><a href="wedding.html" style="color: var(--accent-gold); font-weight: 700;">باكدج العرسان الملكي 💍</a></li>
+            <li><a href="index.html#products">تشكيلة الباقات</a></li>
+            <li><a href="cart.html">سلة المشتريات</a></li>
+            <li><a href="checkout.html">إتمام الطلب والدفع</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">أقسام العرسان</h4>
+          <ul class="footer-links">
+            <li><a href="javascript:void(0)" onclick="filterWeddingDept('bridal_bouquet')">💐 بوكيهات العروسة</a></li>
+            <li><a href="javascript:void(0)" onclick="filterWeddingDept('katb_ketab')">📜 كتب الكتاب والريشة</a></li>
+            <li><a href="javascript:void(0)" onclick="filterWeddingDept('frames')">🖼️ البراويز التذكارية</a></li>
+            <li><a href="javascript:void(0)" onclick="filterWeddingDept('mandil_fingerprint')">🕊️ المنديل وبصمة الفرح</a></li>
+            <li><a href="javascript:void(0)" onclick="filterWeddingDept('crowns')">👑 الأطواق والتيجان</a></li>
+            <li><a href="javascript:void(0)" onclick="filterWeddingDept('favors')">🎁 هدايا وتوزيعات المعازيم</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">خدمة العملاء</h4>
+          <div class="footer-contact-info">
+            <div class="contact-item">
+              <i class="fab fa-whatsapp"></i>
+              <div>
+                <strong>الواتساب المباشر:</strong>
+                <a href="https://wa.me/201102541236" dir="ltr">01102541236</a>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-truck"></i>
+              <div>
+                <strong>التوصيل والشحن:</strong>
+                <span>توصيل لكافة محافظات مصر</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 جميع الحقوق محفوظة لعلامة <strong>شَـذى (SHATHA)</strong> للزهور والهدايا.</p>
+        <div class="payment-methods-icons" title="طرق الدفع المتاحة">
+          <i class="fas fa-money-bill-wave" title="كاش عند الاستلام"></i>
+          <i class="fab fa-cc-visa" title="فيزا"></i>
+          <i class="fab fa-cc-mastercard" title="ماستركارد"></i>
+          <i class="fas fa-mobile-alt" title="فودافون كاش ومحافظ إلكترونية"></i>
+          <i class="fas fa-bolt" title="إنستاباي InstaPay"></i>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- زر الواتساب العائم الدائم -->
+  <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%F0%9F%8C%B8%20%D8%A3%D8%AD%D8%AA%D8%A7%D8%AC%20%D9%85%D8%B3%D8%A7%D8%B9%D8%AF%D8%A9%20%D9%81%D9%8A%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D8%A7%D9%84%D8%B9%D8%B1%D8%B3%D8%A7%D9%86" 
+     target="_blank" 
+     class="floating-whatsapp-btn" 
+     id="floatingWhatsappBtn"
+     title="تواصلي معنا عبر واتساب 01102541236">
+    <div class="whatsapp-icon-circle">
+      <i class="fab fa-whatsapp"></i>
+    </div>
+    <span class="whatsapp-btn-text">طلبات واستفسارات الواتساب</span>
+  </a>
+
+  <!-- خلفية التعتيم العامة للمودال -->
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+
+  <!-- درج السلة الجانبي السريع (Slide-over Cart Drawer) -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="سلة المشتريات">
+    <div class="cart-drawer-header">
+      <h3>
+        <i class="fas fa-shopping-bag" style="color: var(--primary-pink);"></i>
+        <span>سلة التسوق</span>
+      </h3>
+      <button class="close-drawer-btn" id="closeDrawerBtn" aria-label="إغلاق السلة">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- شريط تقدم التوصيل المجاني -->
+    <div class="cart-free-shipping-meter">
+      <div class="meter-text" id="freeShippingMeterText">
+        أضيفي بـ <strong>350 ج.م</strong> إضافية للحصول على توصيل مجاني!
+      </div>
+      <div class="meter-bar">
+        <div class="meter-fill" id="freeShippingMeterFill"></div>
+      </div>
+    </div>
+
+    <!-- محتويات السلة -->
+    <div class="cart-drawer-body">
+      <div class="cart-empty-state" id="cartEmptyState">
+        <i class="fas fa-shopping-basket"></i>
+        <h4>سلة مشترياتكِ فارغة</h4>
+        <p>اختاري الآن من باكدج العرسان أو باقات شذى اليدوية وأضيفيها لسلتك.</p>
+      </div>
+
+      <div class="cart-items-container" id="cartDrawerItems">
+        <!-- يتم إنشاؤها ديناميكياً بواسطة JS -->
+      </div>
+    </div>
+
+    <!-- تذييل السلة والحسابات -->
+    <div class="cart-drawer-footer">
+      <div class="coupon-section">
+        <div class="coupon-input-group">
+          <input type="text" id="couponInput" placeholder="أدخلي كود الخصم (مثل SHATHA10)" aria-label="كود الخصم">
+          <button type="button" id="applyCouponBtn" onclick="applyCouponCode(document.getElementById('couponInput').value)">تطبيق</button>
+        </div>
+      </div>
+
+      <div class="cart-summary-lines">
+        <div class="summary-line">
+          <span>المجموع الفرعي:</span>
+          <span id="cartSubtotalVal">0 ج.م</span>
+        </div>
+        <div class="summary-line discount-applied" id="cartDiscountRow" style="display: none;">
+          <span>خصم الكوبون:</span>
+          <span id="cartDiscountVal">-0 ج.م</span>
+        </div>
+        <div class="summary-line total-line">
+          <span>الإجمالي التقريبي:</span>
+          <span id="cartTotalVal">0 ج.م</span>
+        </div>
+      </div>
+
+      <div class="cart-drawer-actions" style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="checkout.html" class="btn-checkout" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; width: 100%; box-sizing: border-box; background: var(--primary-pink); color: #fff; padding: 13px; border-radius: var(--radius-full); font-weight: 800;">
+          <i class="fas fa-credit-card"></i>
+          <span>إتمام الطلب والدفع وتأكيد الواتساب</span>
+        </a>
+        <a href="cart.html" style="display: block; text-align: center; font-size: 0.88rem; color: var(--primary-dark); font-weight: 700; text-decoration: underline; padding: 4px;">
+          عرض وتعديل سلة المشتريات بالكامل
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================
+       نافذة طلب وتصميم باكدج العرسان المتكاملة (Wedding Bundle Modal)
+       "اطلبي الباكدج الكاملة بخصم 15% فوري"
+       ======================================================== -->
+  <section class="checkout-modal wedding-bundle-modal" id="weddingBundleModal" aria-label="طلب باكدج العرسان الكاملة" style="max-width: 780px;">
+    <div class="checkout-modal-header" style="background: linear-gradient(135deg, var(--primary-soft), var(--bg-card));">
+      <h3>
+        <i class="fas fa-ring" style="color: var(--accent-gold);"></i>
+        <span>باكدج العرسان الملكي المتكامل 💍</span>
+        <span class="wedding-discount-pill">خصم 15% هدية العروسة</span>
+      </h3>
+      <button class="close-drawer-btn" onclick="closeWeddingBundleModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 16px; line-height: 1.6;">
+        اختاري كل مستلزمات فرحكِ في مكان واحد! حددي القطع المرغوبة من كل قسم، واستمتعي <strong>بخصم 15% فوري</strong> على إجمالي الباكدج مع تطريز الأسماء وتاريخ ليلة العمر مجاناً 🌸
+      </p>
+
+      <!-- قائمة القطع القابلة للاختيار -->
+      <h4 style="font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-check-double" style="color: var(--primary-pink);"></i>
+        <span>حددي القطع التي ترغبين بها في باكدج فرحك:</span>
+      </h4>
+
+      <div class="wedding-bundle-items-list" id="weddingBundleItemsList">
+        <!-- يتم توليدها ديناميكياً بواسطة JavaScript -->
+      </div>
+
+      <!-- ملخص الحساب والتخفيض الفوري -->
+      <div class="wedding-bundle-calc-box">
+        <div class="calc-row">
+          <span>إجمالي القطع المختارة:</span>
+          <span id="wbRawTotal">0 ج.م</span>
+        </div>
+        <div class="calc-row discount-row">
+          <span>خصم باكدج العروسة (15%):</span>
+          <span id="wbDiscountAmount">-0 ج.م</span>
+        </div>
+        <div class="calc-row final-row">
+          <strong>السعر النهائي للباكدج بعد الخصم:</strong>
+          <strong id="wbFinalPrice">0 ج.م</strong>
+        </div>
+      </div>
+
+      <!-- بيانات العروسين والتخصيص -->
+      <div class="wedding-custom-fields-box" style="margin-top: 18px; display: flex; flex-direction: column; gap: 12px; background: var(--bg-body); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <h4 style="font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 4px;">
+          <i class="fas fa-feather-alt" style="color: var(--accent-gold);"></i> تفاصيل التطريز والتخصيص لليلة العمر:
+        </h4>
+
+        <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label style="font-size: 0.84rem; font-weight: 700;"><span style="color: #E74C3C;">*</span> أسماء العروسين (للتطريز على المنديل والشريط والبراويز):</label>
+            <input type="text" id="wbCoupleNames" class="form-control" style="font-size: 0.9rem;" placeholder="مثال: أحمد وسارة">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 0.84rem; font-weight: 700;">تاريخ الفرح / عقد القران:</label>
+            <input type="date" id="wbWeddingDate" class="form-control" style="font-size: 0.9rem;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 0.84rem; font-weight: 700;">لون ثيم الفرح المفضل:</label>
+            <select id="wbColorTheme" class="form-control" style="font-size: 0.9rem;">
+              <option value="أوف وايت عاجي ولؤلؤ">أوف وايت عاجي ولؤلؤي</option>
+              <option value="شامبين هادئ">شامبين راقٍ</option>
+              <option value="وردي باستيل وبينك">وردي باستيل (Pink)</option>
+              <option value="عنابي بوردو ملكي">عنابي بوردو ملكي</option>
+              <option value="بيبي بلو سماوي">بيبي بلو سماوي</option>
+              <option value="لون مخصص يتم الاتفاق عليه">لون مخصص (واتساب)</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label style="font-size: 0.84rem; font-weight: 700;">ملاحظات خاصة بالتطريز أو الطلب:</label>
+            <textarea id="wbNotes" class="form-control" rows="2" style="font-size: 0.85rem;" placeholder="أي عبارة ترغبين في تطريزها أو تعديل تفاصيل..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- أزرار الإجراءات -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-primary" onclick="addWeddingBundleToCart()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1.05rem; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-pink), var(--primary-dark));">
+          <i class="fas fa-shopping-bag"></i>
+          <span>إضافة الباكدج بالكامل للسلة بخصم 15% 🌸</span>
+        </button>
+
+        <button type="button" class="btn-secondary" onclick="sendWeddingBundleToWhatsApp()" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem; border-radius: var(--radius-full); border-color: #27AE60; color: #27AE60;">
+          <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i>
+          <span>تأكيد الباكدج وحجز الموعد عبر الواتساب مباشرة</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- نافذة تفاصيل المنتج المتقدمة (Product Details Modal) -->
+  <section class="product-modal" id="productDetailsModal" aria-label="تفاصيل المنتج">
+    <button class="product-modal-close" onclick="closeProductModal()" aria-label="إغلاق النافذة">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="product-modal-grid">
+      <div class="modal-gallery-col">
+        <div class="modal-main-img-wrap">
+          <img src="" alt="" id="modalMainImg">
+        </div>
+        <div class="modal-thumbnails" id="modalThumbnailsContainer"></div>
+      </div>
+      <div class="modal-details-col">
+        <div id="modalOwnerTools" class="modal-owner-bar" style="display: none;"></div>
+        <h2 id="modalProductTitle" class="modal-title"></h2>
+        <div class="modal-rating-row">
+          <div class="stars" style="color: #F5A623;">★★★★★</div>
+          <span id="modalProductRating" style="font-weight: 700;">5.0</span>
+          <span id="modalProductReviewsCount" style="color: var(--text-muted); font-size: 0.85rem;">(0 تقييم)</span>
+        </div>
+        <div class="modal-price-box">
+          <span class="modal-price" id="modalCurrentPrice">0 ج.م</span>
+        </div>
+        <p class="modal-desc" id="modalProductDesc"></p>
+        <div class="modal-sizes-box">
+          <h5>المقاسات المتاحة:</h5>
+          <div class="sizes-selector" id="modalSizesContainer"></div>
+        </div>
+        <div class="modal-craft-box">
+          <h5>الخامات وطريقة الصنع اليدوية:</h5>
+          <p id="modalMaterialsText"></p>
+          <p id="modalCraftText" style="margin-top: 6px; color: var(--text-muted); font-size: 0.85rem;"></p>
+        </div>
+        <div class="modal-advantages-box">
+          <h5>المميزات والضمانات:</h5>
+          <ul id="modalAdvantagesList" class="advantages-list"></ul>
+        </div>
+        <div class="modal-reviews-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h5 style="margin: 0;">تقييمات وتجارب العرائس:</h5>
+            <button type="button" class="btn-secondary" onclick="toggleProdReviewForm()" style="padding: 5px 12px; font-size: 0.8rem; border-radius: var(--radius-full);">
+              <i class="fas fa-edit"></i> إضافة تقييم
+            </button>
+          </div>
+          <div id="prodReviewFormBox" style="display: none; background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+            <form onsubmit="handleProductReviewSubmit(event)" style="display: flex; flex-direction: column; gap: 10px;">
+              <input type="text" id="prAuthor" placeholder="اسمك الكريم" style="padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.88rem;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">التقييم:</span>
+                <div id="prodRatingStars" style="color: #F5A623; cursor: pointer; font-size: 1.1rem;">
+                  <i class="fas fa-star active" onclick="setProdRating(1)"></i>
+                  <i class="fas fa-star active" onclick="setProdRating(2)"></i>
+                  <i class="fas fa-star active" onclick="setProdRating(3)"></i>
+                  <i class="fas fa-star active" onclick="setProdRating(4)"></i>
+                  <i class="fas fa-star active" onclick="setProdRating(5)"></i>
+                </div>
+                <input type="hidden" id="prRatingVal" value="5">
+              </div>
+              <textarea id="prComment" rows="2" placeholder="اكتبي رأيك الصادق في الباقة وتفاصيلها..." required style="padding: 8px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.88rem;"></textarea>
+              <button type="submit" class="btn-primary" style="padding: 8px 16px; font-size: 0.88rem; align-self: flex-start; border-radius: var(--radius-full);">نشر التقييم 🌸</button>
+            </form>
+          </div>
+          <div id="modalReviewsList" class="reviews-list"></div>
+        </div>
+        <div class="modal-actions-row">
+          <button type="button" class="btn-modal-add-cart" id="modalAddToCartBtn">
+            <i class="fas fa-shopping-bag"></i> أضف للسلة الآن
+          </button>
+          <a href="https://wa.me/201102541236" target="_blank" class="btn-modal-whatsapp" id="modalWhatsappBtn">
+            <i class="fab fa-whatsapp"></i> استفسار عبر واتساب
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- نافذة إضافة وتعديل المنتجات للمالك (Product Wizard Modal) -->
+  <section class="checkout-modal product-wizard-modal" id="addProductModal" aria-label="لوحة إدارة المنتجات للمالك" style="max-width: 720px;">
+    <div class="checkout-modal-header" style="background: linear-gradient(135deg, #F0FBF7, var(--bg-card));">
+      <h3 style="color: #27AE60;">
+        <i class="fas fa-plus-circle" id="wizardModalIcon"></i>
+        <span id="wizardModalTitle">إدارة وإضافة منتج جديد (المالك)</span>
+      </h3>
+      <button class="close-drawer-btn" onclick="closeAddProductModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form id="wizardProductForm" onsubmit="return false;" style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
+      <input type="hidden" id="editingProductId" value="">
+      
+      <!-- الخطوة 1: البيانات الأساسية للقطعة وقسم الفرح -->
+      <div id="wizardStep1" class="wizard-step active">
+        <h4 style="font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 12px;">بيانات الباقة والتسعير وقسم العرسان:</h4>
+        <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label style="font-size: 0.85rem; font-weight: 700;">اسم الباقة / القطعة *</label>
+            <input type="text" id="wName" class="form-control" placeholder="مثال: بوكيه عروسة ملكي ستان أوف وايت ولؤلؤ" required>
+          </div>
+          <div class="form-group">
+            <label style="font-size: 0.85rem; font-weight: 700;">السعر الحالي (ج.م) *</label>
+            <input type="number" id="wPrice" class="form-control" placeholder="650" required>
+          </div>
+          <div class="form-group">
+            <label style="font-size: 0.85rem; font-weight: 700;">السعر قبل الخصم (اختياري)</label>
+            <input type="number" id="wOldPrice" class="form-control" placeholder="800">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1; background: rgba(212,175,55,0.08); padding: 12px; border-radius: var(--radius-sm); border: 1px dashed rgba(212,175,55,0.4);">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #875c10; cursor: pointer;">
+              <input type="checkbox" id="wIsWeddingProduct" checked onchange="toggleWeddingCategoryGroup(this.checked)">
+              <span>💍 هذا المنتج مخصص لقسم باكدج العرسان</span>
+            </label>
+            <div id="wWeddingCategoryGroup" style="margin-top: 8px;">
+              <label style="font-size: 0.82rem; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 4px;">اختر قسم الفرح المخصص:</label>
+              <select id="wWeddingCategory" class="form-control" style="font-size: 0.88rem;">
+                <option value="bridal_bouquet">💐 بوكيهات العروسة</option>
+                <option value="katb_ketab">📜 كتب الكتاب والأقلام</option>
+                <option value="frames">🖼️ البراويز التذكارية</option>
+                <option value="mandil_fingerprint">🕊️ المنديل وبصمة الفرح</option>
+                <option value="crowns">👑 الأطواق والتيجان</option>
+                <option value="favors">🎁 هدايا وتوزيعات المعازيم</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label style="font-size: 0.85rem; font-weight: 700;">وصف قصير للمنتج *</label>
+            <textarea id="wShortDesc" class="form-control" rows="2" placeholder="وصف جذاب يوضح الخامات ولمعة الستان وطريقة التنسيق..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label style="font-size: 0.85rem; font-weight: 700;">الخامات المستخدمة</label>
+            <input type="text" id="wMaterials" class="form-control" placeholder="ستان حريري تركي، لؤلؤ، أشرطة مذهبة...">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 0.85rem; font-weight: 700;">طريقة الصنع اليدوية</label>
+            <input type="text" id="wCraftsmanship" class="form-control" placeholder="طي يدوي دقيق لكل بتلة وتثبيت كريستال...">
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn-primary" onclick="switchWizardStep(2)" style="background: #27AE60; padding: 10px 24px;">
+            <span>التالي: صور الباقة والمقاسات</span> <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 2: رفع الصور والمقاسات -->
+      <div id="wizardStep2" class="wizard-step" style="display: none;">
+        <h4 style="font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 8px;">صور الباقة ومقاساتها:</h4>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.84rem; font-weight: 700; display: block; margin-bottom: 6px;">رفع صور الباقة (أو رابط الصورة):</label>
+          <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <input type="url" id="wImageUrlInput" class="form-control" placeholder="ضع رابط صورة مباشرة أو اختر من الجهاز...">
+            <button type="button" class="btn-secondary" onclick="addWizardImageFromUrl()" style="white-space: nowrap; padding: 8px 14px;">إضافة الرابط</button>
+          </div>
+          <input type="file" id="wImageFileInput" accept="image/*" multiple onchange="handleWizardImageUpload(event)" style="font-size: 0.85rem;">
+          <div id="wizardImagesList" class="wizard-thumbs-preview" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;"></div>
+        </div>
+
+        <div id="wizardSizesSection" style="margin-top: 15px;">
+          <h5 style="font-size: 0.88rem; color: var(--primary-dark); margin-bottom: 8px;">المقاسات والأسعار:</h5>
+          <div id="wizardSizesContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+          <button type="button" class="btn-secondary" onclick="addWizardSizeRow()" style="margin-top: 8px; font-size: 0.8rem; padding: 6px 12px; align-self: flex-start;">
+            <i class="fas fa-plus"></i> إضافة خيار مقاس آخر
+          </button>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(1)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" onclick="handleWizardProductSubmit(event)" id="wizardSubmitBtn" class="btn-primary" style="background: #27AE60; padding: 12px 30px; font-size: 1.05rem;">
+            <i class="fas fa-save"></i> <span id="wizardSubmitBtnText">حفظ ونشر الباقة فوراً</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- نوافذ الحساب وتسجيل الدخول المتكاملة (Modals) -->
+  <div class="account-modal-wrap" id="shathaAuthModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="account-modal-header">
+      <div class="account-modal-title" id="authModalTitle">
+        <i class="fas fa-user-circle" style="color: var(--primary-pink);"></i>
+        <span>عضوية متجر شَـذى 🌸</span>
+      </div>
+      <button type="button" class="account-modal-close" onclick="closeShathaAuthModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="account-modal-body">
+      <div class="auth-tabs-nav">
+        <button type="button" class="auth-tab-btn active" id="tabBtnRegister" onclick="switchAuthTab('register')">إنشاء حساب جديد (واكسبي 10%)</button>
+        <button type="button" class="auth-tab-btn" id="tabBtnLogin" onclick="switchAuthTab('login')">تسجيل الدخول لحساب سابق</button>
+      </div>
+      <div id="authRegisterView">
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">سجّلي حسابك لربط بياناتك وتفعيل كود الخصم 10% الخاص بك لمرة واحدة:</p>
+        <div id="googleSignInBtnModal" style="display: flex; justify-content: center; margin-bottom: 14px;"></div>
+        <div class="auth-divider"><span>أو التسجيل السريع برقم الهاتف</span></div>
+        <form onsubmit="handleManualRegisterSubmit(event)" class="auth-inputs-form">
+          <input type="text" id="regName" placeholder="الاسم الكريم *" required>
+          <input type="tel" id="regPhone" placeholder="رقم هاتف الواتساب للتواصل (01xxxxxxxxx) *" required>
+          <input type="email" id="regEmail" placeholder="البريد الإلكتروني *" required>
+          <button type="submit" class="btn-auth-submit">إنشاء الحساب وتفعيل الخصم 🌸</button>
+        </form>
+      </div>
+      <div id="authLoginView" style="display: none;">
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">سجّل الدخول بحساب جوجل أو برقم الهاتف وكلمة السر السابقة:</p>
+        <div id="googleSignInBtnModalLogin" style="display: flex; justify-content: center; margin-bottom: 14px;"></div>
+        <div class="auth-divider"><span>أو الدخول بكلمة السر السابقة</span></div>
+        <form onsubmit="handleManualLoginSubmit(event)" class="auth-inputs-form">
+          <input type="text" id="loginIdentifier" placeholder="رقم الهاتف أو البريد الإلكتروني *" required>
+          <input type="text" id="loginSecretPassword" placeholder="كلمة السر الخاصة بحسابك (مثل: SH-123456) *" required style="font-family: monospace; letter-spacing: 1px; text-transform: uppercase;">
+          <button type="submit" class="btn-auth-submit">تسجيل الدخول لحسابي</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="account-modal-wrap" id="secretPasswordModal" role="dialog" aria-modal="true" style="max-width: 480px;">
+    <div class="account-modal-header" style="background: linear-gradient(135deg, #FFF6F0 0%, #FFFFFF 100%);">
+      <div class="account-modal-title" style="color: #D35400;">
+        <i class="fas fa-shield-alt" style="color: #E67E22;"></i>
+        <span>كلمة السر الخاصة بحسابك الجديد 🔐</span>
+      </div>
+      <button type="button" class="account-modal-close" onclick="closeSecretPasswordModal()" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="account-modal-body">
+      <div style="text-align: center;">
+        <h4 style="color: #27AE60; font-size: 1.15rem; margin-bottom: 6px;"><i class="fas fa-check-circle"></i> مبارك! تم إنشاء حسابك بنجاح</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">أهلاً بكِ في عائلة شذى. هذه بيانات الدخول المخصصة لك:</p>
+      </div>
+      <div class="secret-pwd-box">
+        <span class="secret-pwd-badge"><i class="fas fa-key"></i> كلمة سر حسابك للرجوع لاحقاً</span>
+        <div class="secret-pwd-display" id="displaySecretPassword">SH-000000</div>
+        <button type="button" class="account-pill-action" onclick="copySecretPassword()" style="font-size: 0.85rem; padding: 6px 14px;"><i class="far fa-copy"></i> نسخ كلمة السر</button>
+      </div>
+      <div style="background: var(--bg-body); border-radius: var(--radius-md); padding: 12px 16px; border: 1px dashed var(--primary-pink); text-align: center; margin-top: 10px;">
+        <span style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 4px;">كود الخصم الحصري 10% لطلبك:</span>
+        <strong id="displayCouponAfterReg" style="color: var(--primary-dark); font-size: 1.15rem; letter-spacing: 1.5px;">SHATHA-XXXXX</strong>
+      </div>
+      <button type="button" class="btn-auth-submit" onclick="closeSecretPasswordModal()" style="background: #27AE60; margin-top: 14px;">
+        <i class="fas fa-check-circle"></i> <span>التقطت لقطة شاشة، تم والحفظ والمتابعة 🌸</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="account-modal-wrap" id="shathaAccountModal" role="dialog" aria-modal="true">
+    <div class="account-modal-header">
+      <div class="account-modal-title">
+        <i class="fas fa-id-card" style="color: var(--primary-pink);"></i>
+        <span>صفحة معلومات الحساب 🌸</span>
+      </div>
+      <button type="button" class="account-modal-close" onclick="closeShathaAccountModal()" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="account-modal-body">
+      <div class="account-profile-card">
+        <img id="accModalAvatar" src="assets/images/logo.jpg" alt="صورة المستخدم">
+        <div class="account-profile-info">
+          <h4 id="accModalName">عميل شذى</h4>
+          <span id="accModalRole" style="font-size: 0.8rem; color: #27AE60; font-weight: 700;"><i class="fas fa-heart"></i> عميل مميز لدى متجر شذى</span>
+        </div>
+      </div>
+      <div class="account-info-tile">
+        <div class="account-info-tile-head">
+          <span><i class="fas fa-phone"></i> رقم هاتف الواتساب للتواصل والطلبات</span>
+          <button type="button" class="account-pill-action" onclick="toggleEditPhone()"><i class="fas fa-edit"></i> تعديل الرقم</button>
+        </div>
+        <div class="account-info-tile-val" id="accPhoneDisplayWrap"><span id="accModalPhone">غير مسجل</span></div>
+      </div>
+      <div class="account-info-tile">
+        <div class="account-info-tile-head"><span><i class="fas fa-envelope"></i> البريد الإلكتروني</span></div>
+        <div class="account-info-tile-val"><span id="accModalEmail">--</span></div>
+      </div>
+      <div class="account-info-tile" style="border-color: var(--primary-pink); background: #FFFDFC;">
+        <div class="account-info-tile-head">
+          <span><i class="fas fa-ticket-alt"></i> كود الخصم الخاص بك (10%)</span>
+          <span id="accModalCouponStatus" class="coupon-status-badge">متاح للاستخدام</span>
+        </div>
+        <div class="account-info-tile-val">
+          <strong id="accModalCouponCode" style="color: var(--primary-dark); font-size: 1.15rem; letter-spacing: 1.5px;">--</strong>
+          <button type="button" class="account-pill-action" onclick="copyMyCoupon()"><i class="far fa-copy"></i> نسخ وتطبيق في السلة</button>
+        </div>
+      </div>
+      <div id="accOwnerSection" style="display: none; background: #F0FBF7; border: 1.5px solid #27AE60; border-radius: var(--radius-md); padding: 14px; text-align: right; margin-top: 10px;">
+        <strong style="color: #27AE60; font-size: 0.95rem; display: block; margin-bottom: 6px;"><i class="fas fa-crown"></i> لوحة إدارة وتحكم المالك</strong>
+        <p style="font-size: 0.82rem; color: #2C3E50; margin-bottom: 10px;">بصفتك مالك المتجر، يمكنك إضافة وتعديل وحذف منتجات باكدج العرسان ومزامنتها سحابياً لجميع الزوار فوراً.</p>
+        <button type="button" onclick="closeShathaAccountModal(); openAddProductModalForWedding();" class="btn-primary" style="background: #27AE60; width: 100%; padding: 10px; font-size: 0.92rem; justify-content: center;">
+          <i class="fas fa-plus-circle"></i> إضافة منتج جديد لقسم العرسان
+        </button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px;">
+        <button type="button" class="btn-logout" onclick="closeShathaAccountModal(); handleGoogleSignOut();">
+          <i class="fas fa-sign-out-alt"></i> تسجيل الخروج من الحساب
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- حاوية إشعارات Toast -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ملفات الجافاسكريبت -->
+  <script src="assets/js/products-data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
