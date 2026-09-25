@@ -2900,8 +2900,6 @@ function handleWizardProductSubmit(e) {
   }
 
   const editingId = document.getElementById("editingProductId")?.value;
-  const isWedding = document.getElementById("wIsWeddingProduct")?.checked || false;
-  const weddingCategory = isWedding ? (document.getElementById("wWeddingCategory")?.value || "bridal_bouquet") : null;
 
   if (editingId) {
     try {
@@ -2910,7 +2908,7 @@ function handleWizardProductSubmit(e) {
         const existing = appState.products[prodIndex];
         existing.name = name;
         existing.basePrice = basePrice;
-        existing.oldPrice = oldPrice;
+        existing.oldPrice = oldPrice || null;
         existing.tag = tag;
         existing.shortDesc = shortDesc;
         existing.images = [...wizardImages];
@@ -2919,19 +2917,24 @@ function handleWizardProductSubmit(e) {
         existing.sizes = sizes;
         existing.advantages = advantages;
         existing.isWedding = isWedding;
-        existing.weddingCategory = weddingCategory;
+        existing.weddingCategory = isWedding ? weddingCategory : null;
+        existing.isCustom = true; // ✅ حماية من المزامنة السحابية
 
         renderProducts();
         renderWeddingSection();
 
         if (document.getElementById("productDetailsModal")?.classList.contains("active") && appState.selectedProduct?.id === editingId) {
+          appState.selectedProduct = existing;
           openProductModal(editingId);
         }
 
         closeAddProductModal();
-        showToast(`🎉 تم حفظ تعديلات منتج "${existing.name}" بنجاح!`, "success");
+        showToast(`🎉 تم حفظ تعديلات "${existing.name}" ومزامنتها سحابياً بنجاح!`, "success");
 
         saveAllProductsToStorage();
+        return;
+      } else {
+        showToast("لم يتم العثور على الباقة للتعديل", "error");
         return;
       }
     } catch (err) {
@@ -3530,7 +3533,7 @@ function openWeddingBundleModal() {
   const container = document.getElementById("weddingBundleItemsList");
 
   const categories = [
-    { id: "bridal_bouquet", name: "💐 بوكيه العروسة" },
+    { id: "bridal_bouquet", name: "💐 بوكيهات العروسة" },
     { id: "katb_ketab", name: "📜 طقم كتب الكتاب" },
     { id: "frames", name: "🖼️ البرواز التذكاري" },
     { id: "mandil_fingerprint", name: "🕊️ المنديل وبصمة الفرح" },
@@ -3540,49 +3543,108 @@ function openWeddingBundleModal() {
 
   selectedBundleProductIds.clear();
 
-  if (container) {
-    let html = "";
-    categories.forEach(cat => {
-      const prodsInCat = weddingProds.filter(p => p.weddingCategory === cat.id);
-      if (prodsInCat.length > 0) {
-        // تحديد أول منتج من كل قسم افتراضياً
-        const defaultProd = prodsInCat[0];
-        selectedBundleProductIds.add(defaultProd.id);
+  // تحديد أول منتج من كل قسم افتراضياً
+  categories.forEach(cat => {
+    const first = weddingProds.find(p => p.weddingCategory === cat.id);
+    if (first) selectedBundleProductIds.add(first.id);
+  });
 
-        html += `
-          <div style="margin-bottom: 10px;">
-            <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px;">${cat.name}:</div>
-            ${prodsInCat.map((p, idx) => {
-              const isChecked = idx === 0;
-              return `
-                <div class="wedding-bundle-item-card ${isChecked ? 'selected' : ''}" id="wbCard_${p.id}" onclick="toggleBundleItem('${p.id}', event)">
-                  <input type="checkbox" class="wb-checkbox" id="wbCheck_${p.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleBundleItem('${p.id}')">
-                  <img src="${p.images[0]}" alt="${p.name}" class="wb-thumb" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور هذه القطعة">
-                  <div class="wb-info" onclick="toggleBundleItem('${p.id}')">
-                    <h5 class="wb-title">${p.name}</h5>
-                    <span class="wb-dept-tag">${p.shortDesc ? p.shortDesc.slice(0, 48) + '...' : ''}</span>
-                  </div>
-                  <div class="wb-actions-right">
-                    <div class="wb-price">${p.basePrice} ج.م</div>
-                    <button type="button" class="btn-wb-preview" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور المنتج كاملة">
-                      <i class="fas fa-eye"></i> التفاصيل
-                    </button>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
-      }
-    });
-    container.innerHTML = html;
+  if (container) {
+    renderBundleItems('all', weddingProds, categories);
   }
+
+  // تحديث عداد المجموع
+  const totalCountEl = document.getElementById("wbTotalCount");
+  if (totalCountEl) totalCountEl.innerText = weddingProds.length;
 
   calcWeddingBundleTotal();
 
   backdrop?.classList.add("active");
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
+
+  // إعادة تعيين تابز الأقسام للـ "الكل"
+  document.querySelectorAll(".wb-cat-tab").forEach(t => t.classList.remove("active"));
+  const allTab = document.querySelector(".wb-cat-tab[data-cat='all']");
+  if (allTab) allTab.classList.add("active");
+}
+
+// رسم المنتجات في النافذة حسب الفلتر
+function renderBundleItems(filterCat, weddingProds, categories) {
+  const container = document.getElementById("weddingBundleItemsList");
+  if (!container) return;
+
+  // إذا كانت categories غير موجودة استرجعها
+  if (!categories) {
+    categories = [
+      { id: "bridal_bouquet", name: "💐 بوكيهات العروسة" },
+      { id: "katb_ketab", name: "📜 طقم كتب الكتاب" },
+      { id: "frames", name: "🖼️ البرواز التذكاري" },
+      { id: "mandil_fingerprint", name: "🕊️ المنديل وبصمة الفرح" },
+      { id: "crowns", name: "👑 الأطواق والتيجان" },
+      { id: "favors", name: "🎁 هدايا المعازيم" }
+    ];
+  }
+
+  if (!weddingProds) {
+    weddingProds = appState.products.filter(p => p.isWedding === true || p.weddingCategory);
+  }
+
+  let html = "";
+  let hasAny = false;
+
+  categories.forEach(cat => {
+    if (filterCat !== 'all' && filterCat !== cat.id) return;
+    const prodsInCat = weddingProds.filter(p => p.weddingCategory === cat.id);
+    if (prodsInCat.length === 0) return;
+
+    hasAny = true;
+    html += `<div class="wb-cat-section-title"><span>${cat.name}</span></div>`;
+
+    prodsInCat.forEach(p => {
+      const isSelected = selectedBundleProductIds.has(p.id);
+      const imgSrc = (p.images && p.images[0]) ? p.images[0] : "assets/images/logo.jpg";
+      const shortTxt = p.shortDesc ? p.shortDesc.slice(0, 45) + (p.shortDesc.length > 45 ? '...' : '') : '';
+
+      html += `
+        <div class="wb-product-card ${isSelected ? 'wb-selected' : ''}" id="wbCard_${p.id}" onclick="toggleBundleItem('${p.id}', event)">
+          <div class="wb-check-circle" id="wbCheck_${p.id}">
+            ${isSelected ? '<i class="fas fa-check"></i>' : ''}
+          </div>
+          <img src="${imgSrc}" alt="${p.name}" class="wb-prod-img" onerror="this.src='assets/images/logo.jpg'" onclick="event.stopPropagation(); openProductModal('${p.id}')">
+          <div class="wb-prod-info">
+            <div class="wb-prod-name">${p.name}</div>
+            <div class="wb-prod-desc">${shortTxt}</div>
+            <div class="wb-prod-price">${p.basePrice} ج.م</div>
+          </div>
+          <div class="wb-prod-actions">
+            <button type="button" class="wb-details-btn" onclick="event.stopPropagation(); openProductModal('${p.id}')">
+              <i class="fas fa-eye"></i> التفاصيل
+            </button>
+          </div>
+        </div>
+      `;
+    });
+  });
+
+  if (!hasAny) {
+    html = `
+      <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+        <i class="fas fa-box-open" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5;"></i>
+        <p style="font-size: 0.9rem;">لا توجد منتجات في هذا القسم بعد.</p>
+        <p style="font-size: 0.82rem;">سيتم إضافة مستلزمات هذا القسم قريباً! 🌸</p>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+// فلترة الباكدج حسب القسم
+function filterBundleByCategory(catId, tabEl) {
+  document.querySelectorAll(".wb-cat-tab").forEach(t => t.classList.remove("active"));
+  if (tabEl) tabEl.classList.add("active");
+  renderBundleItems(catId);
 }
 
 function closeWeddingBundleModal() {
@@ -3594,21 +3656,24 @@ function closeWeddingBundleModal() {
 }
 
 function toggleBundleItem(prodId, ev) {
-  if (ev && ev.target && ev.target.type === 'checkbox') {
-    // تم النقر على مربع الاختيار مباشرة
-  } else {
-    const cb = document.getElementById(`wbCheck_${prodId}`);
-    if (cb) cb.checked = !cb.checked;
-  }
+  // نتجاهل الضغط على الصورة أو زر التفاصيل (يُعالجان منفصلاً)
+  if (ev && ev.target && (
+    ev.target.tagName === 'IMG' || 
+    ev.target.closest('.wb-details-btn')
+  )) return;
 
-  const isChecked = document.getElementById(`wbCheck_${prodId}`)?.checked;
+  const isNowSelected = selectedBundleProductIds.has(prodId);
   const card = document.getElementById(`wbCard_${prodId}`);
-  if (isChecked) {
-    selectedBundleProductIds.add(prodId);
-    card?.classList.add("selected");
-  } else {
+  const checkCircle = document.getElementById(`wbCheck_${prodId}`);
+
+  if (isNowSelected) {
     selectedBundleProductIds.delete(prodId);
-    card?.classList.remove("selected");
+    card?.classList.remove("wb-selected");
+    if (checkCircle) checkCircle.innerHTML = "";
+  } else {
+    selectedBundleProductIds.add(prodId);
+    card?.classList.add("wb-selected");
+    if (checkCircle) checkCircle.innerHTML = '<i class="fas fa-check"></i>';
   }
 
   calcWeddingBundleTotal();
@@ -3621,7 +3686,7 @@ function calcWeddingBundleTotal() {
     if (p) rawTotal += p.basePrice;
   });
 
-  const discount = Math.round(rawTotal * 0.15); // 15% خصم باكدج العروسة الكاملة
+  const discount = Math.round(rawTotal * 0.15);
   const finalPrice = Math.max(0, rawTotal - discount);
 
   const rawEl = document.getElementById("wbRawTotal");
@@ -3631,6 +3696,26 @@ function calcWeddingBundleTotal() {
   if (rawEl) rawEl.innerText = `${rawTotal} ج.م`;
   if (discEl) discEl.innerText = `-${discount} ج.م`;
   if (finalEl) finalEl.innerText = `${finalPrice} ج.م`;
+
+  // تحديث شريط التقدم والعدادات في التصميم الجديد
+  const weddingProds = appState.products.filter(p => p.isWedding === true || p.weddingCategory);
+  const total = weddingProds.length;
+  const selected = selectedBundleProductIds.size;
+
+  const selectedCountEl = document.getElementById("wbSelectedCount");
+  const progressFill = document.getElementById("wbProgressFill");
+  const savingsBadge = document.getElementById("wbSavingsBadgeTop");
+  const savingsVal = document.getElementById("wbSavingsTop");
+
+  if (selectedCountEl) selectedCountEl.innerText = selected;
+  if (progressFill) progressFill.style.width = total > 0 ? `${Math.round((selected / total) * 100)}%` : "0%";
+
+  if (discount > 0) {
+    if (savingsBadge) savingsBadge.style.display = "flex";
+    if (savingsVal) savingsVal.innerText = discount;
+  } else {
+    if (savingsBadge) savingsBadge.style.display = "none";
+  }
 
   return { rawTotal, discount, finalPrice };
 }
@@ -3644,12 +3729,15 @@ function addWeddingBundleToCart() {
   const { rawTotal, discount, finalPrice } = calcWeddingBundleTotal();
   const coupleNames = document.getElementById("wbCoupleNames")?.value.trim() || "عروسي شذى";
   const weddingDate = document.getElementById("wbWeddingDate")?.value || "قريباً";
-  const colorTheme = document.getElementById("wbColorTheme")?.value || "أوف وايت عاجي ولؤلؤ";
+  // قراءة ثيم الألوان من الراديو باتونز الجديدة أو السيليكت القديم
+  const colorThemeRadio = document.querySelector('input[name="wbColorTheme"]:checked');
+  const colorTheme = colorThemeRadio?.value || document.getElementById("wbColorTheme")?.value || "أوف وايت عاجي ولؤلؤ";
   const notes = document.getElementById("wbNotes")?.value.trim() || "";
 
   const selectedProducts = Array.from(selectedBundleProductIds)
     .map(id => appState.products.find(p => p.id === id))
     .filter(Boolean);
+
 
   const itemNames = selectedProducts.map(p => p.name.split(' - ')[0]).join(' + ');
   const mainImage = selectedProducts[0]?.images[0] || "assets/images/logo.jpg";

@@ -111,6 +111,609 @@
         gap: 12px;
       }
     }
+
+    /* ============================================================
+       💎 استوديو باكدج العرسان الملكي — النافذة الجديدة الفاخرة
+       ============================================================ */
+    .wb-studio-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border-radius: 0;
+      max-width: 820px;
+      margin: 0 auto;
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 -8px 60px rgba(191, 114, 121, 0.3);
+    }
+
+    @media (min-width: 640px) {
+      .wb-studio-modal {
+        inset: auto;
+        bottom: 0;
+        left: 50%;
+        right: auto;
+        transform: translate(-50%, 100%);
+        border-radius: 24px 24px 0 0;
+        max-height: 92vh;
+      }
+    }
+
+    .wb-studio-modal.active {
+      transform: translateY(0);
+    }
+
+    @media (min-width: 640px) {
+      .wb-studio-modal.active {
+        transform: translate(-50%, 0);
+      }
+    }
+
+    /* ✨ Header الذهبي الفاخر */
+    .wb-studio-header {
+      position: relative;
+      background: linear-gradient(135deg, #2D1B2E 0%, #4A1942 40%, #7C2D60 100%);
+      padding: 24px 20px 20px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .wb-header-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 0%, rgba(212, 175, 55, 0.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 100%, rgba(191, 114, 121, 0.3) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .wb-studio-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #D4AF37, #E8C860, #D4AF37, transparent);
+      animation: wb-shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes wb-shimmer {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .wb-close-btn {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .wb-close-btn:hover { background: rgba(255,255,255,0.22); }
+
+    .wb-header-content {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .wb-header-icon {
+      font-size: 2.2rem;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 2px 8px rgba(212,175,55,0.6));
+      animation: wb-ring-pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes wb-ring-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .wb-header-title {
+      font-size: clamp(1.1rem, 4vw, 1.5rem);
+      font-weight: 900;
+      color: #FEFEFE;
+      margin: 0 0 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .wb-header-sub {
+      font-size: 0.87rem;
+      color: rgba(255,255,255,0.75);
+      margin: 0 0 10px;
+    }
+
+    .wb-discount-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #D4AF37, #F0D060);
+      color: #2D1B2E;
+      padding: 5px 16px;
+      border-radius: 20px;
+      font-size: 0.83rem;
+      font-weight: 800;
+      box-shadow: 0 2px 12px rgba(212,175,55,0.5);
+    }
+
+    /* 📊 شريط التقدم */
+    .wb-progress-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .wb-progress-text {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+
+    .wb-progress-bar-wrap {
+      flex: 1;
+      min-width: 80px;
+      height: 6px;
+      background: var(--border-subtle);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .wb-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-pink), var(--accent-gold));
+      border-radius: 3px;
+      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .wb-savings-badge {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #27AE60;
+      background: #EAFAF1;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid #A9DFBF;
+      white-space: nowrap;
+    }
+
+    /* 🗂️ تابز الأقسام */
+    .wb-category-tabs-wrap {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .wb-category-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 10px 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .wb-category-tabs::-webkit-scrollbar { display: none; }
+
+    .wb-cat-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-body);
+      color: var(--text-muted);
+      transition: all 0.2s;
+      scroll-snap-align: start;
+      flex-shrink: 0;
+    }
+
+    .wb-cat-tab.active,
+    .wb-cat-tab:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary-pink);
+      color: var(--primary-dark);
+    }
+
+    .wb-cat-tab.active {
+      box-shadow: 0 2px 8px rgba(191,114,121,0.25);
+    }
+
+    /* 📜 منطقة التمرير الرئيسية */
+    .wb-body-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 24px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* 🛍️ شبكة المنتجات */
+    .wb-items-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .wb-cat-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.87rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      margin: 6px 0 4px;
+      padding-bottom: 6px;
+      border-bottom: 1.5px dashed rgba(212,175,55,0.3);
+    }
+
+    /* كرت المنتج الجديد */
+    .wb-product-card {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-body);
+      border: 2px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.22s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wb-product-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--primary-soft), transparent);
+      opacity: 0;
+      transition: opacity 0.22s;
+    }
+
+    .wb-product-card:hover { border-color: var(--primary-pink); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(191,114,121,0.15); }
+    .wb-product-card:hover::before { opacity: 1; }
+
+    .wb-product-card.wb-selected {
+      border-color: var(--accent-gold);
+      background: linear-gradient(135deg, #FFFBF0, var(--bg-body));
+      box-shadow: 0 4px 20px rgba(212,175,55,0.2);
+    }
+
+    .wb-product-card.wb-selected::before { opacity: 1; }
+
+    .wb-check-circle {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      color: transparent;
+      transition: all 0.22s;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #fff;
+      z-index: 1;
+    }
+
+    .wb-product-card.wb-selected .wb-check-circle {
+      background: var(--accent-gold);
+      border-color: var(--accent-gold);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(212,175,55,0.5);
+    }
+
+    .wb-prod-img {
+      width: 56px; height: 56px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .wb-prod-info { min-width: 0; }
+
+    .wb-prod-name {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0 0 3px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wb-prod-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 0 0 4px;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .wb-prod-price {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--primary-pink);
+    }
+
+    .wb-prod-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .wb-details-btn {
+      font-size: 0.72rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .wb-details-btn:hover { border-color: var(--primary-pink); color: var(--primary-pink); }
+
+    /* 💎 بطاقة ملخص السعر */
+    .wb-price-summary-card {
+      background: linear-gradient(135deg, #2D1B2E, #4A1942);
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wb-price-summary-card::before {
+      content: '';
+      position: absolute;
+      top: -20px; right: -20px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(212,175,55,0.12);
+    }
+
+    .wb-summary-icon { font-size: 1.6rem; margin-bottom: 8px; }
+
+    .wb-summary-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.85);
+      margin: 0 0 12px;
+    }
+
+    .wb-summary-rows { display: flex; flex-direction: column; gap: 8px; }
+
+    .wb-sum-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .wb-sum-val { font-weight: 700; }
+
+    .wb-sum-discount { color: #A9DFBF; }
+    .wb-discount-val { color: #2ECC71; }
+
+    .wb-sum-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent);
+      margin: 2px 0;
+    }
+
+    .wb-sum-final { font-size: 1rem; color: #fff; }
+
+    .wb-final-price {
+      font-size: 1.3rem;
+      color: #F0D060;
+      text-shadow: 0 2px 8px rgba(212,175,55,0.5);
+    }
+
+    /* 🌺 بطاقة التخصيص */
+    .wb-personalization-card {
+      background: var(--bg-body);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .wb-personal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--primary-soft);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .wb-personal-header i { color: var(--accent-gold); }
+
+    .wb-personal-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .wb-field-group { display: flex; flex-direction: column; gap: 6px; }
+    .wb-field-full { grid-column: 1 / -1; }
+
+    .wb-label {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .wb-label i { color: var(--primary-pink); font-size: 0.75rem; }
+    .wb-label em { font-style: normal; font-weight: 400; color: var(--text-light); font-size: 0.72rem; }
+    .wb-required { color: #E74C3C; font-weight: 900; }
+
+    .wb-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg-card);
+      color: var(--text-main);
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .wb-input:focus { outline: none; border-color: var(--primary-pink); }
+    .wb-textarea { resize: none; }
+
+    /* 🎨 سواتش الألوان */
+    .wb-color-swatches {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .wb-swatch-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+    }
+
+    .wb-swatch-item input[type="radio"] { display: none; }
+
+    .wb-swatch {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2.5px solid transparent;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    .wb-swatch-custom {
+      background: conic-gradient(from 0deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #ff6b6b);
+    }
+
+    .wb-swatch-item input[type="radio"]:checked + .wb-swatch {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.3);
+      transform: scale(1.15);
+    }
+
+    .wb-swatch-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* 🔲 أزرار الإجراء */
+    .wb-action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .wb-btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--primary-pink), var(--primary-dark));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(191,114,121,0.4);
+    }
+    .wb-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(191,114,121,0.5); }
+    .wb-btn-primary:active { transform: translateY(0); }
+
+    .wb-btn-whatsapp {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 20px;
+      border-radius: 50px;
+      background: #fff;
+      color: #27AE60;
+      font-size: 0.93rem;
+      font-weight: 800;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      border: 2px solid #27AE60;
+      width: 100%;
+      transition: all 0.2s;
+    }
+    .wb-btn-whatsapp:hover { background: #27AE60; color: #fff; box-shadow: 0 4px 16px rgba(39,174,96,0.35); }
+    .wb-btn-whatsapp .fab { font-size: 1.2rem; }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .wb-personal-fields {
+        grid-template-columns: 1fr;
+      }
+      .wb-field-full {
+        grid-column: 1;
+      }
+      .wb-product-card {
+        grid-template-columns: 48px 1fr auto;
+        gap: 8px;
+        padding: 8px 10px;
+      }
+      .wb-prod-img {
+        width: 48px; height: 48px;
+      }
+      .wb-header-title { font-size: 1.05rem; }
+      .wb-studio-header { padding: 18px 16px 16px; }
+    }
   </style>
 </head>
 <body>
@@ -507,95 +1110,183 @@
        نافذة طلب وتصميم باكدج العرسان المتكاملة (Wedding Bundle Modal)
        "اطلبي الباكدج الكاملة بخصم 15% فوري"
        ======================================================== -->
-  <section class="checkout-modal wedding-bundle-modal" id="weddingBundleModal" aria-label="طلب باكدج العرسان الكاملة" style="max-width: 780px;">
-    <div class="checkout-modal-header" style="background: linear-gradient(135deg, var(--primary-soft), var(--bg-card));">
-      <h3>
-        <i class="fas fa-ring" style="color: var(--accent-gold);"></i>
-        <span>باكدج العرسان الملكي المتكامل 💍</span>
-        <span class="wedding-discount-pill">خصم 15% هدية العروسة</span>
-      </h3>
-      <button class="close-drawer-btn" onclick="closeWeddingBundleModal()" aria-label="إغلاق">
+  <!-- ===================================================================
+       نافذة باكدج العرسان الملكي الفاخر - تصميم استوديو العروسة الحديث
+       "ليلة العمر تستحق أجمل تفاصيل" 💍
+       =================================================================== -->
+  <section class="wb-studio-modal" id="weddingBundleModal" aria-label="باكدج العرسان الملكي">
+
+    <!-- ✨ Header فاخر بتأثير ذهبي -->
+    <div class="wb-studio-header">
+      <div class="wb-header-glow"></div>
+      <button class="wb-close-btn" onclick="closeWeddingBundleModal()" aria-label="إغلاق">
         <i class="fas fa-times"></i>
       </button>
+      <div class="wb-header-content">
+        <div class="wb-header-icon">💍</div>
+        <h2 class="wb-header-title">باكدج العرسان الملكي المتكامل</h2>
+        <p class="wb-header-sub">اختاري كل قطعة من ليلة عمرك بعينك 🌸</p>
+        <div class="wb-discount-badge">
+          <i class="fas fa-tag"></i>
+          خصم <strong>15%</strong> فوري على الباكدج الكامل
+        </div>
+      </div>
     </div>
 
-    <div style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 16px; line-height: 1.6;">
-        اختاري كل مستلزمات فرحكِ في مكان واحد! حددي القطع المرغوبة من كل قسم، واستمتعي <strong>بخصم 15% فوري</strong> على إجمالي الباكدج مع تطريز الأسماء وتاريخ ليلة العمر مجاناً 🌸
-      </p>
+    <!-- 📊 شريط التقدم الحي -->
+    <div class="wb-progress-strip">
+      <div class="wb-progress-text">
+        <span id="wbSelectedCount">0</span> قطعة مختارة من <span id="wbTotalCount">0</span> متاحة
+      </div>
+      <div class="wb-progress-bar-wrap">
+        <div class="wb-progress-bar-fill" id="wbProgressFill" style="width: 0%"></div>
+      </div>
+      <div class="wb-savings-badge" id="wbSavingsBadgeTop" style="display:none;">
+        وفرتِ <strong id="wbSavingsTop">0</strong> ج.م 🎉
+      </div>
+    </div>
 
-      <!-- قائمة القطع القابلة للاختيار -->
-      <h4 style="font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-check-double" style="color: var(--primary-pink);"></i>
-        <span>حددي القطع التي ترغبين بها في باكدج فرحك:</span>
-      </h4>
+    <!-- 🗂️ تابز الأقسام -->
+    <div class="wb-category-tabs-wrap">
+      <div class="wb-category-tabs" id="wbCategoryTabs">
+        <button class="wb-cat-tab active" data-cat="all" onclick="filterBundleByCategory('all', this)">
+          ✨ الكل
+        </button>
+        <button class="wb-cat-tab" data-cat="bridal_bouquet" onclick="filterBundleByCategory('bridal_bouquet', this)">
+          💐 البوكيه
+        </button>
+        <button class="wb-cat-tab" data-cat="katb_ketab" onclick="filterBundleByCategory('katb_ketab', this)">
+          📜 كتب الكتاب
+        </button>
+        <button class="wb-cat-tab" data-cat="frames" onclick="filterBundleByCategory('frames', this)">
+          🖼️ البراويز
+        </button>
+        <button class="wb-cat-tab" data-cat="mandil_fingerprint" onclick="filterBundleByCategory('mandil_fingerprint', this)">
+          🕊️ المنديل
+        </button>
+        <button class="wb-cat-tab" data-cat="crowns" onclick="filterBundleByCategory('crowns', this)">
+          👑 التيجان
+        </button>
+        <button class="wb-cat-tab" data-cat="favors" onclick="filterBundleByCategory('favors', this)">
+          🎁 التوزيعات
+        </button>
+      </div>
+    </div>
 
-      <div class="wedding-bundle-items-list" id="weddingBundleItemsList">
+    <!-- 🛍️ المنتجات القابلة للاختيار -->
+    <div class="wb-body-scroll">
+      <div class="wb-items-grid" id="weddingBundleItemsList">
         <!-- يتم توليدها ديناميكياً بواسطة JavaScript -->
       </div>
 
-      <!-- ملخص الحساب والتخفيض الفوري -->
-      <div class="wedding-bundle-calc-box">
-        <div class="calc-row">
-          <span>إجمالي القطع المختارة:</span>
-          <span id="wbRawTotal">0 ج.م</span>
-        </div>
-        <div class="calc-row discount-row">
-          <span>خصم باكدج العروسة (15%):</span>
-          <span id="wbDiscountAmount">-0 ج.م</span>
-        </div>
-        <div class="calc-row final-row">
-          <strong>السعر النهائي للباكدج بعد الخصم:</strong>
-          <strong id="wbFinalPrice">0 ج.م</strong>
-        </div>
-      </div>
-
-      <!-- بيانات العروسين والتخصيص -->
-      <div class="wedding-custom-fields-box" style="margin-top: 18px; display: flex; flex-direction: column; gap: 12px; background: var(--bg-body); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
-        <h4 style="font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 4px;">
-          <i class="fas fa-feather-alt" style="color: var(--accent-gold);"></i> تفاصيل التطريز والتخصيص لليلة العمر:
-        </h4>
-
-        <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label style="font-size: 0.84rem; font-weight: 700;"><span style="color: #E74C3C;">*</span> أسماء العروسين (للتطريز على المنديل والشريط والبراويز):</label>
-            <input type="text" id="wbCoupleNames" class="form-control" style="font-size: 0.9rem;" placeholder="مثال: أحمد وسارة">
+      <!-- 💎 ملخص الحساب الذهبي -->
+      <div class="wb-price-summary-card">
+        <div class="wb-summary-icon">💎</div>
+        <h4 class="wb-summary-title">ملخص الباكدج الملكي</h4>
+        <div class="wb-summary-rows">
+          <div class="wb-sum-row">
+            <span>إجمالي القطع المختارة</span>
+            <span class="wb-sum-val" id="wbRawTotal">0 ج.م</span>
           </div>
-          <div class="form-group">
-            <label style="font-size: 0.84rem; font-weight: 700;">تاريخ الفرح / عقد القران:</label>
-            <input type="date" id="wbWeddingDate" class="form-control" style="font-size: 0.9rem;">
+          <div class="wb-sum-row wb-sum-discount">
+            <span>🎁 خصم هدية العروسة (15%)</span>
+            <span class="wb-sum-val wb-discount-val" id="wbDiscountAmount">-0 ج.م</span>
           </div>
-          <div class="form-group">
-            <label style="font-size: 0.84rem; font-weight: 700;">لون ثيم الفرح المفضل:</label>
-            <select id="wbColorTheme" class="form-control" style="font-size: 0.9rem;">
-              <option value="أوف وايت عاجي ولؤلؤ">أوف وايت عاجي ولؤلؤي</option>
-              <option value="شامبين هادئ">شامبين راقٍ</option>
-              <option value="وردي باستيل وبينك">وردي باستيل (Pink)</option>
-              <option value="عنابي بوردو ملكي">عنابي بوردو ملكي</option>
-              <option value="بيبي بلو سماوي">بيبي بلو سماوي</option>
-              <option value="لون مخصص يتم الاتفاق عليه">لون مخصص (واتساب)</option>
-            </select>
-          </div>
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label style="font-size: 0.84rem; font-weight: 700;">ملاحظات خاصة بالتطريز أو الطلب:</label>
-            <textarea id="wbNotes" class="form-control" rows="2" style="font-size: 0.85rem;" placeholder="أي عبارة ترغبين في تطريزها أو تعديل تفاصيل..."></textarea>
+          <div class="wb-sum-divider"></div>
+          <div class="wb-sum-row wb-sum-final">
+            <strong>السعر النهائي للباكدج 💍</strong>
+            <strong class="wb-final-price" id="wbFinalPrice">0 ج.م</strong>
           </div>
         </div>
       </div>
 
-      <!-- أزرار الإجراءات -->
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-        <button type="button" class="btn-primary" onclick="addWeddingBundleToCart()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1.05rem; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-pink), var(--primary-dark));">
+      <!-- 🌺 تفاصيل التطريز والتخصيص -->
+      <div class="wb-personalization-card">
+        <div class="wb-personal-header">
+          <i class="fas fa-feather-alt"></i>
+          <span>تخصيص ليلة العمر</span>
+        </div>
+
+        <div class="wb-personal-fields">
+          <div class="wb-field-group wb-field-full">
+            <label class="wb-label">
+              <i class="fas fa-heart"></i>
+              <span>أسماء العروسين <em>(للتطريز على المنديل والبراويز)</em></span>
+              <span class="wb-required">*</span>
+            </label>
+            <input type="text" id="wbCoupleNames" class="wb-input" placeholder="مثال: أحمد ❤️ سارة">
+          </div>
+
+          <div class="wb-field-group">
+            <label class="wb-label">
+              <i class="fas fa-calendar-heart"></i>
+              <span>تاريخ ليلة الفرح</span>
+            </label>
+            <input type="date" id="wbWeddingDate" class="wb-input">
+          </div>
+
+          <div class="wb-field-group">
+            <label class="wb-label">
+              <i class="fas fa-palette"></i>
+              <span>ثيم ألوان الفرح</span>
+            </label>
+            <div class="wb-color-swatches" id="wbColorSwatches">
+              <label class="wb-swatch-item" title="أوف وايت ولؤلؤي">
+                <input type="radio" name="wbColorTheme" id="wbColorTheme" value="أوف وايت عاجي ولؤلؤ" checked>
+                <span class="wb-swatch" style="background: linear-gradient(135deg, #FFF8F0, #E8DDD0);"></span>
+                <span class="wb-swatch-label">أوف وايت</span>
+              </label>
+              <label class="wb-swatch-item" title="شامبين هادئ">
+                <input type="radio" name="wbColorTheme" value="شامبين هادئ">
+                <span class="wb-swatch" style="background: linear-gradient(135deg, #F7E7CE, #D4A96A);"></span>
+                <span class="wb-swatch-label">شامبين</span>
+              </label>
+              <label class="wb-swatch-item" title="وردي باستيل">
+                <input type="radio" name="wbColorTheme" value="وردي باستيل وبينك">
+                <span class="wb-swatch" style="background: linear-gradient(135deg, #FFDDE6, #E0607A);"></span>
+                <span class="wb-swatch-label">وردي</span>
+              </label>
+              <label class="wb-swatch-item" title="عنابي ملكي">
+                <input type="radio" name="wbColorTheme" value="عنابي بوردو ملكي">
+                <span class="wb-swatch" style="background: linear-gradient(135deg, #C0394B, #7B1D2E);"></span>
+                <span class="wb-swatch-label">عنابي</span>
+              </label>
+              <label class="wb-swatch-item" title="بيبي بلو">
+                <input type="radio" name="wbColorTheme" value="بيبي بلو سماوي">
+                <span class="wb-swatch" style="background: linear-gradient(135deg, #D6EAF8, #7FB3D3);"></span>
+                <span class="wb-swatch-label">سماوي</span>
+              </label>
+              <label class="wb-swatch-item" title="لون مخصص">
+                <input type="radio" name="wbColorTheme" value="لون مخصص يتم الاتفاق عليه">
+                <span class="wb-swatch wb-swatch-custom">🎨</span>
+                <span class="wb-swatch-label">مخصص</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="wb-field-group wb-field-full">
+            <label class="wb-label">
+              <i class="fas fa-comment-dots"></i>
+              <span>ملاحظات خاصة أو طلبات إضافية</span>
+            </label>
+            <textarea id="wbNotes" class="wb-input wb-textarea" rows="2" placeholder="أي رسالة تطريز خاصة، أو تعديل في التفاصيل..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔲 أزرار الإجراء الرئيسية -->
+      <div class="wb-action-buttons">
+        <button type="button" class="wb-btn-primary" onclick="addWeddingBundleToCart()">
           <i class="fas fa-shopping-bag"></i>
-          <span>إضافة الباكدج بالكامل للسلة بخصم 15% 🌸</span>
+          <span>أضف الباكدج للسلة — بخصم 15% 🌸</span>
         </button>
-
-        <button type="button" class="btn-secondary" onclick="sendWeddingBundleToWhatsApp()" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem; border-radius: var(--radius-full); border-color: #27AE60; color: #27AE60;">
-          <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i>
-          <span>تأكيد الباكدج وحجز الموعد عبر الواتساب مباشرة</span>
+        <button type="button" class="wb-btn-whatsapp" onclick="sendWeddingBundleToWhatsApp()">
+          <i class="fab fa-whatsapp"></i>
+          <span>احجزي موعدك عبر الواتساب مباشرة</span>
         </button>
       </div>
     </div>
+
   </section>
 
   <!-- نافذة تفاصيل المنتج المتقدمة (Product Modal) -->
