@@ -79,7 +79,7 @@
         <nav>
           <ul class="nav-menu" id="navMenu">
             <li><a href="#home" class="nav-link active">الرئيسية</a></li>
-            <li><a href="wedding.html" class="nav-link wedding-nav-highlight" style="color: var(--accent-gold); font-weight: 700;"><i class="fas fa-ring"></i> باكدج العرسان <span class="nav-badge-sparkle">جديد</span></a></li>
+            <li><a href="wedding.html" class="nav-link wedding-nav-highlight" style="color: var(--accent-gold); font-weight: 700;"><i class="fas fa-gift"></i> صندوق العرسان <span class="nav-badge-sparkle">جديد 🎁</span></a></li>
             <li><a href="#products" class="nav-link">الباقات والمنتجات</a></li>
             <li><a href="#about" class="nav-link">عن شذى</a></li>
             <li><a href="#testimonials" class="nav-link">آراء العملاء</a></li>
@@ -105,7 +105,7 @@
             <i class="fas fa-moon"></i>
           </button>
 
-          <button class="action-btn" id="headerSearchBtn" onclick="document.getElementById('productSearchInput').focus(); document.getElementById('products').scrollIntoView({behavior: 'smooth'});" title="بحث في المنتجات" aria-label="بحث في المنتجات">
+          <button class="action-btn" id="headerSearchBtn" onclick="var p = document.getElementById('products'); if (p) p.scrollIntoView({behavior: 'smooth'});" title="تصفح باكدجات الأقسام" aria-label="تصفح باكدجات الأقسام">
             <i class="fas fa-search"></i>
           </button>
           
@@ -224,71 +224,101 @@
   </section>
 
   <!-- ========================================================
-       كارت باكدج العرسان المستطيل الملكي (Wedding Showcase Rectangle)
-       "كل حاجة محتاجاها في فرحك في مكان واحد"
+       كارت صندوق العرسان الملكي الفاخر (Royal Wedding Box Showcase)
+       "صندوق العرسان - اضغط على محتويات صندوق العرسان لاستكشاف الصندوق الساحر"
        ======================================================== -->
-  <!-- ========================================================
-       كارت باكدج العرسان المستطيل الصغير (Wedding Showcase Product Card)
-       "مستطيل صغير زي شكل مستطيل المنتجات"
-       ======================================================== -->
-  <section class="wedding-showcase-section" id="wedding">
+  <section class="wedding-box-showcase-section" id="wedding">
     <div class="container">
-      <div class="wedding-showcase-wrapper">
-        <div class="wedding-showcase-card">
-          <!-- صورة العريس والعروسة بالأعلى مثل كارت المنتج -->
-          <div class="wedding-showcase-image-col">
-            <img src="assets/images/wedding-bride-groom.jpg" alt="عريس وعروسة شذى ليلة العمر" class="wedding-showcase-img">
-            <div class="wedding-showcase-image-overlay"></div>
-            <span class="wedding-floating-sparkle"><i class="fas fa-sparkles"></i> باكدج ملكي</span>
-            <div class="wedding-floating-pill">
-              <i class="fas fa-ring" style="color: #D4AF37;"></i>
-              <span>ليلة العمر هاندميد 💍</span>
+      <div class="wedding-box-showcase-wrapper">
+        <div class="wedding-box-card">
+          <!-- صورة صندوق العرسان الملكي الفاخر (الصندوق المفتوح في الواجهة) -->
+          <div class="wedding-box-image-col" onclick="window.location.href='wedding.html'" style="cursor: pointer;" title="اضغط لفتح محتويات صندوق العرسان">
+            <div class="wedding-box-visual-frame">
+              <img src="assets/images/wedding-box-open.jpg" alt="صندوق العرسان الملكي الفاخر شذى" class="wedding-box-img" id="weddingBoxShowcaseImg">
+              <div class="wedding-box-glow-ring"></div>
+              <div class="wedding-box-sparkle-stars">
+                <span class="star s1">✦</span>
+                <span class="star s2">✨</span>
+                <span class="star s3">✦</span>
+              </div>
+              <!-- زر تغيير صورة الصندوق بالواجهة لمالك المتجر -->
+              <div class="wedding-box-owner-tool" id="wbOwnerImageTool" style="display: none;" onclick="event.stopPropagation()">
+                <button type="button" class="btn-owner-change-img" onclick="triggerChangeShowcaseImage()" title="تغيير صورة الصندوق بالواجهة">
+                  <i class="fas fa-camera"></i> <span>تغيير صورة الواجهة (المالك)</span>
+                </button>
+                <input type="file" id="ownerShowcaseFileInput" style="display: none;" accept="image/*" onchange="handleOwnerShowcaseFileChosen(this.files)">
+              </div>
+            </div>
+            <div class="wedding-box-floating-pill">
+              <i class="fas fa-gift" style="color: #D4AF37;"></i>
+              <span>صندوق العرسان الملكي 🎁💍 (اضغط للتجربة)</span>
             </div>
           </div>
 
-          <!-- تفاصيل المحتوى والأزرار بالأسفل -->
-          <div class="wedding-showcase-content">
-            <span class="wedding-showcase-badge">
-              <i class="fas fa-crown"></i> جناح ليلة العمر الفاخر
-            </span>
-
-            <h3 class="wedding-showcase-title">
-              باكدج العرسان الملكي 💍
-              <span class="wedding-showcase-highlight">«كل حاجة محتاجاها في فرحك في مكان واحد»</span>
-            </h3>
-
-            <p class="wedding-showcase-desc">
-              تشكيلة هاندميد ليلة العمر: بوكيهات العروسة، أطقم ومنديل كتب الكتاب، البراويز، لوحات البصمة، التيجان، وتوزيعات المعازيم.
-            </p>
-
-            <!-- شارات مصغرة للأقسام -->
-            <div class="wedding-depts-mini-pills">
-              <span class="dept-mini-pill">💐 بوكيهات</span>
-              <span class="dept-mini-pill">📜 كتب كتاب</span>
-              <span class="dept-mini-pill">🖼️ براويز</span>
-              <span class="dept-mini-pill">🕊️ منديل وبصمة</span>
-              <span class="dept-mini-pill">👑 أطواق</span>
-              <span class="dept-mini-pill">🎁 توزيعات</span>
+          <!-- تفاصيل المحتوى والأزرار -->
+          <div class="wedding-box-content">
+            <div class="wedding-box-badge-row">
+              <span class="wedding-box-badge">
+                <i class="fas fa-crown"></i> صندوق العرسان الحصري VIP
+              </span>
+              <span class="wedding-box-save-badge">وفر 20% + هدية</span>
             </div>
 
-            <!-- الأزرار الثلاثة المحددة -->
-            <div class="wedding-showcase-actions">
-              <!-- 1. الدخول للباكيدج -->
-              <a href="wedding.html" class="btn-showcase-enter">
-                <i class="fas fa-arrow-left"></i>
-                <span>عرض منتجات الباكيدج (ادخلي وتصفحي) 🌸</span>
+            <h3 class="wedding-box-title">
+              صندوق العرسان الملكي 🎁💍
+              <span class="wedding-box-highlight">«كل مفاجآت وتجهيزات ليلة العمر داخل صندوق ملكي ساحر»</span>
+            </h3>
+
+            <p class="wedding-box-desc">
+              تصميم ملكي استثنائي يجمع أرقى 4 قطع هاندميد ليلة العمر في صندوق مخملي مذهب. اضغط على <strong>"محتويات صندوق العرسان"</strong> للانتقال لتجربة فتح الصندوق التفاعلية واستعراض القطع بالدائرة الدوارة 3D!
+            </p>
+
+            <!-- محتويات الصندوق الأربعة الأساسية -->
+            <div class="wedding-box-items-preview">
+              <div class="wb-preview-pill" onclick="openProductModal('shatha-wedding-ivory-bridal')" style="cursor: pointer;" title="اضغط لعرض تفاصيل وسعر بوكيه العروسة">
+                <span class="wb-pill-icon">💐</span>
+                <span class="wb-pill-text">بوكيه ورد كبير للعروسة</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="openProductModal('shatha-wedding-frame-glass')" style="cursor: pointer;" title="اضغط لعرض تفاصيل وسعر برواز الفرح">
+                <span class="wb-pill-icon">🖼️</span>
+                <span class="wb-pill-text">برواز الفرح التذكاري</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="openProductModal('shatha-wedding-bridal-necklace')" style="cursor: pointer;" title="اضغط لعرض تفاصيل وسعر عقد العروسة">
+                <span class="wb-pill-icon">👑</span>
+                <span class="wb-pill-text">عقد لؤلؤ وزركون ملكي</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="openProductModal('shatha-wedding-fingerprint-tree')" style="cursor: pointer;" title="اضغط لعرض تفاصيل وسعر لوحة البصمة">
+                <span class="wb-pill-icon">📜</span>
+                <span class="wb-pill-text">بصمة كتب الكتاب</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+            </div>
+
+            <!-- أزرار الإجراءات -->
+            <div class="wedding-box-actions">
+              <!-- 1. زر محتويات صندوق العرسان (الزر الرئيسي المطلوب من العميل) -->
+              <a href="wedding.html" class="btn-wedding-box-enter">
+                <div class="btn-box-icon-bounce"><i class="fas fa-box-open"></i></div>
+                <div class="btn-box-texts">
+                  <strong>محتويات صندوق العرسان</strong>
+                  <span>(اضغط لفتح الصندوق واستعراض القطع ثلاثية الأبعاد) ✨</span>
+                </div>
+                <i class="fas fa-arrow-left btn-box-arrow"></i>
               </a>
 
-              <!-- 2. وضع الباكيدج بالكامل في السلة بخصم 15% -->
-              <button type="button" class="btn-showcase-bundle" onclick="openWeddingBundleModal()">
+              <!-- 2. زر طلب الصندوق كاملاً بخصم 20% -->
+              <button type="button" class="btn-wedding-box-bundle" onclick="openWeddingBundleModal()">
                 <i class="fas fa-shopping-bag"></i>
-                <span>وضع الباكيدج بالكامل في السلة (خصم 15%) 💍</span>
+                <span>طلب صندوق العرسان كاملاً للسلة (وفر 20% فوري) 🌸</span>
               </button>
 
-              <!-- 3. الاستفسار عن الباكيدج عبر واتساب -->
-              <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D8%A7%D9%84%D8%B9%D8%B1%D8%B3%D8%A7%D9%86%20%D9%88%D8%AA%D9%81%D8%A7%D8%B5%D9%8A%D9%84%20%D9%84%D9%8A%D9%84%D8%A9%20%D8%A7%D9%84%D8%B9%D9%85%D8%B1%20%F0%9F%92%8D" target="_blank" class="btn-showcase-whatsapp">
+              <!-- 3. استفسار واتساب -->
+              <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%B5%D9%86%D8%AF%D9%88%D9%82%20%D8%A7%D9%84%D8%B9%D8%B1%D8%B3%D8%A7%D9%86%20%D8%A7%D9%84%D9%85%D9%84%D9%83%D9%8A%20%D9%88%D9%85%D8%AD%D8%AA%D9%88%D9%8A%D8%A7%D8%AA%D9%87%20%F0%9F%8E%81%F0%9F%92%8D" target="_blank" class="btn-wedding-box-whatsapp">
                 <i class="fab fa-whatsapp"></i>
-                <span>الاستفسار عن الباكيدج عبر واتساب</span>
+                <span>استشارة وتنسيق الصندوق عبر واتساب</span>
               </a>
             </div>
           </div>
@@ -297,45 +327,445 @@
     </div>
   </section>
 
-  <!-- قسم المنتجات والبحث والفرز (جميع المنتجات معاً بدون فئات) -->
-  <section class="products-section" id="products">
+  <!-- ========================================================
+       قسم باقات وأقسام شذى التخصصية (5 باقات مستقلة)
+       ======================================================== -->
+  <section class="category-packages-section" id="products">
     <div class="container">
-      <div class="section-header" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
-        <div>
-          <span class="section-subtitle">إبداعات شذى اليدوية</span>
-          <h2 class="section-title" style="margin-bottom: 6px;">تشكيلة الباقات والتنسيقات المصنوعة يدوياً</h2>
-          <p class="section-desc" style="margin-bottom: 0;">جميع الباقات مشغولة يدوياً بحرفية عالية؛ ورد ستان يدوم للأبد، وبوكيهات فلوس، وبوكيهات سكاكر مبهجة.</p>
+      <div class="section-header" style="text-align: center; margin-bottom: 45px;">
+        <span class="section-subtitle">🌸 إبداعات شذى اليدوية</span>
+        <h2 class="section-title" style="margin-bottom: 10px;">أقسام وباقات شذى المتخصصة</h2>
+        <p class="section-desc" style="max-width: 620px; margin: 0 auto;">كل باقة عالم مستقل من الإتقان والجمال الهاندميد — اضغطي على أي باقة للانتقال لصفحتها الخاصة واستعراض كافة قطعها وتفاصيلها وأسعارها.</p>
+      </div>
+
+      <!-- قائمة الباكدجات المتتالية بتصميم Showcase فاخر مع صور خارجية وأدوات المالك -->
+      <div class="category-packages-showcase-list">
+
+        <!-- 1. باكدج بوكيهات الورد الستان الأبدي -->
+        <div class="wedding-box-card pkg-showcase-card">
+          <div class="wedding-box-image-col" onclick="window.location.href='bouquets.html'" style="cursor: pointer;" title="اضغط لاستعراض باكدج بوكيهات الورد الستان">
+            <div class="wedding-box-visual-frame">
+              <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.15.50 AM.jpeg" alt="باكدج بوكيهات الورد الستان الأبدي شذى" class="wedding-box-img" id="pkgShowcaseImg_bouquets">
+              <div class="wedding-box-glow-ring" style="background: radial-gradient(circle, rgba(212,107,123,0.3) 0%, transparent 70%);"></div>
+              <div class="wedding-box-sparkle-stars">
+                <span class="star s1">✦</span>
+                <span class="star s2">✨</span>
+                <span class="star s3">✦</span>
+              </div>
+              <!-- زر تغيير صورة الباكدج بالواجهة لمالك المتجر -->
+              <div class="wedding-box-owner-tool" id="pkgOwnerTool_bouquets" style="display: none;" onclick="event.stopPropagation()">
+                <button type="button" class="btn-owner-change-img" onclick="triggerChangeCategoryPackageImage('bouquets')" title="تغيير صورة الباكدج بالواجهة">
+                  <i class="fas fa-camera"></i> <span>تغيير صورة الباكدج (المالك)</span>
+                </button>
+                <input type="file" id="ownerPkgFileInput_bouquets" style="display: none;" accept="image/*" onchange="handleOwnerCategoryPackageImageChosen('bouquets', this.files)">
+              </div>
+            </div>
+            <div class="wedding-box-floating-pill">
+              <i class="fas fa-fan" style="color: var(--primary-pink);"></i>
+              <span>باكدج الورد الستان الملكي 💐 (اضغط للتفاصيل)</span>
+            </div>
+          </div>
+
+          <div class="wedding-box-content">
+            <div class="wedding-box-badge-row">
+              <span class="wedding-box-badge">
+                <i class="fas fa-hand-sparkles"></i> شغل يدوي هاندميد • يدوم للأبد
+              </span>
+              <span class="wedding-box-save-badge">ستان تركي فاخر</span>
+            </div>
+
+            <h3 class="wedding-box-title">
+              باكدج بوكيهات الورد الستان الأبدي 💐🌸
+              <span class="wedding-box-highlight">«ورود ستان تركي لا تذبل أبداً وتدوم العمر كله ببريق ملكي ساحر»</span>
+            </h3>
+
+            <p class="wedding-box-desc">
+              تشكيلة حصرية من أرقى باقات وبوكيهات الورد الستان المصنوعة يدوياً؛ كل وردة جوري مطوية بإتقان فائق من أشرطة الستان الحريري اللامع لتمنحكِ تذكاراً دائماً يعيش معك العمر كلووو دون ماء أو عناية.
+            </p>
+
+            <div class="wedding-box-items-preview">
+              <div class="wb-preview-pill" onclick="window.location.href='bouquets.html'" style="cursor: pointer;" title="استعراض بوكيهات الورد">
+                <span class="wb-pill-icon">🌹</span>
+                <span class="wb-pill-text">بوكيه جوري أحمر ملكي</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='bouquets.html'" style="cursor: pointer;" title="استعراض بوكيهات الورد">
+                <span class="wb-pill-icon">🌸</span>
+                <span class="wb-pill-text">بوكيه وردي ناعم رومانسي</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='bouquets.html'" style="cursor: pointer;" title="استعراض بوكيهات الورد">
+                <span class="wb-pill-icon">❄️</span>
+                <span class="wb-pill-text">بوكيه بيبي بلو سماوي</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='bouquets.html'" style="cursor: pointer;" title="استعراض بوكيهات الورد">
+                <span class="wb-pill-icon">🍫</span>
+                <span class="wb-pill-text">بوكيه شوكولاتة رافاييلو وفيريرو</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+            </div>
+
+            <div class="wedding-box-actions">
+              <a href="bouquets.html" class="btn-wedding-box-enter">
+                <div class="btn-box-icon-bounce"><i class="fas fa-spa"></i></div>
+                <div class="btn-box-texts">
+                  <strong>محتويات باكدج بوكيهات الورد</strong>
+                  <span>(اضغط لاستعراض كافة الباقات والأسعار) 🌸</span>
+                </div>
+                <i class="fas fa-arrow-left btn-box-arrow"></i>
+              </a>
+
+              <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D8%A8%D9%88%D9%83%D9%8A%D9%87%D8%A7%D8%AA%20%D8%A7%D9%84%D9%88%D8%B1%D8%AF%20%D8%A7%D9%84%D8%B3%D8%AA%D8%A7%D9%86%20%F0%9F%92%90" target="_blank" class="btn-wedding-box-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>استشارة وتنسيق بوكيه الورد عبر واتساب</span>
+              </a>
+            </div>
+          </div>
         </div>
-        <button type="button" class="btn-primary" id="sectionAdminAddBtn" onclick="openAddProductModal()" style="display: none; background: #27AE60; white-space: nowrap; padding: 10px 22px; font-size: 0.95rem;">
+
+        <!-- 2. باكدج كتب الكتاب وعقد القران والبصمة -->
+        <div class="wedding-box-card pkg-showcase-card">
+          <div class="wedding-box-image-col" onclick="window.location.href='katb-ketab.html'" style="cursor: pointer;" title="اضغط لاستعراض باكدج كتب الكتاب والبصمة">
+            <div class="wedding-box-visual-frame">
+              <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.15.48 AM.jpeg" alt="باكدج كتب الكتاب والبصمة شذى" class="wedding-box-img" id="pkgShowcaseImg_katb_ketab">
+              <div class="wedding-box-glow-ring" style="background: radial-gradient(circle, rgba(201,161,91,0.3) 0%, transparent 70%);"></div>
+              <div class="wedding-box-sparkle-stars">
+                <span class="star s1">✦</span>
+                <span class="star s2">✨</span>
+                <span class="star s3">✦</span>
+              </div>
+              <!-- زر تغيير صورة الباكدج بالواجهة لمالك المتجر -->
+              <div class="wedding-box-owner-tool" id="pkgOwnerTool_katb_ketab" style="display: none;" onclick="event.stopPropagation()">
+                <button type="button" class="btn-owner-change-img" onclick="triggerChangeCategoryPackageImage('katb_ketab')" title="تغيير صورة الباكدج بالواجهة">
+                  <i class="fas fa-camera"></i> <span>تغيير صورة الباكدج (المالك)</span>
+                </button>
+                <input type="file" id="ownerPkgFileInput_katb_ketab" style="display: none;" accept="image/*" onchange="handleOwnerCategoryPackageImageChosen('katb_ketab', this.files)">
+              </div>
+            </div>
+            <div class="wedding-box-floating-pill">
+              <i class="fas fa-feather-pointed" style="color: var(--accent-gold);"></i>
+              <span>باكدج كتب الكتاب والبصمة 📜 (اضغط للتفاصيل)</span>
+            </div>
+          </div>
+
+          <div class="wedding-box-content">
+            <div class="wedding-box-badge-row">
+              <span class="wedding-box-badge">
+                <i class="fas fa-pen-nib"></i> تطريز ذهبي خاص • أسماء العروسين
+              </span>
+              <span class="wedding-box-save-badge">تطريز مجاني</span>
+            </div>
+
+            <h3 class="wedding-box-title">
+              باكدج كتب الكتاب وعقد القران 📜🕊️
+              <span class="wedding-box-highlight">«كل تفاصيل ومراسم عقد القران المبهجة في طقم ملكي متناسق»</span>
+            </h3>
+
+            <p class="wedding-box-desc">
+              طقم متكامل وراقٍ لمراسم عقد القران يشمل قلم الريشة المرصع باللؤلؤ، قاعدة الدبل المخملية، مناديل الستان الحريرية المطرزة بآيات المودة والرحمة وأسماء العروسين، ولوحات بصمة الفرح التذكارية مع الاستاند.
+            </p>
+
+            <div class="wedding-box-items-preview">
+              <div class="wb-preview-pill" onclick="window.location.href='katb-ketab.html'" style="cursor: pointer;" title="استعراض مستلزمات كتب الكتاب">
+                <span class="wb-pill-icon">📜</span>
+                <span class="wb-pill-text">طقم كتب الكتاب وقلم الريشة</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='katb-ketab.html'" style="cursor: pointer;" title="استعراض مستلزمات كتب الكتاب">
+                <span class="wb-pill-icon">🕊️</span>
+                <span class="wb-pill-text">منديل الستان الحريري المطرز</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='katb-ketab.html'" style="cursor: pointer;" title="استعراض مستلزمات كتب الكتاب">
+                <span class="wb-pill-icon">🌳</span>
+                <span class="wb-pill-text">لوحة بصمة المعازيم مع الاستاند</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='katb-ketab.html'" style="cursor: pointer;" title="استعراض مستلزمات كتب الكتاب">
+                <span class="wb-pill-icon">💐</span>
+                <span class="wb-pill-text">ميني بوكيه كتب الكتاب الرقيق</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+            </div>
+
+            <div class="wedding-box-actions">
+              <a href="katb-ketab.html" class="btn-wedding-box-enter">
+                <div class="btn-box-icon-bounce"><i class="fas fa-scroll"></i></div>
+                <div class="btn-box-texts">
+                  <strong>محتويات باكدج كتب الكتاب والبصمة</strong>
+                  <span>(اضغط لاستعراض كافة المستلزمات والأسعار) 📜</span>
+                </div>
+                <i class="fas fa-arrow-left btn-box-arrow"></i>
+              </a>
+
+              <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D9%85%D8%B3%D8%AA%D9%84%D8%B2%D9%85%D8%A7%D8%AA%20%D9%83%D8%AA%D8%A8%20%D8%A7%D9%84%D9%83%D8%AA%D8%A7%D8%A8%20%D9%88%D8%A7%D9%84%D8%A8%D8%B5%D9%85%D8%A9%20%F0%9F%93%9C" target="_blank" class="btn-wedding-box-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>طلب وتنسيق مستلزمات كتب الكتاب عبر واتساب</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. باكدج البراويز التذكارية الفاخرة -->
+        <div class="wedding-box-card pkg-showcase-card">
+          <div class="wedding-box-image-col" onclick="window.location.href='frames.html'" style="cursor: pointer;" title="اضغط لاستعراض باكدج البراويز التذكارية">
+            <div class="wedding-box-visual-frame">
+              <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.15.54 AM.jpeg" alt="باكدج البراويز التذكارية الفاخرة شذى" class="wedding-box-img" id="pkgShowcaseImg_frames">
+              <div class="wedding-box-glow-ring" style="background: radial-gradient(circle, rgba(108,92,231,0.3) 0%, transparent 70%);"></div>
+              <div class="wedding-box-sparkle-stars">
+                <span class="star s1">✦</span>
+                <span class="star s2">✨</span>
+                <span class="star s3">✦</span>
+              </div>
+              <!-- زر تغيير صورة الباكدج بالواجهة لمالك المتجر -->
+              <div class="wedding-box-owner-tool" id="pkgOwnerTool_frames" style="display: none;" onclick="event.stopPropagation()">
+                <button type="button" class="btn-owner-change-img" onclick="triggerChangeCategoryPackageImage('frames')" title="تغيير صورة الباكدج بالواجهة">
+                  <i class="fas fa-camera"></i> <span>تغيير صورة الباكدج (المالك)</span>
+                </button>
+                <input type="file" id="ownerPkgFileInput_frames" style="display: none;" accept="image/*" onchange="handleOwnerCategoryPackageImageChosen('frames', this.files)">
+              </div>
+            </div>
+            <div class="wedding-box-floating-pill">
+              <i class="fas fa-image" style="color: #6C5CE7;"></i>
+              <span>باكدج البراويز التذكارية 🖼️ (اضغط للتفاصيل)</span>
+            </div>
+          </div>
+
+          <div class="wedding-box-content">
+            <div class="wedding-box-badge-row">
+              <span class="wedding-box-badge">
+                <i class="fas fa-cube"></i> تصميم 3D عميق • زجاج مزدوج
+              </span>
+              <span class="wedding-box-save-badge">حفر ليزر بالأسماء</span>
+            </div>
+
+            <h3 class="wedding-box-title">
+              باكدج البراويز التذكارية الفاخرة 🖼️✨
+              <span class="wedding-box-highlight">«تخليد وثيقة عقد القران وذكريات ليلة العمر في تحفة جدارية فنية»</span>
+            </h3>
+
+            <p class="wedding-box-desc">
+              براويز زجاجية وخشبية عميقة ثلاثية الأبعاد 3D تجمع بين فخامة الإطار المذهب وورود الستان المجففة وحفر أسماء العروسين بالليزر، لتحفظ وثيقة كتب الكتاب وصور الفرح من التلف للأبد كلوحة فنية تزين عش الزوجية.
+            </p>
+
+            <div class="wedding-box-items-preview">
+              <div class="wb-preview-pill" onclick="window.location.href='frames.html'" style="cursor: pointer;" title="استعراض البراويز">
+                <span class="wb-pill-icon">🖼️</span>
+                <span class="wb-pill-text">برواز كتب الكتاب الزجاجي المزدوج</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='frames.html'" style="cursor: pointer;" title="استعراض البراويز">
+                <span class="wb-pill-icon">🪵</span>
+                <span class="wb-pill-text">برواز الورد التذكاري الأبدي 3D</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='frames.html'" style="cursor: pointer;" title="استعراض البراويز">
+                <span class="wb-pill-icon">✨</span>
+                <span class="wb-pill-text">حفر ليزر مذهب بالأسماء والتواريخ</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='frames.html'" style="cursor: pointer;" title="استعراض البراويز">
+                <span class="wb-pill-icon">🛡️</span>
+                <span class="wb-pill-text">عزل تام وحماية ضد الرطوبة</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+            </div>
+
+            <div class="wedding-box-actions">
+              <a href="frames.html" class="btn-wedding-box-enter">
+                <div class="btn-box-icon-bounce"><i class="fas fa-palette"></i></div>
+                <div class="btn-box-texts">
+                  <strong>محتويات باكدج البراويز التذكارية</strong>
+                  <span>(اضغط لاستعراض كافة البراويز والأسعار) 🖼️</span>
+                </div>
+                <i class="fas fa-arrow-left btn-box-arrow"></i>
+              </a>
+
+              <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D8%A7%D9%84%D8%A8%D8%B1%D8%A7%D9%88%D9%8A%D8%B2%20%D8%A7%D9%84%D8%AA%D8%B0%D9%83%D8%A7%D8%B1%D9%8A%D8%A9%20%F0%9F%96%BC%EF%B8%8F" target="_blank" class="btn-wedding-box-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>تنسيق البرواز التذكاري وحفر الأسماء عبر واتساب</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. باكدج العقود والأطواق الملكية -->
+        <div class="wedding-box-card pkg-showcase-card">
+          <div class="wedding-box-image-col" onclick="window.location.href='crowns.html'" style="cursor: pointer;" title="اضغط لاستعراض باكدج العقود والأطواق الملكية">
+            <div class="wedding-box-visual-frame">
+              <img src="assets/images/bridal-necklace.jpg" alt="باكدج العقود والأطواق الملكية شذى" class="wedding-box-img" id="pkgShowcaseImg_crowns">
+              <div class="wedding-box-glow-ring" style="background: radial-gradient(circle, rgba(212,175,55,0.3) 0%, transparent 70%);"></div>
+              <div class="wedding-box-sparkle-stars">
+                <span class="star s1">✦</span>
+                <span class="star s2">✨</span>
+                <span class="star s3">✦</span>
+              </div>
+              <!-- زر تغيير صورة الباكدج بالواجهة لمالك المتجر -->
+              <div class="wedding-box-owner-tool" id="pkgOwnerTool_crowns" style="display: none;" onclick="event.stopPropagation()">
+                <button type="button" class="btn-owner-change-img" onclick="triggerChangeCategoryPackageImage('crowns')" title="تغيير صورة الباكدج بالواجهة">
+                  <i class="fas fa-camera"></i> <span>تغيير صورة الباكدج (المالك)</span>
+                </button>
+                <input type="file" id="ownerPkgFileInput_crowns" style="display: none;" accept="image/*" onchange="handleOwnerCategoryPackageImageChosen('crowns', this.files)">
+              </div>
+            </div>
+            <div class="wedding-box-floating-pill">
+              <i class="fas fa-crown" style="color: var(--accent-gold);"></i>
+              <span>باكدج العقود والأطواق 👑 (اضغط للتفاصيل)</span>
+            </div>
+          </div>
+
+          <div class="wedding-box-content">
+            <div class="wedding-box-badge-row">
+              <span class="wedding-box-badge">
+                <i class="fas fa-crown"></i> لؤلؤ نقي وزركون • مطلي ذهب
+              </span>
+              <span class="wedding-box-save-badge">علبة مخملية هدية</span>
+            </div>
+
+            <h3 class="wedding-box-title">
+              باكدج العقود والأطواق الملكية 👑💎
+              <span class="wedding-box-highlight">«إكسسوارات ومجوهرات زفاف ساحرة لبريق يخطف الأنظار في ليلة العمر»</span>
+            </h3>
+
+            <p class="wedding-box-desc">
+              مجموعة مجوهرات وإكسسوارات زفاف متكاملة ومصممة بعناية: عقد العروسة الملكي باللؤلؤ والزركون داخل علبة مخملية فاخرة، تيجان هيربيس مرنة للشعر، وأساور زهور ستان لوصيفات العروسة.
+            </p>
+
+            <div class="wedding-box-items-preview">
+              <div class="wb-preview-pill" onclick="window.location.href='crowns.html'" style="cursor: pointer;" title="استعراض العقود والأطواق">
+                <span class="wb-pill-icon">👑</span>
+                <span class="wb-pill-text">طقم وعقد العروسة الملكي باللؤلؤ</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='crowns.html'" style="cursor: pointer;" title="استعراض العقود والأطواق">
+                <span class="wb-pill-icon">💎</span>
+                <span class="wb-pill-text">زركون سويسري براق بقطع الألماس</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='crowns.html'" style="cursor: pointer;" title="استعراض العقود والأطواق">
+                <span class="wb-pill-icon">🌿</span>
+                <span class="wb-pill-text">تاج وهيربيس زهور ستان لؤلؤي</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='crowns.html'" style="cursor: pointer;" title="استعراض العقود والأطواق">
+                <span class="wb-pill-icon">🌸</span>
+                <span class="wb-pill-text">أساور معصم وصيفات العروسة</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+            </div>
+
+            <div class="wedding-box-actions">
+              <a href="crowns.html" class="btn-wedding-box-enter">
+                <div class="btn-box-icon-bounce"><i class="fas fa-gem"></i></div>
+                <div class="btn-box-texts">
+                  <strong>محتويات باكدج العقود والأطواق</strong>
+                  <span>(اضغط لاستعراض كافة القطع والأسعار) 👑</span>
+                </div>
+                <i class="fas fa-arrow-left btn-box-arrow"></i>
+              </a>
+
+              <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D8%A7%D9%84%D8%B9%D9%82%D9%88%D8%AF%20%D9%88%D8%A7%D9%84%D8%A3%D8%B7%D9%88%D8%A7%D9%82%20%F0%9F%91%91" target="_blank" class="btn-wedding-box-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>تنسيق وطلب طقم العروسة عبر واتساب</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. باكدج الشنط وبوكسات الهدايا والتوزيعات -->
+        <div class="wedding-box-card pkg-showcase-card">
+          <div class="wedding-box-image-col" onclick="window.location.href='bags.html'" style="cursor: pointer;" title="اضغط لاستعراض باكدج الشنط وبوكسات الهدايا">
+            <div class="wedding-box-visual-frame">
+              <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.15.54 AM.jpeg" alt="باكدج الشنط وبوكسات الهدايا شذى" class="wedding-box-img" id="pkgShowcaseImg_bags">
+              <div class="wedding-box-glow-ring" style="background: radial-gradient(circle, rgba(39,174,96,0.3) 0%, transparent 70%);"></div>
+              <div class="wedding-box-sparkle-stars">
+                <span class="star s1">✦</span>
+                <span class="star s2">✨</span>
+                <span class="star s3">✦</span>
+              </div>
+              <!-- زر تغيير صورة الباكدج بالواجهة لمالك المتجر -->
+              <div class="wedding-box-owner-tool" id="pkgOwnerTool_bags" style="display: none;" onclick="event.stopPropagation()">
+                <button type="button" class="btn-owner-change-img" onclick="triggerChangeCategoryPackageImage('bags')" title="تغيير صورة الباكدج بالواجهة">
+                  <i class="fas fa-camera"></i> <span>تغيير صورة الباكدج (المالك)</span>
+                </button>
+                <input type="file" id="ownerPkgFileInput_bags" style="display: none;" accept="image/*" onchange="handleOwnerCategoryPackageImageChosen('bags', this.files)">
+              </div>
+            </div>
+            <div class="wedding-box-floating-pill">
+              <i class="fas fa-gift" style="color: #27AE60;"></i>
+              <span>باكدج الشنط وبوكسات الهدايا 🎁 (اضغط للتفاصيل)</span>
+            </div>
+          </div>
+
+          <div class="wedding-box-content">
+            <div class="wedding-box-badge-row">
+              <span class="wedding-box-badge">
+                <i class="fas fa-gift"></i> هدايا متكاملة • تغليف كوري فاخر
+              </span>
+              <span class="wedding-box-save-badge">توزيعات VIP</span>
+            </div>
+
+            <h3 class="wedding-box-title">
+              باكدج الشنط وبوكسات الهدايا والتوزيعات 🎁🎀
+              <span class="wedding-box-highlight">«مفاجآت وهدايا شاملة وتوزيعات معازيم راقية لكل المناسبات السعيدة»</span>
+            </h3>
+
+            <p class="wedding-box-desc">
+              صناديق وبوكسات هدايا متكاملة تجمع بين الفانوس المضيء والباندا الناعمة والورد الستان، إلى جانب بوكسات توزيعات المعازيم (25 قطعة) بتولة المسك، وبوكيهات الحلوى واللولي بوب المبهجة.
+            </p>
+
+            <div class="wedding-box-items-preview">
+              <div class="wb-preview-pill" onclick="window.location.href='bags.html'" style="cursor: pointer;" title="استعراض الشنط والبوكسات">
+                <span class="wb-pill-icon">🧸</span>
+                <span class="wb-pill-text">بوكس الهدايا المتكامل مع الباندا</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='bags.html'" style="cursor: pointer;" title="استعراض الشنط والبوكسات">
+                <span class="wb-pill-icon">🎁</span>
+                <span class="wb-pill-text">بوكس 25 قطعة توزيعات معازيم بالمسك</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='bags.html'" style="cursor: pointer;" title="استعراض الشنط والبوكسات">
+                <span class="wb-pill-icon">🍭</span>
+                <span class="wb-pill-text">بوكيهات اللولي بوب والسكاكر</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+              <div class="wb-preview-pill" onclick="window.location.href='bags.html'" style="cursor: pointer;" title="استعراض الشنط والبوكسات">
+                <span class="wb-pill-icon">🎀</span>
+                <span class="wb-pill-text">فيونكات ستان وتغليف كوري فاخر</span>
+                <i class="fas fa-chevron-left" style="font-size: 0.72rem; margin-right: auto; opacity: 0.5;"></i>
+              </div>
+            </div>
+
+            <div class="wedding-box-actions">
+              <a href="bags.html" class="btn-wedding-box-enter">
+                <div class="btn-box-icon-bounce"><i class="fas fa-box-open"></i></div>
+                <div class="btn-box-texts">
+                  <strong>محتويات باكدج الشنط وبوكسات الهدايا</strong>
+                  <span>(اضغط لاستعراض كافة البوكسات والأسعار) 🎁</span>
+                </div>
+                <i class="fas fa-arrow-left btn-box-arrow"></i>
+              </a>
+
+              <a href="https://wa.me/201102541236?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%B4%D8%B0%D9%89%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%83%D8%AF%D8%AC%20%D8%A7%D9%84%D8%B4%D9%86%D8%B7%20%D9%88%D8%A8%D9%88%D9%83%D8%B3%D8%A7%D8%AA%20%D8%A7%D9%84%D9%87%D8%AF%D8%A7%D9%8A%D8%A7%20%F0%9F%8E%81" target="_blank" class="btn-wedding-box-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <span>تنسيق وطلب بوكسات الهدايا عبر واتساب</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- زر إضافة منتج للمالك -->
+      <div style="text-align: center; margin-top: 35px;">
+        <button type="button" class="btn-primary" id="sectionAdminAddBtn" onclick="openAddProductModal()" style="display: none; background: #27AE60; padding: 12px 28px; font-size: 0.95rem;">
           <i class="fas fa-plus-circle"></i>
           <span>إضافة منتج جديد للموقع (المالك)</span>
         </button>
       </div>
 
-      <!-- شريط البحث والفرز -->
-      <div class="products-filter-bar">
-        <div class="filter-search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" id="productSearchInput" placeholder="ابحث بالاسم أو الخامات (ستان، فلوس، لولي بوب)..." aria-label="بحث في المنتجات">
-        </div>
-
-        <div class="filter-sort-group">
-          <span class="sort-flower-badge" aria-hidden="true">🌸</span>
-          <label for="sortSelect" class="sort-label">الترتيب:</label>
-          <select id="sortSelect" class="sort-select">
-            <option value="default">🌸 المقترحة لشذى</option>
-            <option value="bestseller">🔥 الأكثر مبيعاً</option>
-            <option value="price-low">💸 السعر: الأقل للأعلى</option>
-            <option value="price-high">💎 السعر: الأعلى للأقل</option>
-            <option value="rating">⭐ الأعلى تقييماً</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- شبكة المنتجات -->
-      <div class="products-grid" id="productsGrid">
-        <!-- يتم توليد كروت المنتجات ديناميكياً بواسطة JavaScript -->
-      </div>
     </div>
   </section>
 
@@ -492,12 +922,14 @@
 
         <!-- روابط سريعة -->
         <div class="footer-col">
-          <h4>روابط سريعة</h4>
+          <h4>أقسام وباقات شذى</h4>
           <ul class="footer-links-list">
-            <li><a href="#home"><i class="fas fa-angle-left"></i> الرئيسية</a></li>
-            <li><a href="#products"><i class="fas fa-angle-left"></i> تشكيلة الزهور</a></li>
-            <li><a href="#about"><i class="fas fa-angle-left"></i> عن براند شذى</a></li>
-            <li><a href="#testimonials"><i class="fas fa-angle-left"></i> آراء العملاء</a></li>
+            <li><a href="wedding.html" style="color: #c9a15b; font-weight: 700;"><i class="fas fa-gift"></i> صندوق العرسان الملكي</a></li>
+            <li><a href="bouquets.html"><i class="fas fa-angle-left"></i> بوكيهات الورد الستان</a></li>
+            <li><a href="katb-ketab.html"><i class="fas fa-angle-left"></i> كتب الكتاب والبصمة</a></li>
+            <li><a href="frames.html"><i class="fas fa-angle-left"></i> البراويز التذكارية</a></li>
+            <li><a href="crowns.html"><i class="fas fa-angle-left"></i> العقود والأطواق الملكية</a></li>
+            <li><a href="bags.html"><i class="fas fa-angle-left"></i> الشنط وبوكسات الهدايا</a></li>
             <li><a href="javascript:void(0)" onclick="openCartDrawer()"><i class="fas fa-angle-left"></i> سلة المشتريات</a></li>
             <li id="footerAdminLink" style="display: none;"><a href="javascript:void(0)" onclick="openAddProductModal()" style="color: #27AE60; font-weight: 700;"><i class="fas fa-plus-circle"></i> لوحة إضافة المنتجات (المالك)</a></li>
           </ul>
@@ -1027,12 +1459,12 @@
        نافذة طلب وتصميم باكدج العرسان المتكاملة (Wedding Bundle Modal)
        "اطلبي الباكدج الكاملة بخصم 15% فوري"
        ======================================================== -->
-  <section class="checkout-modal wedding-bundle-modal" id="weddingBundleModal" aria-label="طلب باكدج العرسان الكاملة" style="max-width: 780px;">
+  <section class="checkout-modal wedding-bundle-modal" id="weddingBundleModal" aria-label="طلب صندوق العرسان كاملاً" style="max-width: 780px;">
     <div class="checkout-modal-header" style="background: linear-gradient(135deg, var(--primary-soft), var(--bg-card));">
       <h3>
-        <i class="fas fa-ring" style="color: var(--accent-gold);"></i>
-        <span>باكدج العرسان الملكي المتكامل 💍</span>
-        <span class="wedding-discount-pill">خصم 15% هدية العروسة</span>
+        <i class="fas fa-gift" style="color: var(--accent-gold);"></i>
+        <span>صندوق العرسان الملكي المتكامل 🎁💍</span>
+        <span class="wedding-discount-pill">وفر 20% فوري + هدية</span>
       </h3>
       <button class="close-drawer-btn" onclick="closeWeddingBundleModal()" aria-label="إغلاق">
         <i class="fas fa-times"></i>
@@ -1041,13 +1473,13 @@
 
     <div style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
       <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 16px; line-height: 1.6;">
-        اختاري كل مستلزمات فرحكِ في مكان واحد! حددي القطع المرغوبة من كل قسم، واستمتعي <strong>بخصم 15% فوري</strong> على إجمالي الباكدج مع تطريز الأسماء وتاريخ ليلة العمر مجاناً 🌸
+        صندوق العرسان الملكي الحصري! القطع الحصرية داخل الصندوق، واستمتعي <strong>بخصم 20% فوري</strong> على إجمالي الصندوق مع تطريز الأسماء وتاريخ ليلة العمر مجاناً 🌸
       </p>
 
       <!-- قائمة القطع القابلة للاختيار -->
       <h4 style="font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
         <i class="fas fa-check-double" style="color: var(--primary-pink);"></i>
-        <span>حددي القطع التي ترغبين بها في باكدج فرحك:</span>
+        <span>القطع الموجودة داخل صندوق العرسان:</span>
       </h4>
 
       <div class="wedding-bundle-items-list" id="weddingBundleItemsList">
@@ -1061,11 +1493,11 @@
           <span id="wbRawTotal">0 ج.م</span>
         </div>
         <div class="calc-row discount-row">
-          <span>خصم باكدج العروسة (15%):</span>
+          <span>خصم صندوق العرسان (20%):</span>
           <span id="wbDiscountAmount">-0 ج.م</span>
         </div>
         <div class="calc-row final-row">
-          <strong>السعر النهائي للباكدج بعد الخصم:</strong>
+          <strong>السعر النهائي للصندوق بعد الخصم:</strong>
           <strong id="wbFinalPrice">0 ج.م</strong>
         </div>
       </div>
@@ -1107,7 +1539,7 @@
       <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-primary" onclick="addWeddingBundleToCart()" style="width: 100%; justify-content: center; padding: 14px; font-size: 1.05rem; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-pink), var(--primary-dark));">
           <i class="fas fa-shopping-bag"></i>
-          <span>إضافة الباكدج بالكامل للسلة بخصم 15% 🌸</span>
+          <span>إضافة صندوق العرسان كاملاً للسلة (وفر 20%) 🌸</span>
         </button>
 
         <button type="button" class="btn-secondary" onclick="sendWeddingBundleToWhatsApp()" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem; border-radius: var(--radius-full); border-color: #27AE60; color: #27AE60;">

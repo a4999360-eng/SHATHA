@@ -492,7 +492,10 @@ function renderProducts() {
 
   let filtered = [...appState.products];
 
-  // فلتر البحث بالاسم أو الوصف أو الخامات
+  // فلتر اختياري خاص بصفحات الأقسام والتصنيفات المستقلة
+  if (Array.isArray(window.SHATHA_CATEGORY_FILTER) && window.SHATHA_CATEGORY_FILTER.length > 0) {
+    filtered = filtered.filter(p => window.SHATHA_CATEGORY_FILTER.includes(p.id));
+  }
   if (appState.searchQuery) {
     filtered = filtered.filter(p => 
       p.name.toLowerCase().includes(appState.searchQuery) ||
@@ -589,20 +592,93 @@ function quickAddToCart(productId) {
 
 // فتح نافذة تفاصيل المنتج المتقدمة
 function openProductModal(productId) {
-  const product = appState.products.find(p => p.id === productId);
-  if (!product) return;
+  if (!productId) return;
+
+  // البحث عن المنتج بكل الطرق الممكنة (المعرف، السلغ، حروف صغيرة، وقائمة الصندوق)
+  const normId = String(productId).trim().toLowerCase();
+  let product = null;
+
+  if (appState && Array.isArray(appState.products)) {
+    product = appState.products.find(p => p && (String(p.id).trim().toLowerCase() === normId || (p.slug && String(p.slug).trim().toLowerCase() === normId)));
+  }
+  if (!product && typeof SHATHA_PRODUCTS !== 'undefined' && Array.isArray(SHATHA_PRODUCTS)) {
+    product = SHATHA_PRODUCTS.find(p => p && (String(p.id).trim().toLowerCase() === normId || (p.slug && String(p.slug).trim().toLowerCase() === normId)));
+  }
+  if (!product && typeof getWeddingBoxProducts === 'function') {
+    const boxList = getWeddingBoxProducts();
+    if (Array.isArray(boxList)) {
+      product = boxList.find(p => p && (String(p.id).trim().toLowerCase() === normId || (p.slug && String(p.slug).trim().toLowerCase() === normId)));
+    }
+  }
+
+  // إذا لم نجد المنتج، ننشئ كائناً افتراضياً فوراً لكي لا تتعطل النافذة أبداً
+  if (!product) {
+    console.warn("Product not found by ID, checking default box items:", productId);
+    const boxMap = {
+      "shatha-wedding-ivory-bridal": { name: "بوكيه ورد كبير للعروسة ستان ملكي ولؤلؤ", basePrice: 650, oldPrice: 790, shortDesc: "بوكيه عروسة أسطوري مشغول يدوياً من ورد الستان الأوف وايت العاجي اللامع، مرصع بقلب كل وردة بحبات اللؤلؤ والكريستال النقي ليدوم مدى الحياة." },
+      "shatha-wedding-frame-glass": { name: "برواز الفرح وكتب الكتاب التذكاري الزجاجي الفاخر", basePrice: 420, oldPrice: 520, shortDesc: "برواز زجاجي مزدوج فاخر مصمم لحفظ وثيقة كتب الكتاب أو دعوة الفرح، محاط بورود ستان صغيرة مجففة وتطريز ليزر بأسماء العروسين." },
+      "shatha-wedding-bridal-necklace": { name: "طقم وعقد العروسة الملكي باللؤلؤ والزركون", basePrice: 490, oldPrice: 650, shortDesc: "عقد زفاف ملكي ساحر مرصع باللؤلؤ العاجي النقي وأحجار الزركون اللامعة بقطع الألماس، مطلي بالذهب ومصحوب بعلبة مخملية بيضاء فاخرة." },
+      "shatha-wedding-fingerprint-tree": { name: "لوحة بصمة كتب الكتاب التذكارية مع استاند وحبر", basePrice: 390, oldPrice: 490, shortDesc: "لوحة كانفاس فاخرة بتصميم شجرة الفرح تطبع عليها بصمات وتوقيعات المعازيم كأوراق شجر ملونة، مرفقة بإطار ذهبي وعلبة أحبار ملونة واستاند." }
+    };
+    if (boxMap[productId] || boxMap[normId]) {
+      const fallback = boxMap[productId] || boxMap[normId];
+      product = {
+        id: productId,
+        name: fallback.name,
+        basePrice: fallback.basePrice,
+        oldPrice: fallback.oldPrice,
+        shortDesc: fallback.shortDesc,
+        images: ["assets/images/logo.jpg"],
+        sizes: [{ id: "standard", name: "القطعة الأساسية الملكية", price: fallback.basePrice, stems: "شغل هاندميد متقن", sizeLabel: "المقاس القياسي" }]
+      };
+    } else {
+      showToast("عذراً، لم يتم العثور على بيانات هذه القطعة", "error");
+      return;
+    }
+  }
+
+  // التأكد من وجود مصفوفة صور صالحة وغير فارغة
+  if (!product.images || !Array.isArray(product.images) || product.images.length === 0) {
+    product.images = [product.image || "assets/images/logo.jpg"];
+  }
+
+  // التأكد من وجود مصفوفة مقاسات صالحة وغير فارغة لتفادي أي خطأ
+  if (!product.sizes || !Array.isArray(product.sizes) || product.sizes.length === 0) {
+    product.sizes = [
+      {
+        id: "standard",
+        name: "القطعة الأساسية الملكية",
+        price: product.basePrice || 0,
+        stems: "شغل هاندميد متقن",
+        sizeLabel: "المقاس القياسي",
+        desc: "تنفيذ يدوي فائق الجودة بأرقى الخامات لتدوم للأبد"
+      }
+    ];
+  }
 
   appState.selectedProduct = product;
-  appState.selectedSize = product.sizes[0].id;
+  appState.selectedSize = (product.sizes[0] && product.sizes[0].id) ? product.sizes[0].id : "standard";
 
   const modal = document.getElementById("productDetailsModal");
   const backdrop = document.getElementById("modalBackdrop");
+
+  if (!modal) {
+    console.error("Modal element #productDetailsModal not found in DOM!");
+    return;
+  }
+
+  // إظهار المودال مع الخلفية
+  modal.classList.add("active");
+  backdrop?.classList.add("active");
+  document.body.style.overflow = "hidden";
 
   // تجهيز معرض الصور والزوايا
   const mainImg = document.getElementById("modalMainImg");
   const thumbsContainer = document.getElementById("modalThumbnailsContainer");
 
-  if (mainImg) mainImg.src = product.images[0];
+  if (mainImg) {
+    mainImg.src = product.images[0];
+  }
 
   if (thumbsContainer) {
     if (product.images.length > 1) {
@@ -639,55 +715,85 @@ function openProductModal(productId) {
   const reviewFormBox = document.getElementById("prodReviewFormBox");
   if (reviewFormBox) reviewFormBox.style.display = "none";
 
-  // ملء النصوص والبيانات
+  // ملء النصوص والبيانات الأساسية
   const titleEl = document.getElementById("modalProductTitle");
-  if (titleEl) titleEl.innerText = product.name;
+  if (titleEl) titleEl.innerText = product.name || "باقة شذى الملكية";
+
   const ratingEl = document.getElementById("modalProductRating");
   if (ratingEl) ratingEl.innerText = product.rating || "5.0";
+
   const countEl = document.getElementById("modalProductReviewsCount");
-  if (countEl) countEl.innerText = `(${product.reviewsCount || 1} تقييم)`;
+  if (countEl) countEl.innerText = `(${product.reviewsCount || (product.reviews ? product.reviews.length : 25)} تقييم عرائس)`;
+
   const descEl = document.getElementById("modalProductDesc");
-  if (descEl) descEl.innerText = product.shortDesc || "";
+  if (descEl) descEl.innerText = product.shortDesc || "تنفيذ يدوي ملكي فاخر بأرقى الخامات لتدوم ليلة العمر للأبد.";
 
   // الخامات والتصنيع
   const materialsBox = document.getElementById("modalMaterialsText");
-  if (materialsBox && product.materials) {
-    materialsBox.innerText = product.materials;
+  if (materialsBox) {
+    materialsBox.innerText = product.materials || "أشرطة ستان حريري تركي فاخر عالي اللمعان، خامات ملكية مختارة بعناية لتدوم مدى الحياة.";
   }
   const craftBox = document.getElementById("modalCraftText");
-  if (craftBox && product.craftsmanship) {
-    craftBox.innerText = product.craftsmanship;
+  if (craftBox) {
+    craftBox.innerText = product.craftsmanship || "صناعة يدوية متقنة 100% - طي وتشكيل احترافي يضمن بقاء الباقة ذكرى أبدية دون أن تذبل.";
   }
 
-  // محدد الأحجام والمقاسات
-  renderModalSizes(product);
-  updateModalPrice(product);
+  // محدد الأحجام والمقاسات وتحديث السعر
+  try {
+    renderModalSizes(product);
+    updateModalPrice(product);
+  } catch(e) {
+    console.warn("Sizes render note:", e);
+  }
 
   // الميزات والضمانات
   const advList = document.getElementById("modalAdvantagesList");
-  if (advList && product.advantages) {
-    advList.innerHTML = product.advantages.map(adv => `<li>${adv}</li>`).join('');
+  if (advList) {
+    const advs = (Array.isArray(product.advantages) && product.advantages.length > 0) ? product.advantages : [
+      "شغل هاندميد متقن 100% يدوم ذكرى أبدية لا تتأثر بمرور الزمن.",
+      "خامات فاخرة عالية الجودة تضفي بريقاً وفخامة استثنائية لليلة العمر.",
+      "كارت إهداء وتغليف راقٍ مجاناً مع كل طلب."
+    ];
+    advList.innerHTML = advs.map(adv => `<li>${adv}</li>`).join('');
   }
 
-  // تقييمات العملاء
-  renderModalReviews(product);
+  // تقييمات العملاء بأمان كامل
+  try {
+    renderModalReviews(product);
+  } catch(e) {
+    console.warn("Reviews render note:", e);
+  }
 
   // زر الإضافة للسلة من داخل المودال
   const addBtn = document.getElementById("modalAddToCartBtn");
   if (addBtn) {
     addBtn.onclick = () => {
-      const selectedSizeObj = product.sizes.find(s => s.id === appState.selectedSize) || product.sizes[0];
+      const selectedSizeObj = (product.sizes && product.sizes.find(s => s.id === appState.selectedSize)) || (product.sizes && product.sizes[0]) || { id: "standard", name: "القطعة الأساسية", price: product.basePrice || 0 };
       addToCart(product, selectedSizeObj, 1);
-      showToast(`تمت إضافة "${product.name} - ${selectedSizeObj.name}" للسلة!`, "success");
+      showToast(`تمت إضافة "${product.name} - ${selectedSizeObj.name}" للسلة! 🌸`, "success");
       closeProductModal();
       openCartDrawer();
     };
   }
 
-  backdrop?.classList.add("active");
-  modal?.classList.add("active");
-  document.body.style.overflow = "hidden";
+  // زر استفسار واتساب المباشر للباقة
+  const waBtn = document.getElementById("modalWhatsappBtn");
+  if (waBtn) {
+    const waText = encodeURIComponent(`مرحباً فريق شذى 🌸 أود الاستفسار عن تفاصيل وسعر: ${product.name}`);
+    waBtn.href = `https://wa.me/201102541236?text=${waText}`;
+  }
 }
+
+// إغلاق نافذة تفاصيل المنتج
+function closeProductModal() {
+  const modal = document.getElementById("productDetailsModal");
+  if (modal) modal.classList.remove("active");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (backdrop) backdrop.classList.remove("active");
+  document.body.style.overflow = "";
+}
+window.openProductModal = openProductModal;
+window.closeProductModal = closeProductModal;
 
 // تبديل زوايا وصور المعرض
 function switchModalImage(imgSrc, thumbElement) {
@@ -701,14 +807,14 @@ function switchModalImage(imgSrc, thumbElement) {
 // رسم خيارات الأحجام
 function renderModalSizes(product) {
   const container = document.getElementById("modalSizesContainer");
-  if (!container) return;
+  if (!container || !product || !product.sizes || !Array.isArray(product.sizes)) return;
 
   container.innerHTML = product.sizes.map(size => `
     <div class="size-radio-option ${appState.selectedSize === size.id ? 'selected' : ''}" 
          onclick="selectModalSize('${size.id}')">
       <div class="size-info">
         <h6>${size.name}</h6>
-        <p>${size.stems} • ${size.sizeLabel} • ${size.desc}</p>
+        <p>${size.stems || ''} ${size.sizeLabel ? '• ' + size.sizeLabel : ''} ${size.desc ? '• ' + size.desc : ''}</p>
       </div>
       <span class="size-price-tag">${size.price} ج.م</span>
     </div>
@@ -724,9 +830,10 @@ function selectModalSize(sizeId) {
 }
 
 function updateModalPrice(product) {
+  if (!product || !product.sizes || !Array.isArray(product.sizes) || product.sizes.length === 0) return;
   const sizeObj = product.sizes.find(s => s.id === appState.selectedSize) || product.sizes[0];
   const priceElem = document.getElementById("modalCurrentPrice");
-  if (priceElem) {
+  if (priceElem && sizeObj) {
     priceElem.innerHTML = `${sizeObj.price} <span class="currency">ج.م</span>`;
   }
 }
@@ -735,31 +842,37 @@ function renderModalReviews(product) {
   const container = document.getElementById("modalReviewsList");
   if (!container) return;
 
-  if (!product.reviews || product.reviews.length === 0) {
-    container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">كن أول من يقيّم هذه الباقة المصنوعة يدوياً!</p>`;
+  if (!product || !product.reviews || !Array.isArray(product.reviews) || product.reviews.length === 0) {
+    container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">⭐ باقة معتمدة بتقييم 5 نجوم من عرائس شذى.</p>`;
     return;
   }
 
   const isOwner = isCurrentUserOwner();
-  const myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
+  let myReviews = [];
+  try {
+    myReviews = JSON.parse(localStorage.getItem('shatha_my_reviews') || '[]');
+  } catch(e){}
+
+  const userEmail = (appState.currentUser && appState.currentUser.email) ? String(appState.currentUser.email).toLowerCase().trim() : null;
 
   container.innerHTML = product.reviews.map((rev, idx) => {
+    if (!rev) return '';
     if (!rev.id) {
       rev.id = `pr_${product.id}_${idx}`;
     }
-    const isMyReview = (rev.id && myReviews.includes(rev.id)) || 
-                       (appState.currentUser && rev.authorEmail && rev.authorEmail.toLowerCase() === appState.currentUser.email.toLowerCase());
+    const revEmail = rev.authorEmail ? String(rev.authorEmail).toLowerCase().trim() : null;
+    const isMyReview = (rev.id && myReviews.includes(rev.id)) || (userEmail && revEmail && revEmail === userEmail);
     const canDelete = isOwner || isMyReview;
 
     return `
       <div style="background: var(--bg-body); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 10px; position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <strong style="color: var(--text-main); font-size: 0.9rem;">${rev.author}</strong>
+            <strong style="color: var(--text-main); font-size: 0.9rem;">${rev.author || 'عروس شذى'}</strong>
             ${isMyReview ? '<span style="font-size: 0.7rem; background: var(--bg-card); color: var(--primary-pink); padding: 2px 6px; border-radius: 6px; font-weight: 600;">تقييمك</span>' : ''}
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="color: #F5A623; font-size: 0.85rem;">★ ${rev.rating}</span>
+            <span style="color: #F5A623; font-size: 0.85rem;">★ ${rev.rating || 5}</span>
             ${canDelete ? `
               <button type="button" 
                       class="btn-del-review" 
@@ -770,7 +883,7 @@ function renderModalReviews(product) {
             ` : ''}
           </div>
         </div>
-        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6; margin: 4px 0;">${rev.comment}</p>
+        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6; margin: 4px 0;">${rev.comment || 'شغل هاندميد في منتهى الجمال والفخامة.'}</p>
         <small style="color: var(--text-light); font-size: 0.75rem;">${rev.date || 'مؤخراً'}</small>
       </div>
     `;
@@ -2429,9 +2542,11 @@ function updateAuthUI() {
     }
   }
 
-  // تحديث أدوات المالك فوراً على كروت المنتجات
+  // تحديث أدوات المالك فوراً على كروت المنتجات والواجهة والصندوق
   renderProducts();
   renderWeddingSection();
+  if (typeof renderWeddingBoxCards === 'function') renderWeddingBoxCards();
+  if (typeof initWeddingBoxShowcase === 'function') initWeddingBoxShowcase();
 }
 
 /**
@@ -2474,6 +2589,7 @@ function handleGoogleSignOut() {
 
   updateAuthUI();
   updateCartUI();
+  if (typeof initWeddingBoxShowcase === 'function') initWeddingBoxShowcase();
 
   showToast("تم تسجيل الخروج بنجاح. أهلاً بك دائماً في شذى 🌸", "info");
 }
@@ -2511,6 +2627,8 @@ function openAddProductModal() {
   if (modalIcon) modalIcon.className = "fas fa-plus-circle";
   if (submitBtnText) submitBtnText.innerText = "حفظ ونشر الباقة فوراً";
 
+  window._isAddingForWeddingBox = false;
+
   document.getElementById("wizardProductForm")?.reset();
 
   const isWeddingCb = document.getElementById("wIsWeddingProduct");
@@ -2528,6 +2646,44 @@ function openAddProductModal() {
   backdrop?.classList.add("active");
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
+}
+
+// فتح نافذة إضافة منتج جديد خصيصاً لداخل صندوق العرسان الدوار للمالك
+function openAddProductModalForWeddingBox() {
+  const isOwner = isCurrentUserOwner();
+  if (!isOwner) {
+    showToast("عذراً، إضافة منتجات لداخل الصندوق متاح فقط لمالك المتجر شذى بعد تسجيل الدخول.", "error");
+    openAccountOrAuthModal();
+    return;
+  }
+  openAddProductModal();
+  window._isAddingForWeddingBox = true;
+
+  const modalTitle = document.getElementById("wizardModalTitle");
+  if (modalTitle) modalTitle.innerText = "إضافة منتج جديد لداخل صندوق العرسان الملكي 🎁💍";
+  
+  const submitBtnText = document.getElementById("wizardSubmitBtnText");
+  if (submitBtnText) submitBtnText.innerText = "إضافة ونشر المنتج داخل الصندوق فوراً 🌸";
+
+  const isWeddingCb = document.getElementById("wIsWeddingProduct");
+  const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
+  const weddingCatSelect = document.getElementById("wWeddingCategory");
+  if (isWeddingCb) isWeddingCb.checked = true;
+  if (weddingCatGroup) weddingCatGroup.style.display = "block";
+  if (weddingCatSelect) weddingCatSelect.value = "bridal_bouquet";
+
+  const tagInput = document.getElementById("wTag");
+  if (tagInput) tagInput.value = "محتويات صندوق العرسان 🎁";
+}
+
+// فتح نافذة إضافة منتج جديد لقسم العرسان العام
+function openAddProductModalForWedding() {
+  openAddProductModal();
+  window._isAddingForWeddingBox = false;
+  const isWeddingCb = document.getElementById("wIsWeddingProduct");
+  const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
+  if (isWeddingCb) isWeddingCb.checked = true;
+  if (weddingCatGroup) weddingCatGroup.style.display = "block";
 }
 
 // فتح نافذة تعديل باقة قائمة للمالك
@@ -2616,7 +2772,7 @@ function openEditProductModal(productId) {
   document.body.style.overflow = "hidden";
 }
 
-// حذف باقة نهائياً بواسطة المالك
+// حذف باقة أو منتج نهائياً بواسطة المالك
 function deleteProductById(productId) {
   const isOwner = isCurrentUserOwner();
 
@@ -2626,20 +2782,32 @@ function deleteProductById(productId) {
     return;
   }
 
-  const product = appState.products.find(p => p.id === productId);
-  if (!product) return;
+  const product = (appState.products || []).find(p => p.id === productId) || (typeof SHATHA_PRODUCTS !== 'undefined' ? SHATHA_PRODUCTS.find(p => p.id === productId) : null);
+  const prodName = product ? product.name : "هذا المنتج";
 
-  const confirmed = confirm(`هل أنت متأكد من رغبتك في حذف باقة "${product.name}" نهائياً من المتجر؟`);
+  const confirmed = confirm(`هل أنت متأكد من رغبتك في حذف "${prodName}" نهائياً من المتجر والصندوق؟`);
   if (!confirmed) return;
 
-  appState.products = appState.products.filter(p => p.id !== productId);
+  appState.products = (appState.products || []).filter(p => p.id !== productId);
+  
+  try {
+    const saved = localStorage.getItem('shatha_wedding_box_ids');
+    if (saved) {
+      let boxIds = JSON.parse(saved);
+      boxIds = boxIds.filter(id => id !== productId);
+      localStorage.setItem('shatha_wedding_box_ids', JSON.stringify(boxIds));
+      SHATHA_CLOUD.set('wedding_box_ids', boxIds);
+    }
+  } catch(e) {}
+
   saveAllProductsToStorage();
 
   closeProductModal();
   renderProducts();
   renderWeddingSection();
+  if (typeof renderWeddingBoxCards === 'function') renderWeddingBoxCards();
 
-  showToast(`تم حذف باقة "${product.name}" بنجاح 🗑️`, "info");
+  showToast(`تم حذف "${prodName}" بنجاح 🗑️`, "info");
 }
 
 function closeAddProductModal() {
@@ -2850,10 +3018,11 @@ function handleWizardProductSubmit(e) {
     return;
   }
 
-  const isWedding = document.getElementById("wIsWeddingProduct")?.checked || false;
+  const isWeddingBox = !!window._isAddingForWeddingBox;
+  const isWedding = (document.getElementById("wIsWeddingProduct")?.checked || false) || isWeddingBox;
   const weddingCategory = isWedding ? (document.getElementById("wWeddingCategory")?.value || "bridal_bouquet") : null;
   const oldPrice = parseFloat(document.getElementById("wOldPrice")?.value) || null;
-  const tag = document.getElementById("wTag")?.value.trim() || (isWedding ? "تجهيزات الفرح الملكية" : "شغل يدوي فاخر");
+  const tag = document.getElementById("wTag")?.value.trim() || (isWeddingBox ? "محتويات صندوق العرسان 🎁" : (isWedding ? "تجهيزات الفرح الملكية" : "شغل يدوي فاخر"));
   const materials = document.getElementById("wMaterials")?.value.trim() || "أشرطة ستان حريري تركي فاخر عالي اللمعان، تغليف كوري سموكي أسود أنيق مقاوم للماء.";
   const craftsmanship = document.getElementById("wCraft")?.value.trim() || document.getElementById("wCraftsmanship")?.value.trim() || "صناعة يدوية متقنة 100% - طي وتشكيل بتلات الجوري بحرفية لتدوم للأبد دون أن تذبل.";
 
@@ -2909,10 +3078,12 @@ function handleWizardProductSubmit(e) {
         existing.sizes = sizes;
         existing.advantages = advantages;
         existing.isWedding = isWedding;
+        if (isWeddingBox) existing.isWeddingBox = true;
         existing.weddingCategory = weddingCategory;
 
         renderProducts();
         renderWeddingSection();
+        if (typeof renderWeddingBoxCards === 'function') renderWeddingBoxCards();
 
         if (document.getElementById("productDetailsModal")?.classList.contains("active") && appState.selectedProduct?.id === editingId) {
           openProductModal(editingId);
@@ -2938,6 +3109,7 @@ function handleWizardProductSubmit(e) {
     tag: tag,
     isBestSeller: true,
     isWedding: isWedding,
+    isWeddingBox: isWeddingBox,
     weddingCategory: weddingCategory,
     basePrice: basePrice,
     oldPrice: oldPrice,
@@ -2959,19 +3131,52 @@ function handleWizardProductSubmit(e) {
 
   try {
     appState.products.unshift(newProduct);
+
+    if (isWeddingBox) {
+      try {
+        let boxIds = [
+          "shatha-wedding-ivory-bridal",
+          "shatha-wedding-frame-glass",
+          "shatha-wedding-bridal-necklace",
+          "shatha-wedding-fingerprint-tree"
+        ];
+        const saved = localStorage.getItem('shatha_wedding_box_ids');
+        if (saved) {
+          try { boxIds = JSON.parse(saved); } catch(e){}
+        }
+        if (!boxIds.includes(newProduct.id)) {
+          boxIds.push(newProduct.id);
+          localStorage.setItem('shatha_wedding_box_ids', JSON.stringify(boxIds));
+          SHATHA_CLOUD.set('wedding_box_ids', boxIds);
+        }
+      } catch(e) {}
+      window._isAddingForWeddingBox = false;
+    }
+
     renderProducts();
     renderWeddingSection();
+    if (typeof renderWeddingBoxCards === 'function') renderWeddingBoxCards();
     closeAddProductModal();
-    showToast(`🎉 تم نشر منتج "${newProduct.name}" بنجاح وتظهر الآن في المتجر!`, "success");
-
-    if (isWedding) {
-      if (document.getElementById("weddingProductsGrid")) {
-        document.getElementById("weddingProductsGrid")?.scrollIntoView({ behavior: "smooth" });
-      } else {
-        document.getElementById("wedding")?.scrollIntoView({ behavior: "smooth" });
+    
+    if (isWeddingBox) {
+      showToast(`🎉 ألف مبروك! تم إضافة منتج "${newProduct.name}" لداخل صندوق العرسان الدوار بنجاح! 🎁`, "success");
+      if (document.getElementById("weddingBoxStage")) {
+        document.getElementById("weddingBoxStage")?.scrollIntoView({ behavior: "smooth" });
+        if (typeof openWeddingBoxInteractive === 'function' && !weddingBoxState.isOpen) {
+          openWeddingBoxInteractive();
+        }
       }
     } else {
-      document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+      showToast(`🎉 تم نشر منتج "${newProduct.name}" بنجاح وتظهر الآن في المتجر!`, "success");
+      if (isWedding) {
+        if (document.getElementById("weddingProductsGrid")) {
+          document.getElementById("weddingProductsGrid")?.scrollIntoView({ behavior: "smooth" });
+        } else {
+          document.getElementById("wedding")?.scrollIntoView({ behavior: "smooth" });
+        }
+      } else {
+        document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+      }
     }
 
     saveAllProductsToStorage();
@@ -3509,6 +3714,50 @@ function renderWeddingSection() {
    مع خصم 15% فوري على إجمالي الباكدج
    ========================================================================== */
 
+// جلب قائمة المنتجات الحصرية الموجودة داخل صندوق العرسان
+function getWeddingBoxProducts() {
+  const defaultIds = [
+    "shatha-wedding-ivory-bridal",
+    "shatha-wedding-frame-glass",
+    "shatha-wedding-bridal-necklace",
+    "shatha-wedding-fingerprint-tree"
+  ];
+  let boxIds = defaultIds;
+  try {
+    const saved = localStorage.getItem('shatha_wedding_box_ids');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        boxIds = parsed;
+      }
+    }
+  } catch (e) {}
+
+  const list = [];
+  const seenIds = new Set();
+
+  boxIds.forEach(id => {
+    let prod = (appState.products || []).find(p => p.id === id);
+    if (!prod && typeof SHATHA_PRODUCTS !== 'undefined') {
+      prod = SHATHA_PRODUCTS.find(p => p.id === id);
+    }
+    if (prod && !seenIds.has(prod.id)) {
+      list.push(prod);
+      seenIds.add(prod.id);
+    }
+  });
+
+  // إضافة أي منتج مخصص داخل الصندوق أضافه المالك
+  (appState.products || []).forEach(p => {
+    if (p.isWeddingBox === true && !seenIds.has(p.id)) {
+      list.push(p);
+      seenIds.add(p.id);
+    }
+  });
+
+  return list;
+}
+
 let selectedBundleProductIds = new Set();
 
 function openWeddingBundleModal() {
@@ -3516,56 +3765,42 @@ function openWeddingBundleModal() {
   const backdrop = document.getElementById("modalBackdrop");
   if (!modal) return;
 
-  const weddingProds = appState.products.filter(p => p.isWedding === true || p.weddingCategory);
+  const boxProducts = getWeddingBoxProducts();
   const container = document.getElementById("weddingBundleItemsList");
 
-  const categories = [
-    { id: "bridal_bouquet", name: "💐 بوكيه العروسة" },
-    { id: "katb_ketab", name: "📜 طقم كتب الكتاب" },
-    { id: "frames", name: "🖼️ البرواز التذكاري" },
-    { id: "mandil_fingerprint", name: "🕊️ المنديل وبصمة الفرح" },
-    { id: "crowns", name: "👑 الأطواق والتيجان" },
-    { id: "favors", name: "🎁 هدايا المعازيم" }
-  ];
-
   selectedBundleProductIds.clear();
+  boxProducts.forEach(p => selectedBundleProductIds.add(p.id));
 
   if (container) {
-    let html = "";
-    categories.forEach(cat => {
-      const prodsInCat = weddingProds.filter(p => p.weddingCategory === cat.id);
-      if (prodsInCat.length > 0) {
-        // تحديد أول منتج من كل قسم افتراضياً
-        const defaultProd = prodsInCat[0];
-        selectedBundleProductIds.add(defaultProd.id);
-
-        html += `
-          <div style="margin-bottom: 10px;">
-            <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px;">${cat.name}:</div>
-            ${prodsInCat.map((p, idx) => {
-              const isChecked = idx === 0;
-              return `
-                <div class="wedding-bundle-item-card ${isChecked ? 'selected' : ''}" id="wbCard_${p.id}" onclick="toggleBundleItem('${p.id}', event)">
-                  <input type="checkbox" class="wb-checkbox" id="wbCheck_${p.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleBundleItem('${p.id}')">
-                  <img src="${p.images[0]}" alt="${p.name}" class="wb-thumb" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور هذه القطعة">
-                  <div class="wb-info" onclick="toggleBundleItem('${p.id}')">
-                    <h5 class="wb-title">${p.name}</h5>
-                    <span class="wb-dept-tag">${p.shortDesc ? p.shortDesc.slice(0, 48) + '...' : ''}</span>
-                  </div>
-                  <div class="wb-actions-right">
-                    <div class="wb-price">${p.basePrice} ج.م</div>
-                    <button type="button" class="btn-wb-preview" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور المنتج كاملة">
-                      <i class="fas fa-eye"></i> التفاصيل
-                    </button>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
-      }
-    });
-    container.innerHTML = html;
+    if (boxProducts.length === 0) {
+      container.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 15px;">لا توجد منتجات مسجلة داخل الصندوق حالياً.</p>`;
+    } else {
+      container.innerHTML = `
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px;">
+          <i class="fas fa-box-open"></i> محتويات صندوق العرسان الحالية (${boxProducts.length} قطع مختارة):
+        </div>
+        ${boxProducts.map(p => {
+          const isChecked = selectedBundleProductIds.has(p.id);
+          const pImg = (p.images && p.images[0]) ? p.images[0] : (p.image || "assets/images/logo.jpg");
+          return `
+            <div class="wedding-bundle-item-card ${isChecked ? 'selected' : ''}" id="wbCard_${p.id}" onclick="toggleBundleItem('${p.id}', event)">
+              <input type="checkbox" class="wb-checkbox" id="wbCheck_${p.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleBundleItem('${p.id}')">
+              <img src="${pImg}" alt="${p.name}" class="wb-thumb" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور هذه القطعة">
+              <div class="wb-info" onclick="toggleBundleItem('${p.id}')">
+                <h5 class="wb-title">${p.name}</h5>
+                <span class="wb-dept-tag">${p.shortDesc ? p.shortDesc.slice(0, 52) + '...' : 'شغل هاندميد ليلة العمر'}</span>
+              </div>
+              <div class="wb-actions-right">
+                <div class="wb-price">${p.basePrice} ج.م</div>
+                <button type="button" class="btn-wb-preview" onclick="event.stopPropagation(); openProductModal('${p.id}')" title="عرض تفاصيل وصور المنتج كاملة">
+                  <i class="fas fa-eye"></i> التفاصيل
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
   }
 
   calcWeddingBundleTotal();
@@ -3606,12 +3841,15 @@ function toggleBundleItem(prodId, ev) {
 
 function calcWeddingBundleTotal() {
   let rawTotal = 0;
+  const boxProducts = getWeddingBoxProducts();
   selectedBundleProductIds.forEach(id => {
-    const p = appState.products.find(item => item.id === id);
-    if (p) rawTotal += p.basePrice;
+    let p = (appState.products || []).find(item => item.id === id);
+    if (!p) p = boxProducts.find(item => item.id === id);
+    if (!p && typeof SHATHA_PRODUCTS !== 'undefined') p = SHATHA_PRODUCTS.find(item => item.id === id);
+    if (p) rawTotal += (p.basePrice || 0);
   });
 
-  const discount = Math.round(rawTotal * 0.15); // 15% خصم باكدج العروسة الكاملة
+  const discount = Math.round(rawTotal * 0.20); // وفر 20% فوري على الصندوق المتكامل
   const finalPrice = Math.max(0, rawTotal - discount);
 
   const rawEl = document.getElementById("wbRawTotal");
@@ -3627,7 +3865,7 @@ function calcWeddingBundleTotal() {
 
 function addWeddingBundleToCart() {
   if (selectedBundleProductIds.size === 0) {
-    showToast("يرجى اختيار قطعة واحدة على الأقل من باكدج العرسان", "error");
+    showToast("يرجى اختيار قطعة واحدة على الأقل من داخل صندوق العرسان", "error");
     return;
   }
 
@@ -3637,24 +3875,25 @@ function addWeddingBundleToCart() {
   const colorTheme = document.getElementById("wbColorTheme")?.value || "أوف وايت عاجي ولؤلؤ";
   const notes = document.getElementById("wbNotes")?.value.trim() || "";
 
+  const boxProducts = getWeddingBoxProducts();
   const selectedProducts = Array.from(selectedBundleProductIds)
-    .map(id => appState.products.find(p => p.id === id))
+    .map(id => (appState.products || []).find(p => p.id === id) || boxProducts.find(p => p.id === id) || (typeof SHATHA_PRODUCTS !== 'undefined' ? SHATHA_PRODUCTS.find(p => p.id === id) : null))
     .filter(Boolean);
 
   const itemNames = selectedProducts.map(p => p.name.split(' - ')[0]).join(' + ');
-  const mainImage = selectedProducts[0]?.images[0] || "assets/images/logo.jpg";
+  const mainImage = (selectedProducts[0] && selectedProducts[0].images && selectedProducts[0].images[0]) ? selectedProducts[0].images[0] : "assets/images/wedding-box-open.jpg";
   const bundleCartKey = `wb_bundle_${Date.now()}`;
 
   const bundleCartItem = {
     cartKey: bundleCartKey,
-    productId: "wedding-bundle-custom",
-    name: `باكدج العرسان الملكي المتكامل 💍 (${selectedProducts.length} قطع)`,
+    productId: "wedding-box-bundle",
+    name: "صندوق العرسان الملكي المتكامل 🎁💍",
     image: mainImage,
     sizeId: "wedding_bundle",
-    sizeName: `باكدج متكامل (${selectedProducts.length} قطع) - وفرتِ ${discount} ج.م`,
+    sizeName: `محتويات الصندوق (${selectedProducts.length} قطع) - وفرتِ ${discount} ج.م`,
     price: finalPrice,
     quantity: 1,
-    customText: `العروسين: ${coupleNames} • الموعد: ${weddingDate} • الثيم: ${colorTheme} • القطع: [${itemNames}]${notes ? ` • ملاحظات: ${notes}` : ''}`,
+    customText: `العروسين: ${coupleNames} • الموعد: ${weddingDate} • الثيم: ${colorTheme} • محتويات الصندوق: [${itemNames}]${notes ? ` • ملاحظات: ${notes}` : ''}`,
     isWeddingBundle: true,
     bundleDetails: {
       rawTotal,
@@ -3672,13 +3911,13 @@ function addWeddingBundleToCart() {
   updateCartUI();
   closeWeddingBundleModal();
 
-  showToast(`🎉 ألف مبروك! تمت إضافة باكدج العرسان بسعر ${finalPrice} ج.م (وفرتِ ${discount} ج.م) لسلتك!`, "success");
+  showToast(`🎉 ألف مبروك! تمت إضافة صندوق العرسان المتكامل (${selectedProducts.length} قطع) لسلتك!`, "success");
   openCartDrawer();
 }
 
 function sendWeddingBundleToWhatsApp() {
   if (selectedBundleProductIds.size === 0) {
-    showToast("يرجى اختيار قطعة واحدة على الأقل من باكدج العرسان", "error");
+    showToast("يرجى اختيار قطعة واحدة على الأقل من داخل صندوق العرسان", "error");
     return;
   }
 
@@ -3688,23 +3927,24 @@ function sendWeddingBundleToWhatsApp() {
   const colorTheme = document.getElementById("wbColorTheme")?.value || "أوف وايت عاجي ولؤلؤ";
   const notes = document.getElementById("wbNotes")?.value.trim() || "لا توجد ملاحظات إضافية";
 
+  const boxProducts = getWeddingBoxProducts();
   const selectedProducts = Array.from(selectedBundleProductIds)
-    .map(id => appState.products.find(p => p.id === id))
+    .map(id => (appState.products || []).find(p => p.id === id) || boxProducts.find(p => p.id === id) || (typeof SHATHA_PRODUCTS !== 'undefined' ? SHATHA_PRODUCTS.find(p => p.id === id) : null))
     .filter(Boolean);
 
-  let msg = `🌸 *طلب باكدج العرسان الملكي من متجر شذى* 💍\n\n`;
+  let msg = `🌸 *طلب صندوق العرسان الملكي من متجر شذى* 🎁💍\n\n`;
   msg += `👰🤵 *أسماء العروسين:* ${coupleNames}\n`;
   msg += `📅 *تاريخ الفرح / عقد القران:* ${weddingDate}\n`;
   msg += `🎨 *لون ثيم الفرح المفضل:* ${colorTheme}\n\n`;
-  msg += `✨ *القطع المختارة في الباكدج (${selectedProducts.length} قطع):*\n`;
+  msg += `✨ *محتويات الصندوق المختارة (${selectedProducts.length} قطع):*\n`;
 
   selectedProducts.forEach((p, idx) => {
     msg += `${idx + 1}. ${p.name} (${p.basePrice} ج.م)\n`;
   });
 
   msg += `\n💵 *إجمالي القطع قبل الخصم:* ${rawTotal} ج.م\n`;
-  msg += `🎁 *خصم باكدج العروسة (15%):* -${discount} ج.م\n`;
-  msg += `💎 *السعر النهائي للباكدج:* *${finalPrice} ج.م*\n`;
+  msg += `🎁 *وفرتِ 20% فوري على الصندوق:* -${discount} ج.م\n`;
+  msg += `💎 *السعر النهائي لصندوق العرسان:* *${finalPrice} ج.م*\n`;
   if (notes) {
     msg += `📝 *ملاحظات خاصة:* ${notes}\n`;
   }
@@ -3729,5 +3969,739 @@ function closeAllModals() {
   if (backdrop) backdrop.classList.remove("active");
   document.body.style.overflow = "auto";
 }
+
+/* ==========================================================================
+   المسرح التفاعلي ثلاثي الأبعاد لصندوق العرسان (Wedding Mystery Box 3D Carousel)
+   تحكم كامل في فتح الصندوق، انفجار الجليتر، والدوران الدائري التفاعلي باللمس والماوس
+   ========================================================================== */
+
+const weddingBoxState = {
+  isOpen: false,
+  currentAngle: 0,
+  currentIndex: 0,
+  radius: 300,
+  isDragging: false,
+  startX: 0,
+  dragStartAngle: 0,
+  hasDragged: false,
+  autoRotateTimer: null,
+  isAutoRotating: false,
+  itemsCount: 4
+};
+
+// تشغيل صوت رقيق ساحر لفتح الصندوق (Web Audio API أصلي بدون ملفات خارجية)
+function playMagicChimeSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime + idx * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + idx * 0.08 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + idx * 0.08);
+      osc.stop(ctx.currentTime + idx * 0.08 + 0.7);
+    });
+  } catch (e) {
+    // تجاهل إذا كان المتصفح يقيد الصوت التلقائي
+  }
+}
+
+// توليد انفجار الجليتر والنجوم الذهبية عند فتح الصندوق
+function createSparkleBurstEffect(anchorEl) {
+  if (!anchorEl) return;
+  const rect = anchorEl.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  const symbols = ["✨", "✦", "💍", "🌸", "⭐", "💎", "💐"];
+  const count = 28;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("div");
+    el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+    el.style.position = "fixed";
+    el.style.left = centerX + "px";
+    el.style.top = centerY + "px";
+    el.style.fontSize = (14 + Math.random() * 20) + "px";
+    el.style.color = Math.random() > 0.5 ? "#D4AF37" : "#BF7279";
+    el.style.pointerEvents = "none";
+    el.style.zIndex = "99999";
+    el.style.transition = "all 0.9s cubic-bezier(0.1, 0.8, 0.2, 1)";
+    el.style.opacity = "1";
+    document.body.appendChild(el);
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 80 + Math.random() * 200;
+    const destX = Math.cos(angle) * distance;
+    const destY = Math.sin(angle) * distance - (40 + Math.random() * 60);
+
+    requestAnimationFrame(() => {
+      el.style.transform = `translate(${destX}px, ${destY}px) scale(${0.4 + Math.random() * 0.8}) rotate(${Math.random() * 360}deg)`;
+      el.style.opacity = "0";
+    });
+
+    setTimeout(() => {
+      el.remove();
+    }, 1000);
+  }
+}
+
+// دالة فتح صندوق العرسان التفاعلي
+function openWeddingBoxInteractive() {
+  const closedView = document.getElementById("mysteryBoxClosedView");
+  const openedView = document.getElementById("mysteryBoxOpenedView");
+  const boxModel = document.getElementById("mysteryBox3dImg");
+  const subtitle = document.getElementById("stageSubtitleText");
+
+  if (!closedView || !openedView) return;
+
+  // تشغيل انميشن اهتزاز وتوهج الصندوق والصوت الرقيق بأمان تام
+  try { playMagicChimeSound(); } catch (e) {}
+  try { createSparkleBurstEffect(boxModel || closedView); } catch (e) {}
+
+  if (boxModel) {
+    boxModel.classList.add("box-opening-active");
+  }
+
+  try { showToast("مبارك! تم فتح صندوق العرسان الملكي بنجاح 🎁💍", "success"); } catch (e) {}
+
+  setTimeout(() => {
+    closedView.style.display = "none";
+    openedView.classList.add("active");
+    weddingBoxState.isOpen = true;
+
+    if (subtitle) {
+      subtitle.innerHTML = `✨ تصفحي محتويات صندوق العرسان الأربعة: يمكنك تحريك الدائرة ثلاثية الأبعاد بيدك أو بالأسهم، واضغطي على أي قطعة لعرض تفاصيلها وسعرها.`;
+    }
+
+    try {
+      renderWeddingBoxCards();
+    } catch (e) {
+      console.error("renderWeddingBoxCards error:", e);
+    }
+  }, 450);
+}
+window.openWeddingBoxInteractive = openWeddingBoxInteractive;
+
+// دالة إعادة إغلاق الصندوق للتجربة مجدداً
+function closeWeddingBoxInteractive() {
+  const closedView = document.getElementById("mysteryBoxClosedView");
+  const openedView = document.getElementById("mysteryBoxOpenedView");
+  const boxModel = document.getElementById("mysteryBox3dImg");
+  const subtitle = document.getElementById("stageSubtitleText");
+
+  if (!closedView || !openedView) return;
+
+  openedView.classList.remove("active");
+  setTimeout(() => {
+    closedView.style.display = "flex";
+    if (boxModel) boxModel.classList.remove("box-opening-active");
+    weddingBoxState.isOpen = false;
+
+    if (subtitle) {
+      subtitle.innerHTML = `الصندوق الأسطوري الذي يجمع أهم 4 قطع هاندميد في ليلة العمر. اضغط على الصندوق لفتحه واستكشاف محتوياته التي تدور في حلقة ثلاثية الأبعاد!`;
+    }
+  }, 400);
+}
+
+// رسم وتحديث كروت منتجات صندوق العرسان الملكي التفاعلي مع أدوات المالك
+function renderWeddingBoxCards() {
+  const ring = document.getElementById("carousel3dRing");
+  if (!ring) return;
+
+  const isOwner = isCurrentUserOwner();
+  const ownerAddBtn = document.getElementById("ownerAddBoxItemBtn");
+  if (ownerAddBtn) {
+    ownerAddBtn.style.display = isOwner ? "inline-flex" : "none";
+  }
+
+  const boxProducts = getWeddingBoxProducts();
+
+  const defaultBadges = [
+    "💐 بوكيه العروسة الكبير",
+    "🖼️ برواز ليلة العمر 3D",
+    "👑 عقد العروسة الملكي",
+    "📜 بصمة كتب الكتاب"
+  ];
+  const defaultIcons = ["💐", "🖼️", "👑", "📜"];
+
+  const cardsHtml = boxProducts.map((prod, index) => {
+    const pId = prod.id;
+    const pName = prod.name;
+    const pPrice = prod.basePrice;
+    const pOld = prod.oldPrice;
+    const pImg = (prod.images && prod.images[0]) ? prod.images[0] : (prod.image || "assets/images/logo.jpg");
+    const pRating = prod.rating || 5.0;
+    const pReviews = prod.reviewsCount || 25;
+    const discount = pOld ? Math.round(((pOld - pPrice) / pOld) * 100) : 20;
+    const badge = prod.tag || defaultBadges[index] || "💍 قطعة الصندوق الملكي";
+
+    return `
+      <div class="product-3d-circle-card ${index === weddingBoxState.currentIndex ? 'is-front' : ''}" 
+           data-index="${index}" 
+           data-id="${pId}" 
+           onclick="handle3dCardClick('${pId}', ${index})">
+        
+        <div class="card-3d-thumb-wrap">
+          <img src="${pImg}" alt="${pName}" class="card-3d-img">
+          <span class="card-3d-badge">${badge}</span>
+          <span class="card-3d-front-sparkle"><i class="fas fa-star"></i> الواجهة الرئيسية</span>
+
+          ${isOwner ? `
+            <div class="card-3d-admin-badge" onclick="event.stopPropagation()">
+              <button type="button" class="btn-3d-admin-edit" onclick="event.stopPropagation(); openEditProductModal('${pId}')" title="تعديل هذا المنتج (المالك)">
+                <i class="fas fa-pen"></i> تعديل
+              </button>
+              <button type="button" class="btn-3d-admin-delete" onclick="event.stopPropagation(); deleteProductById('${pId}')" title="حذف هذا المنتج (المالك)">
+                <i class="fas fa-trash-alt"></i> حذف
+              </button>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="card-3d-body">
+          <div>
+            <h4 class="card-3d-title">${pName}</h4>
+            <div class="card-3d-rating-row">
+              <span>★★★★★</span>
+              <strong>${pRating}</strong>
+              <span class="count">(${pReviews} تقييم عرائس)</span>
+            </div>
+          </div>
+          <div>
+            <div class="card-3d-price-row">
+              <div>
+                <span class="curr-price">${pPrice} ج.م</span>
+                ${pOld ? `<span class="old-price">${pOld} ج.م</span>` : ''}
+              </div>
+              <span class="save-tag">خصم ${discount}%</span>
+            </div>
+            <button type="button" class="btn-card-3d-details" onclick="event.stopPropagation(); openProductModal('${pId}')" title="عرض تفاصيل وصور المنتج">
+              <i class="fas fa-eye"></i> عرض التفاصيل والسعر 🔍
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  ring.innerHTML = cardsHtml;
+
+  // تحديث أزرار التنقل السريع بالأسفل
+  const dotsContainer = document.getElementById("carouselItemDots");
+  if (dotsContainer) {
+    dotsContainer.innerHTML = boxProducts.map((prod, idx) => {
+      const icon = defaultIcons[idx] || "🎁";
+      const shortName = prod.name.split(' - ')[0].slice(0, 18);
+      return `
+        <button type="button" class="carousel-dot-btn ${idx === weddingBoxState.currentIndex ? 'active' : ''}" onclick="jumpToCarouselItem(${idx})">
+          <span>${icon}</span> <span>${shortName}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  initCarousel3D();
+}
+
+// تهيئة أبعاد ومواضع الدائرة ثلاثية الأبعاد (3D Carousel Initialization)
+function initCarousel3D() {
+  const ring = document.getElementById("carousel3dRing");
+  const viewport = document.getElementById("carousel3dViewport");
+  if (!ring || !viewport) return;
+
+  const cards = ring.querySelectorAll(".product-3d-circle-card");
+  const count = cards.length || 4;
+  weddingBoxState.itemsCount = count;
+
+  // حساب نصف القطر المناسب وفقاً لعرض الشاشة وعدد الكروت
+  const winWidth = window.innerWidth;
+  if (winWidth <= 420) {
+    weddingBoxState.radius = Math.max(135, Math.round(count * 32));
+  } else if (winWidth <= 650) {
+    weddingBoxState.radius = Math.max(160, Math.round(count * 38));
+  } else if (winWidth <= 768) {
+    weddingBoxState.radius = Math.max(210, Math.round(count * 48));
+  } else {
+    weddingBoxState.radius = Math.max(290, Math.round(count * 64));
+  }
+
+  // توزيع الكروت بانتظام في الفضاء الثلاثي الأبعاد
+  cards.forEach((card, index) => {
+    const cardAngle = index * (360 / count);
+    card.style.transform = `rotateY(${cardAngle}deg) translateZ(${weddingBoxState.radius}px)`;
+  });
+
+  applyCarouselRotation();
+  setupCarouselInteractions();
+}
+
+// تطبيق زاوية دوران الأسطوانة وتحديث الكارت النشط والنقاط
+function applyCarouselRotation() {
+  const ring = document.getElementById("carousel3dRing");
+  if (!ring || !weddingBoxState.itemsCount) return;
+
+  ring.style.transform = `rotateY(${weddingBoxState.currentAngle}deg)`;
+
+  // حساب أي كارت موجود حالياً في الواجهة الأمامية
+  const count = weddingBoxState.itemsCount;
+  const step = 360 / count;
+  const normalizedAngle = ((-weddingBoxState.currentAngle % 360) + 360) % 360;
+  const frontIndex = Math.round(normalizedAngle / step) % count;
+  weddingBoxState.currentIndex = frontIndex;
+
+  // تحديث تمييز الكارت النشط
+  const cards = ring.querySelectorAll(".product-3d-circle-card");
+  cards.forEach((card, idx) => {
+    if (idx === frontIndex) {
+      card.classList.add("is-front");
+    } else {
+      card.classList.remove("is-front");
+    }
+  });
+
+  // تحديث أزرار التنقل السريعة
+  const dotBtns = document.querySelectorAll(".carousel-dot-btn");
+  dotBtns.forEach((btn, idx) => {
+    if (idx === frontIndex) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+}
+
+// تدوير الدائرة بمقدار خطوة (direction = 1 لليسار، -1 لليمين)
+function rotateCarousel3D(direction) {
+  const count = weddingBoxState.itemsCount || 4;
+  const step = 360 / count;
+  weddingBoxState.currentAngle -= direction * step;
+  applyCarouselRotation();
+}
+
+// القفز المباشر لكارت معين عند الضغط على أزراره بالأسفل
+function jumpToCarouselItem(targetIndex) {
+  const count = weddingBoxState.itemsCount || 4;
+  const step = 360 / count;
+  const currentNorm = ((-weddingBoxState.currentAngle % 360) + 360) % 360;
+  const currentIdx = Math.round(currentNorm / step) % count;
+
+  let diff = targetIndex - currentIdx;
+  const half = count / 2;
+  if (diff > half) diff -= count;
+  if (diff < -half) diff += count;
+
+  weddingBoxState.currentAngle -= diff * step;
+  applyCarouselRotation();
+}
+
+// التعامل مع الضغط على أي كارت داخل الدائرة
+function handle3dCardClick(productId, cardIndex) {
+  // إذا كان المستخدم يقوم بسحب فعلي للدائرة، نتجاهل الفتح
+  if (weddingBoxState.hasDragged) {
+    weddingBoxState.hasDragged = false;
+    return;
+  }
+
+  // محاذاة الكارت وفتح تفاصيل وسعر المنتج فوراً
+  if (typeof cardIndex === 'number') {
+    jumpToCarouselItem(cardIndex);
+  }
+  openProductModal(productId);
+}
+
+// إعداد سحب وتدوير الدائرة بالماوس وعلى شاشات اللمس (Touch & Mouse Drag)
+function setupCarouselInteractions() {
+  const viewport = document.getElementById("carousel3dViewport");
+  const ring = document.getElementById("carousel3dRing");
+  if (!viewport || viewport.dataset.dragBound === "true") return;
+
+  viewport.dataset.dragBound = "true";
+
+  const onPointerDown = (e) => {
+    // إذا كان النقر على زر أو رابط أو زر التفاصيل، لا نقوم بتشغيل وضع السحب حتى لا يتعطل النقر
+    if (e.target.closest('button, a, .btn-card-3d-details, .btn-3d-admin-edit, .btn-3d-admin-delete, .carousel-nav-btn, .carousel-dot-btn')) {
+      weddingBoxState.isDragging = false;
+      return;
+    }
+
+    weddingBoxState.isDragging = true;
+    weddingBoxState.hasDragged = false;
+    weddingBoxState.startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    weddingBoxState.dragStartAngle = weddingBoxState.currentAngle;
+    if (ring) ring.classList.add("dragging");
+  };
+
+  const onPointerMove = (e) => {
+    if (!weddingBoxState.isDragging) return;
+    const currentX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const deltaX = currentX - weddingBoxState.startX;
+
+    // تمييز السحب الحقيقي فقط (فوق 15 بكسل) لتفادي تعطيل اللمسات السريعة على الهواتف
+    if (Math.abs(deltaX) > 15) {
+      weddingBoxState.hasDragged = true;
+    }
+
+    // تتبع فوري بحساسية انسيابية
+    weddingBoxState.currentAngle = weddingBoxState.dragStartAngle + (deltaX * 0.42);
+    if (ring) ring.style.transform = `rotateY(${weddingBoxState.currentAngle}deg)`;
+  };
+
+  const onPointerUp = () => {
+    if (!weddingBoxState.isDragging) return;
+    weddingBoxState.isDragging = false;
+    if (ring) ring.classList.remove("dragging");
+
+    // محاذاة تلقائية (Snap) لأقرب كارت بعد ترك السحب
+    const count = weddingBoxState.itemsCount || 4;
+    const step = 360 / count;
+    weddingBoxState.currentAngle = Math.round(weddingBoxState.currentAngle / step) * step;
+    applyCarouselRotation();
+
+    setTimeout(() => {
+      weddingBoxState.hasDragged = false;
+    }, 120);
+  };
+
+  viewport.addEventListener("mousedown", onPointerDown);
+  window.addEventListener("mousemove", onPointerMove);
+  window.addEventListener("mouseup", onPointerUp);
+
+  viewport.addEventListener("touchstart", onPointerDown, { passive: true });
+  window.addEventListener("touchmove", onPointerMove, { passive: true });
+  window.addEventListener("touchend", onPointerUp);
+  window.addEventListener("touchcancel", onPointerUp);
+
+  // تحديث نصف القطر عند تغيير حجم النافذة
+  window.addEventListener("resize", () => {
+    if (weddingBoxState.isOpen) {
+      initCarousel3D();
+    }
+  });
+}
+
+/* ==========================================================================
+   إزالة خلفية الصندوق المغلق وجعله عائماً بحجم كبير ثلاثي الأبعاد
+   ========================================================================== */
+
+function initMysteryBox3D() {
+  const boxImg = document.getElementById("mysteryBox3dImg");
+  if (!boxImg) return;
+
+  const CACHE_KEY = "shatha_box_closed_trans_v3";
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached && cached.startsWith("data:image/png")) {
+    boxImg.src = cached;
+    boxImg.classList.add("bg-removed");
+    return;
+  }
+
+  const removeBgAndCrop = () => {
+    try {
+      const w = boxImg.naturalWidth || boxImg.width;
+      const h = boxImg.naturalHeight || boxImg.height;
+      if (!w || !h) return;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(boxImg, 0, 0, w, h);
+
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const d = imgData.data;
+
+      let minX = w, minY = h, maxX = 0, maxY = 0;
+      let hasBoxPixel = false;
+
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i];
+        const g = d[i + 1];
+        const b = d[i + 2];
+        const x = (i / 4) % w;
+        const y = Math.floor((i / 4) / w);
+
+        const isBoxDark = (r < 115 && g < 115 && b < 120);
+        const isBoxRed = (r > 70 && g < 90 && b < 105);
+        const isBoxGold = (r > 140 && g > 110 && b < 165 && (r - b) > 18);
+
+        if (isBoxDark || isBoxRed || isBoxGold) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+          hasBoxPixel = true;
+        } else {
+          d[i + 3] = 0;
+        }
+      }
+
+      if (!hasBoxPixel) return;
+
+      ctx.putImageData(imgData, 0, 0);
+
+      const pad = 10;
+      minX = Math.max(0, minX - pad);
+      minY = Math.max(0, minY - pad);
+      maxX = Math.min(w, maxX + pad);
+      maxY = Math.min(h, maxY + pad);
+
+      const cropW = maxX - minX;
+      const cropH = maxY - minY;
+
+      if (cropW > 50 && cropH > 50) {
+        const cropCanvas = document.createElement("canvas");
+        cropCanvas.width = cropW;
+        cropCanvas.height = cropH;
+        const cropCtx = cropCanvas.getContext("2d");
+        cropCtx.drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+
+        const transPng = cropCanvas.toDataURL("image/png");
+        boxImg.src = transPng;
+        boxImg.classList.add("bg-removed");
+        try {
+          localStorage.setItem(CACHE_KEY, transPng);
+        } catch(e) {}
+      }
+    } catch (err) {
+      console.log("Floating box using CSS vector cutout fallback:", err && err.message);
+    }
+  };
+
+  if (boxImg.complete && boxImg.naturalWidth > 0) {
+    removeBgAndCrop();
+  } else {
+    boxImg.addEventListener("load", removeBgAndCrop);
+  }
+}
+
+/* ==========================================================================
+   إدارة وتحديث صورة واجهة صندوق العرسان لمالك المتجر (Showcase Image Controls)
+   ========================================================================== */
+
+function initWeddingBoxShowcase() {
+  const showcaseImg = document.getElementById("weddingBoxShowcaseImg");
+  const ownerTool = document.getElementById("wbOwnerImageTool");
+  const isOwner = isCurrentUserOwner();
+
+  // تحميل الصورة المخصصة المحفوظة لصندوق العرسان
+  const savedImg = localStorage.getItem('shatha_wedding_box_showcase_img');
+  if (showcaseImg && savedImg) {
+    showcaseImg.src = savedImg;
+  }
+
+  // إظهار أو إخفاء زر التعديل لصندوق العرسان
+  if (ownerTool) {
+    ownerTool.style.display = isOwner ? "block" : "none";
+  }
+
+  const ownerAddBoxBtn = document.getElementById("ownerAddBoxItemBtn");
+  if (ownerAddBoxBtn) {
+    ownerAddBoxBtn.style.display = isOwner ? "inline-flex" : "none";
+  }
+
+  // تهيئة صور وأدوات المالك لكافة الباكدجات الخمسة
+  initCategoryPackagesShowcase();
+}
+
+const CATEGORY_SHOWCASE_KEYS = ['bouquets', 'katb_ketab', 'frames', 'crowns', 'bags'];
+
+// تهيئة صور واجهة باكدجات الأقسام وأدوات المالك
+function initCategoryPackagesShowcase() {
+  const isOwner = isCurrentUserOwner();
+
+  CATEGORY_SHOWCASE_KEYS.forEach(key => {
+    const imgEl = document.getElementById(`pkgShowcaseImg_${key}`);
+    const toolEl = document.getElementById(`pkgOwnerTool_${key}`);
+
+    // تحميل الصورة المخصصة المحفوظة محلياً إن وُجدت
+    const saved = localStorage.getItem(`shatha_pkg_img_${key}`);
+    if (imgEl && saved) {
+      imgEl.src = saved;
+    }
+
+    // إظهار أو إخفاء زر التعديل للمالك
+    if (toolEl) {
+      toolEl.style.display = isOwner ? "block" : "none";
+    }
+  });
+}
+
+// تشغيل اختيار الصورة لباكدج معين للمالك
+function triggerChangeCategoryPackageImage(pkgKey) {
+  const isOwner = isCurrentUserOwner();
+  if (!isOwner) {
+    showToast("عذراً، تغيير صورة واجهة الباكدج متاح فقط لمالك متجر شذى بعد تسجيل الدخول.", "error");
+    openAccountOrAuthModal();
+    return;
+  }
+
+  const fileInput = document.getElementById(`ownerPkgFileInput_${pkgKey}`);
+  if (fileInput) {
+    fileInput.click();
+  }
+}
+
+// قراءة وضغط وحفظ ومزامنة صورة باكدج جديدة
+async function handleOwnerCategoryPackageImageChosen(pkgKey, files) {
+  if (!files || files.length === 0) return;
+  const file = files[0];
+  if (!file.type.startsWith('image/')) {
+    showToast("يرجى اختيار ملف صورة صالح (JPG, PNG, WebP)", "error");
+    return;
+  }
+
+  try {
+    showToast("جاري تجهيز وضغط الصورة...", "info");
+    const base64Img = await compressImageToBase64(file);
+
+    // تحديث الواجهة فوراً
+    const imgEl = document.getElementById(`pkgShowcaseImg_${pkgKey}`);
+    if (imgEl) {
+      imgEl.src = base64Img;
+    }
+
+    // الحفظ المحلي
+    try {
+      localStorage.setItem(`shatha_pkg_img_${pkgKey}`, base64Img);
+    } catch(err) {
+      console.warn("Storage quota full, continuing with cloud upload:", err);
+    }
+
+    // المزامنة السحابية الفورية
+    if (typeof SHATHA_CLOUD !== 'undefined' && SHATHA_CLOUD.set) {
+      await SHATHA_CLOUD.set(`shatha_pkg_img_${pkgKey}`, base64Img);
+    }
+
+    showToast("🎉 تم تحديث صورة واجهة الباكدج بنجاح ومزامنتها لجميع الزوار!", "success");
+  } catch (err) {
+    console.error("Error setting package image:", err);
+    showToast("حدث خطأ أثناء معالجة الصورة، يرجى المحاولة بصورة أصغر", "error");
+  }
+}
+window.triggerChangeCategoryPackageImage = triggerChangeCategoryPackageImage;
+window.handleOwnerCategoryPackageImageChosen = handleOwnerCategoryPackageImageChosen;
+
+// تشغيل اختيار الصورة للمالك (لصندوق العرسان)
+function triggerChangeShowcaseImage() {
+  const isOwner = isCurrentUserOwner();
+  if (!isOwner) {
+    showToast("عذراً، تغيير صورة الواجهة متاح فقط لمالك المتجر شذى بعد تسجيل الدخول.", "error");
+    openAccountOrAuthModal();
+    return;
+  }
+
+  const fileInput = document.getElementById("ownerShowcaseFileInput");
+  if (fileInput) {
+    fileInput.click();
+  }
+}
+
+// قراءة وضغط وحفظ صورة الواجهة الجديدة
+async function handleOwnerShowcaseFileChosen(files) {
+  if (!files || files.length === 0) return;
+  const file = files[0];
+  if (!file.type.startsWith('image/')) {
+    showToast("يرجى اختيار ملف صورة صالح (JPG, PNG, WebP)", "error");
+    return;
+  }
+
+  try {
+    showToast("جاري تجهيز وضغط الصورة...", "info");
+    const base64Img = await compressImageToBase64(file);
+    
+    // تحديث الواجهة فوراً
+    const showcaseImg = document.getElementById("weddingBoxShowcaseImg");
+    if (showcaseImg) {
+      showcaseImg.src = base64Img;
+    }
+
+    // الحفظ المحلي
+    try {
+      localStorage.setItem('shatha_wedding_box_showcase_img', base64Img);
+    } catch(err) {
+      console.warn("Storage quota full, continuing with cloud upload:", err);
+    }
+
+    // المزامنة السحابية الفورية
+    const cloudSync = await SHATHA_CLOUD.set('wedding_box_showcase_img', base64Img);
+    if (cloudSync) {
+      console.log("☁️ تم رفع وتحديث صورة صندوق العرسان على السحابة بنجاح!");
+    }
+
+    showToast("🎉 تم تحديث صورة واجهة صندوق العرسان بنجاح ومزامنتها لجميع الزوار!", "success");
+  } catch (err) {
+    console.error("Error setting showcase image:", err);
+    showToast("حدث خطأ أثناء معالجة الصورة، يرجى المحاولة بصورة أصغر", "error");
+  }
+}
+window.triggerChangeShowcaseImage = triggerChangeShowcaseImage;
+window.handleOwnerShowcaseFileChosen = handleOwnerShowcaseFileChosen;
+
+// مزامنة صورة الواجهة وقائمة الصندوق من السحابة في الخلفية
+async function syncWeddingBoxFromCloud() {
+  try {
+    // 1. مزامنة صورة الواجهة
+    const cloudImg = await SHATHA_CLOUD.get('wedding_box_showcase_img');
+    if (cloudImg && typeof cloudImg === 'string' && cloudImg.length > 50) {
+      localStorage.setItem('shatha_wedding_box_showcase_img', cloudImg);
+      const showcaseImg = document.getElementById("weddingBoxShowcaseImg");
+      if (showcaseImg) showcaseImg.src = cloudImg;
+    }
+
+    // 2. مزامنة معرّفات منتجات الصندوق
+    const cloudBoxIds = await SHATHA_CLOUD.get('wedding_box_ids');
+    if (Array.isArray(cloudBoxIds) && cloudBoxIds.length > 0) {
+      localStorage.setItem('shatha_wedding_box_ids', JSON.stringify(cloudBoxIds));
+      if (document.getElementById("weddingBoxStage")) {
+        renderWeddingBoxCards();
+      }
+    }
+
+    // 3. مزامنة صور واجهات كافة باكدجات الأقسام من السحابة
+    for (const key of CATEGORY_SHOWCASE_KEYS) {
+      const pkgImg = await SHATHA_CLOUD.get(`shatha_pkg_img_${key}`);
+      if (pkgImg && typeof pkgImg === 'string' && pkgImg.length > 50) {
+        localStorage.setItem(`shatha_pkg_img_${key}`, pkgImg);
+        const imgEl = document.getElementById(`pkgShowcaseImg_${key}`);
+        if (imgEl) imgEl.src = pkgImg;
+      }
+    }
+  } catch(e) {
+    console.warn("Wedding box cloud sync note:", e);
+  }
+}
+
+// فحص فتح الصندوق تلقائياً وتهيئة الواجهة
+document.addEventListener("DOMContentLoaded", () => {
+  initWeddingBoxShowcase();
+  initMysteryBox3D();
+  syncWeddingBoxFromCloud();
+
+  if (document.getElementById("weddingBoxStage")) {
+    renderWeddingBoxCards();
+
+    // ربط الضغط البرمجي المباشر لعناصر الصندوق لضمان الفتح 100%
+    const closedView = document.getElementById("mysteryBoxClosedView");
+    const boxImg = document.getElementById("mysteryBox3dImg");
+    const boxBadge = document.getElementById("boxTapBadge");
+
+    if (closedView) closedView.addEventListener("click", openWeddingBoxInteractive);
+    if (boxImg) boxImg.addEventListener("click", (e) => { e.stopPropagation(); openWeddingBoxInteractive(); });
+    if (boxBadge) boxBadge.addEventListener("click", (e) => { e.stopPropagation(); openWeddingBoxInteractive(); });
+
+    if (window.location.hash === "#box-open") {
+      openWeddingBoxInteractive();
+    }
+  }
+});
 
 

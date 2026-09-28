@@ -1832,17 +1832,21 @@ button {
   max-height: 90vh;
   background: #FFFFFF;
   border-radius: var(--radius-lg);
-  z-index: 1002;
+  z-index: 1005;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
-  display: none;
+  display: block;
   opacity: 0;
-  transition: var(--transition);
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
 }
 
 .product-modal.active {
   display: block;
   opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
 }
 
@@ -6227,9 +6231,1917 @@ html.theme-transitioning *::after {
   }
 }
 
+/* ==========================================================================
+   تصميم صندوق العرسان الملكي الفاخر (Royal Wedding Box & 3D Interactive Carousel)
+   هوية فاخرة: ذهب ملكي، وردي باستيل، ومؤثرات ثلاثية الأبعاد 3D عالية الاحترافية
+   ========================================================================== */
 
+/* كارت صندوق العرسان الخارجي في الصفحة الرئيسية (Showcase Card) */
+.wedding-box-showcase-section {
+  padding: 40px 0 50px;
+  background: linear-gradient(180deg, var(--bg-body) 0%, rgba(201, 161, 91, 0.05) 50%, var(--bg-body) 100%);
+  position: relative;
+  overflow: hidden;
+}
 
+.wedding-box-showcase-wrapper {
+  max-width: 1050px;
+  margin: 0 auto;
+}
 
+.wedding-box-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid rgba(201, 161, 91, 0.35);
+  box-shadow: 0 12px 35px rgba(104, 48, 54, 0.08), 0 0 25px rgba(201, 161, 91, 0.12);
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s;
+}
 
+.wedding-box-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 45px rgba(104, 48, 54, 0.12), 0 0 35px rgba(201, 161, 91, 0.2);
+  border-color: var(--accent-gold);
+}
 
+.wedding-box-image-col {
+  position: relative;
+  background: radial-gradient(circle at center, #FFF8F0 0%, #F5E8D8 100%);
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .wedding-box-image-col {
+  background: radial-gradient(circle at center, #231B15 0%, #120E0A 100%);
+}
+
+.wedding-box-visual-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  max-width: none;
+  aspect-ratio: unset;
+  display: block;
+  overflow: hidden;
+}
+
+.wedding-box-visual-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.wedding-box-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  display: block;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.25));
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.wedding-box-card:hover .wedding-box-img {
+  transform: scale(1.05);
+}
+
+@keyframes boxFloatSoft {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.8deg); }
+}
+
+.wedding-box-glow-ring {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, transparent 70%);
+  filter: blur(12px);
+  pointer-events: none;
+  z-index: 3;
+  animation: pulseGlow 3s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  100% { transform: scale(1.15); opacity: 1; }
+}
+
+.wedding-box-sparkle-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.wedding-box-sparkle-stars .star {
+  position: absolute;
+  color: var(--accent-gold);
+  font-size: 1.4rem;
+  animation: sparkleTwinkle 2s infinite ease-in-out;
+}
+
+.wedding-box-sparkle-stars .s1 { top: 12%; right: 12%; animation-delay: 0s; }
+.wedding-box-sparkle-stars .s2 { bottom: 18%; left: 15%; font-size: 1.6rem; animation-delay: 0.8s; }
+.wedding-box-sparkle-stars .s3 { top: 60%; right: 8%; animation-delay: 1.4s; }
+
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2) rotate(15deg); }
+}
+
+.wedding-box-floating-pill {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(201, 161, 91, 0.5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  z-index: 5;
+}
+
+[data-theme="dark"] .wedding-box-floating-pill {
+  background: rgba(26, 26, 32, 0.92);
+  color: #FFFFFF;
+}
+
+.wedding-box-owner-tool {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+}
+
+.wedding-box-content {
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.wedding-box-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.wedding-box-badge {
+  background: linear-gradient(135deg, rgba(201, 161, 91, 0.15), rgba(191, 114, 121, 0.15));
+  border: 1px solid var(--accent-gold);
+  color: #9E7428;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+[data-theme="dark"] .wedding-box-badge {
+  color: var(--accent-gold);
+}
+
+.wedding-box-save-badge {
+  background: #27AE60;
+  color: #FFFFFF;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.wedding-box-title {
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+[data-theme="dark"] .wedding-box-title {
+  color: #FFFFFF;
+}
+
+.wedding-box-highlight {
+  display: block;
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--accent-gold);
+  margin-top: 4px;
+  font-family: var(--font-serif);
+}
+
+.wedding-box-desc {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.wedding-box-items-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.wb-preview-pill {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+}
+
+.wb-preview-pill:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary-pink);
+  transform: translateX(-3px);
+}
+
+.wb-pill-icon {
+  font-size: 1.25rem;
+}
+
+.wb-pill-text {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+[data-theme="dark"] .wb-pill-text {
+  color: #F0F0F5;
+}
+
+.wedding-box-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* الزر الرئيسي: محتويات صندوق العرسان */
+.btn-wedding-box-enter {
+  background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%);
+  background-size: 200% auto;
+  color: #1A1202 !important;
+  border-radius: var(--radius-full);
+  padding: 14px 22px;
+  text-decoration: none;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-wedding-box-enter:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(212, 175, 55, 0.55);
+}
+
+.btn-box-icon-bounce {
+  font-size: 1.4rem;
+  animation: boxIconBounce 2s infinite ease-in-out;
+}
+
+@keyframes boxIconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25) rotate(-8deg); }
+}
+
+.btn-box-texts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+  flex: 1;
+}
+
+.btn-box-texts strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.3px;
+}
+
+.btn-box-texts span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.btn-box-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-wedding-box-enter:hover .btn-box-arrow {
+  transform: translateX(-6px);
+}
+
+.btn-wedding-box-bundle {
+  background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-dark) 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 12px 20px;
+  font-size: 0.94rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.btn-wedding-box-bundle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(191, 114, 121, 0.4);
+}
+
+.btn-wedding-box-whatsapp {
+  border: 1.5px solid #25D366;
+  color: #25D366 !important;
+  background: transparent;
+  border-radius: var(--radius-full);
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.btn-wedding-box-whatsapp:hover {
+  background: #25D366;
+  color: #FFFFFF !important;
+}
+
+@media (max-width: 860px) {
+  .wedding-box-card {
+    grid-template-columns: 1fr;
+  }
+
+  .wedding-box-image-col {
+    padding: 0;
+    min-height: 360px;
+    max-height: 420px;
+  }
+
+  .wedding-box-visual-frame {
+    min-height: 360px;
+    max-height: 420px;
+  }
+
+  .wedding-box-content {
+    padding: 24px 20px;
+  }
+
+  .wedding-box-items-preview {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   المسرح التفاعلي ثلاثي الأبعاد لصندوق العرسان (Interactive 3D Stage in wedding.html)
+   ========================================================================== */
+
+.wedding-stage-outer-wrap {
+  position: relative;
+  background: linear-gradient(180deg, rgba(201, 161, 91, 0.08) 0%, rgba(191, 114, 121, 0.06) 50%, var(--bg-body) 100%);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid rgba(201, 161, 91, 0.28);
+  padding: 35px 25px 45px;
+  margin-bottom: 40px;
+  overflow: hidden;
+  box-shadow: 0 15px 45px rgba(104, 48, 54, 0.06);
+}
+
+[data-theme="dark"] .wedding-stage-outer-wrap {
+  background: linear-gradient(180deg, #181412 0%, #121013 100%);
+  border-color: rgba(229, 190, 115, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+/* تأثير الإضاءة المحيطة الخلفية */
+.wedding-stage-light-aura {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.22) 0%, rgba(191, 114, 121, 0.12) 40%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+  animation: stagePulse 4s infinite alternate;
+}
+
+@keyframes stagePulse {
+  0% { transform: translateX(-50%) scale(0.9); opacity: 0.6; }
+  100% { transform: translateX(-50%) scale(1.2); opacity: 1; }
+}
+
+.wedding-stage-header {
+  text-align: center;
+  max-width: 750px;
+  margin: 0 auto 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.stage-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(212, 175, 55, 0.14);
+  border: 1px solid var(--accent-gold);
+  color: #9E7428;
+  padding: 6px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+[data-theme="dark"] .stage-pill-badge {
+  color: var(--accent-gold);
+}
+
+.stage-main-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+[data-theme="dark"] .stage-main-title {
+  color: #FFFFFF;
+}
+
+.stage-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   الصندوق المغلق وتأثير "اضغط على الصندوق" (Closed Mystery Box View)
+   ========================================================================== */
+
+.mystery-box-interactive-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 480px;
+  z-index: 5;
+}
+
+.mystery-box-closed-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.mystery-box-hero-anchor {
+  position: relative;
+  width: 460px;
+  height: 460px;
+  max-width: 92vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  margin: 10px auto 25px;
+  cursor: pointer;
+}
+
+.mystery-box-3d-model {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+  filter: drop-shadow(0 30px 45px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 35px rgba(212, 175, 55, 0.35));
+  animation: boxLevitate 4s ease-in-out infinite;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* قص الخلفية تلقائياً حتى يظهر الصندوق عائماً بدون خلفية */
+#mysteryBox3dImg:not(.bg-removed) {
+  clip-path: polygon(
+    69% 33.5%, 
+    96.5% 45.2%, 
+    96% 53.5%, 
+    93.8% 82.5%, 
+    68% 88%, 
+    57% 88.5%, 
+    50% 84%, 
+    27.5% 90%, 
+    9.5% 59%, 
+    7.8% 45.5%, 
+    7.5% 37.2%
+  );
+  transform: scale(1.62) translateY(-4%);
+}
+
+#mysteryBox3dImg.bg-removed {
+  clip-path: none;
+  transform: none;
+}
+
+.mystery-box-closed-view:hover .mystery-box-3d-model {
+  transform: scale(1.06) translateY(-8px) rotate(1deg);
+  filter: drop-shadow(0 40px 60px rgba(212, 175, 55, 0.6)) drop-shadow(0 15px 35px rgba(0, 0, 0, 0.5));
+}
+
+#mysteryBox3dImg:not(.bg-removed):hover {
+  transform: scale(1.7) translateY(-10px) rotate(1deg);
+}
+
+@keyframes boxLevitate {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-16px) rotate(-1deg); }
+}
+
+/* ظل الأرضية الواقعي ثلاثي الأبعاد تحت الصندوق العائم */
+.mystery-box-floor-shadow {
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 65%;
+  height: 24px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.12) 50%, transparent 75%);
+  border-radius: 50%;
+  filter: blur(8px);
+  pointer-events: none;
+  animation: shadowPulse 4s ease-in-out infinite;
+}
+
+@keyframes shadowPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.85; }
+  50% { transform: translateX(-50%) scale(0.8); opacity: 0.45; }
+}
+
+/* حلقة الوهج خلف الصندوق */
+.mystery-box-radial-aura {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.38) 0%, rgba(212, 175, 55, 0.1) 50%, transparent 75%);
+  filter: blur(25px);
+  pointer-events: none;
+  animation: auraRotate 10s linear infinite;
+}
+
+@keyframes auraRotate {
+  0% { transform: rotate(0deg) scale(0.95); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(0.95); }
+}
+
+/* شارة الدعوة التفاعلية للضغط (يقولي اظغط علي الصندوق) */
+.box-click-instruction-badge {
+  margin-top: 22px;
+  background: linear-gradient(135deg, #FFFDF8 0%, #FFF5E3 100%);
+  border: 2px solid var(--accent-gold);
+  border-radius: var(--radius-full);
+  padding: 12px 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35), 0 0 15px rgba(212, 175, 55, 0.2);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  animation: instructionPulse 2s infinite ease-in-out;
+  transition: transform 0.3s ease;
+}
+
+[data-theme="dark"] .box-click-instruction-badge {
+  background: linear-gradient(135deg, #241D14 0%, #17130E 100%);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(229, 190, 115, 0.3);
+}
+
+.mystery-box-closed-view:hover .box-click-instruction-badge {
+  transform: scale(1.05);
+}
+
+@keyframes instructionPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3); }
+  50% { transform: scale(1.04); box-shadow: 0 12px 35px rgba(212, 175, 55, 0.55), 0 0 25px rgba(212, 175, 55, 0.4); }
+}
+
+.instruction-hand-icon {
+  font-size: 1.5rem;
+  color: #D4AF37;
+  animation: handClickMotion 1.4s infinite ease-in-out alternate;
+}
+
+@keyframes handClickMotion {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-5px) scale(1.2); }
+}
+
+.instruction-texts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+}
+
+.instruction-texts strong {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+}
+
+[data-theme="dark"] .instruction-texts strong {
+  color: #FFFFFF;
+}
+
+.instruction-texts span {
+  font-size: 0.8rem;
+  color: #9E7428;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .instruction-texts span {
+  color: var(--accent-gold);
+}
+
+.instruction-sparkle {
+  font-size: 1.3rem;
+  color: var(--accent-gold);
+  animation: sparkleTwinkle 1.5s infinite;
+}
+
+/* انميشن فتح الصندوق وانفجار الجليتر */
+.box-opening-active {
+  animation: boxExplodeOpen 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes boxExplodeOpen {
+  0% { transform: scale(1); filter: brightness(1); }
+  40% { transform: scale(1.15); filter: brightness(1.3) drop-shadow(0 0 45px rgba(212, 175, 55, 0.9)); }
+  100% { transform: scale(0.7) translateY(80px); opacity: 0; pointer-events: none; }
+}
+
+/* ==========================================================================
+   عرض المحتويات بعد الفتح بالدائرة ثلاثية الأبعاد (3D Revolving Carousel)
+   "كلووو دووول يظهروو علي شكل زي دائره كده بتلف ب هذه المونتجات انا اللي بحركها"
+   ========================================================================== */
+
+.mystery-box-opened-view {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+
+.mystery-box-opened-view.active {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* شريط التنبيه بعد الفتح وإمكانية إعادة الإغلاق */
+.stage-opened-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 900px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 10px 20px;
+  margin-bottom: 25px;
+  box-shadow: var(--shadow-sm);
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.opened-notice-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+[data-theme="dark"] .opened-notice-text {
+  color: #FFFFFF;
+}
+
+.btn-rewind-box {
+  background: transparent;
+  border: 1px dashed var(--accent-gold);
+  color: #9E7428;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+[data-theme="dark"] .btn-rewind-box {
+  color: var(--accent-gold);
+}
+
+.btn-rewind-box:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-style: solid;
+}
+
+/* حاوية المشهد ثلاثي الأبعاد */
+.carousel-3d-stage-viewport {
+  position: relative;
+  width: 100%;
+  height: 470px;
+  perspective: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.carousel-3d-stage-viewport:active {
+  cursor: grabbing;
+}
+
+/* أسطوانة الدوران 3D */
+.carousel-3d-ring {
+  position: absolute;
+  width: 290px;
+  height: 410px;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.carousel-3d-ring.dragging {
+  transition: none !important;
+}
+
+/* كارت المنتج الفردي داخل الدائرة الدوارة */
+.product-3d-circle-card {
+  position: absolute;
+  inset: 0;
+  width: 290px;
+  height: 410px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 2px solid rgba(201, 161, 91, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  backface-visibility: visible;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.product-3d-circle-card:hover {
+  border-color: var(--accent-gold);
+  box-shadow: 0 20px 45px rgba(212, 175, 55, 0.4);
+}
+
+/* تمييز الكارت الذي في المقدمة */
+.product-3d-circle-card.is-front {
+  border-color: #D4AF37;
+  border-width: 2.5px;
+  box-shadow: 0 20px 50px rgba(212, 175, 55, 0.45);
+}
+
+.card-3d-thumb-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: #F8F5F2;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .card-3d-thumb-wrap {
+  background: #18181D;
+}
+
+.card-3d-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.product-3d-circle-card:hover .card-3d-img {
+  transform: scale(1.08);
+}
+
+.card-3d-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(201, 161, 91, 0.3);
+}
+
+[data-theme="dark"] .card-3d-badge {
+  background: rgba(24, 24, 28, 0.92);
+  color: #FFFFFF;
+}
+
+.card-3d-front-sparkle {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #D4AF37;
+  color: #1A1202;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  display: none;
+}
+
+.product-3d-circle-card.is-front .card-3d-front-sparkle {
+  display: block;
+}
+
+.card-3d-body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.card-3d-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 6px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .card-3d-title {
+  color: #FFFFFF;
+}
+
+.card-3d-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #F39C12;
+  margin-bottom: 8px;
+}
+
+.card-3d-rating-row span.count {
+  color: var(--text-light);
+  font-size: 0.76rem;
+}
+
+.card-3d-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.card-3d-price-row .curr-price {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--primary-pink);
+}
+
+.card-3d-price-row .old-price {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-decoration: line-through;
+  margin-right: 6px;
+}
+
+.card-3d-price-row .save-tag {
+  background: rgba(39, 174, 96, 0.12);
+  color: #27AE60;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+.btn-card-3d-details {
+  background: linear-gradient(135deg, rgba(201, 161, 91, 0.15), rgba(191, 114, 121, 0.15));
+  border: 1.5px solid var(--accent-gold);
+  color: var(--primary-dark);
+  border-radius: var(--radius-full);
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+  cursor: pointer;
+  width: 100%;
+}
+
+[data-theme="dark"] .btn-card-3d-details {
+  color: #FFFFFF;
+}
+
+.product-3d-circle-card:hover .btn-card-3d-details {
+  background: var(--accent-gold);
+  color: #1A1202 !important;
+}
+
+/* أزرار التحكم في الدوران (يمين ويسار) */
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1.5px solid var(--accent-gold);
+  color: var(--primary-dark);
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: var(--transition-bounce);
+}
+
+[data-theme="dark"] .carousel-nav-btn {
+  color: #FFFFFF;
+}
+
+.carousel-nav-btn:hover {
+  background: var(--accent-gold);
+  color: #1A1202 !important;
+  transform: translateY(-50%) scale(1.12);
+}
+
+.carousel-nav-btn.prev-btn {
+  right: 15px;
+}
+
+.carousel-nav-btn.next-btn {
+  left: 15px;
+}
+
+/* شريط أزرار المنتجات الأربعة التفاعلية للقفز المباشر والتنقل */
+.carousel-item-selector-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.carousel-dot-btn {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 8px 18px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.carousel-dot-btn.active {
+  background: linear-gradient(135deg, rgba(201, 161, 91, 0.2), rgba(191, 114, 121, 0.2));
+  border-color: var(--accent-gold);
+  color: var(--primary-dark);
+  font-weight: 800;
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .carousel-dot-btn.active {
+  color: var(--accent-gold);
+}
+
+/* إرشادات السحب والتفاعل باليد */
+.carousel-drag-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.carousel-drag-hint i {
+  color: var(--accent-gold);
+  font-size: 0.95rem;
+}
+
+/* شريط الإجراءات أسفل المشهد */
+.stage-bottom-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 850px;
+}
+
+.btn-stage-buy-bundle {
+  background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%);
+  background-size: 200% auto;
+  color: #1A1202 !important;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 14px 28px;
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+  transition: all 0.4s ease;
+  flex: 1;
+  min-width: 280px;
+}
+
+.btn-stage-buy-bundle:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(212, 175, 55, 0.55);
+}
+
+.btn-stage-whatsapp {
+  border: 1.5px solid #25D366;
+  color: #25D366 !important;
+  background: transparent;
+  border-radius: var(--radius-full);
+  padding: 13px 24px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.btn-stage-whatsapp:hover {
+  background: #25D366;
+  color: #FFFFFF !important;
+}
+
+/* أدوات المالك داخل كروت الدائرة ثلاثية الأبعاد */
+.card-3d-admin-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 25;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--accent-gold);
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="dark"] .card-3d-admin-badge {
+  background: rgba(26, 26, 32, 0.95);
+}
+
+.btn-3d-admin-edit,
+.btn-3d-admin-delete {
+  border: none;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: var(--transition);
+}
+
+.btn-3d-admin-edit {
+  background: #E8F8F5;
+  color: #27AE60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.btn-3d-admin-edit:hover {
+  background: #27AE60;
+  color: #FFFFFF;
+}
+
+.btn-3d-admin-delete {
+  background: #FDEDEC;
+  color: #E74C3C;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.btn-3d-admin-delete:hover {
+  background: #E74C3C;
+  color: #FFFFFF;
+}
+
+/* استجابة الهواتف المحمولة: حجم كروت مدمج وصغير مثل كروت المتجر الخارجية */
+@media (max-width: 650px) {
+  .mystery-box-hero-anchor {
+    width: 330px !important;
+    height: 330px !important;
+    max-width: 90vw !important;
+  }
+
+  .carousel-3d-stage-viewport {
+    height: 330px !important;
+  }
+
+  .carousel-3d-ring {
+    width: 180px !important;
+    height: 280px !important;
+  }
+
+  .product-3d-circle-card {
+    width: 180px !important;
+    height: 280px !important;
+    border-radius: 14px !important;
+    border-width: 1.5px !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  .product-3d-circle-card.is-front {
+    box-shadow: 0 12px 30px rgba(212, 175, 55, 0.45) !important;
+    border-width: 2px !important;
+  }
+
+  .card-3d-thumb-wrap {
+    height: 125px !important;
+  }
+
+  .card-3d-body {
+    padding: 8px 10px !important;
+  }
+
+  .card-3d-title {
+    font-size: 0.78rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 3px !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .card-3d-rating-row {
+    font-size: 0.68rem !important;
+    margin-bottom: 4px !important;
+    gap: 4px !important;
+  }
+
+  .card-3d-rating-row span.count {
+    display: none !important;
+  }
+
+  .card-3d-price-row {
+    margin-bottom: 5px !important;
+  }
+
+  .card-3d-price-row .curr-price {
+    font-size: 0.92rem !important;
+  }
+
+  .card-3d-price-row .old-price {
+    font-size: 0.72rem !important;
+    margin-right: 4px !important;
+  }
+
+  .card-3d-price-row .save-tag {
+    font-size: 0.62rem !important;
+    padding: 1px 5px !important;
+  }
+
+  .btn-card-3d-details {
+    padding: 5px 8px !important;
+    font-size: 0.72rem !important;
+    gap: 4px !important;
+  }
+
+  .card-3d-badge {
+    font-size: 0.65rem !important;
+    padding: 2px 7px !important;
+    top: 6px !important;
+    right: 6px !important;
+  }
+
+  .card-3d-front-sparkle {
+    font-size: 0.6rem !important;
+    padding: 2px 6px !important;
+    top: 6px !important;
+    left: 6px !important;
+  }
+
+  .carousel-nav-btn {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.82rem !important;
+  }
+
+  .carousel-nav-btn.prev-btn {
+    right: 4px !important;
+  }
+
+  .carousel-nav-btn.next-btn {
+    left: 4px !important;
+  }
+
+  .carousel-dot-btn {
+    padding: 5px 11px !important;
+    font-size: 0.72rem !important;
+    gap: 4px !important;
+  }
+
+  .stage-main-title {
+    font-size: 1.55rem !important;
+  }
+
+  .stage-subtitle {
+    font-size: 0.85rem !important;
+    padding: 0 10px !important;
+  }
+
+  .mystery-box-hero-anchor {
+    width: 320px !important;
+    height: 320px !important;
+    max-width: 90vw !important;
+  }
+
+  .box-click-instruction-badge {
+    padding: 8px 14px !important;
+  }
+
+  .box-click-instruction-badge .instruction-texts strong {
+    font-size: 0.84rem !important;
+  }
+
+  .box-click-instruction-badge .instruction-texts span {
+    font-size: 0.72rem !important;
+  }
+
+  .stage-opened-top-bar {
+    padding: 8px 14px !important;
+    font-size: 0.82rem !important;
+  }
+
+  .opened-notice-text {
+    font-size: 0.82rem !important;
+  }
+
+  .carousel-drag-hint {
+    font-size: 0.74rem !important;
+    text-align: center !important;
+  }
+
+  .btn-stage-buy-bundle {
+    padding: 12px 20px !important;
+    font-size: 0.92rem !important;
+  }
+
+  .btn-stage-whatsapp {
+    padding: 11px 18px !important;
+    font-size: 0.86rem !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .carousel-3d-stage-viewport {
+    height: 305px !important;
+  }
+
+  .carousel-3d-ring {
+    width: 165px !important;
+    height: 260px !important;
+  }
+
+  .product-3d-circle-card {
+    width: 165px !important;
+    height: 260px !important;
+  }
+
+  .card-3d-thumb-wrap {
+    height: 115px !important;
+  }
+
+  .card-3d-title {
+    font-size: 0.74rem !important;
+  }
+
+  .card-3d-price-row .curr-price {
+    font-size: 0.88rem !important;
+  }
+
+  .btn-card-3d-details {
+    font-size: 0.68rem !important;
+    padding: 4px 6px !important;
+  }
+
+  .card-3d-admin-badge {
+    padding: 2px 4px !important;
+    gap: 4px !important;
+  }
+
+  .btn-3d-admin-edit,
+  .btn-3d-admin-delete {
+    padding: 2px 6px !important;
+    font-size: 0.68rem !important;
+  }
+/* أزرار تحكم المالك في صندوق العرسان والواجهة */
+.wedding-box-owner-tool {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.btn-owner-change-img {
+  background: rgba(39, 174, 96, 0.92);
+  color: #fff;
+  border: 1.5px solid #fff;
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+}
+
+.btn-owner-change-img:hover {
+  background: #27AE60;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
+.btn-owner-add-box-item {
+  background: linear-gradient(135deg, #E67E22, #D35400);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(230, 126, 34, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-owner-add-box-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(230, 126, 34, 0.5);
+  background: linear-gradient(135deg, #D35400, #BA4A00);
+}
+
+@media (max-width: 600px) {
+  .btn-owner-change-img {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+  }
+  .btn-owner-add-box-item {
+    font-size: 0.74rem;
+    padding: 5px 10px;
+  }
+}
+
+/* ==========================================================================
+   قسم باقات وأقسام شذى اليدوية التخصصية (5 باقات مستقلة)
+   ========================================================================== */
+
+.category-packages-section {
+  padding: 60px 0 80px;
+  background: var(--bg-body);
+  position: relative;
+}
+
+.cat-packages-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  position: relative;
+}
+
+@media (max-width: 1024px) {
+  .cat-packages-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cat-packages-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+/* بطاقة الباقة */
+.cat-pkg-card {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 30px 26px 26px;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.cat-pkg-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-pink);
+}
+
+/* تأثير التوهج الداخلي */
+.cat-pkg-glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: all 0.4s ease;
+  opacity: 0.5;
+}
+
+.cat-pkg-card:hover .cat-pkg-glow {
+  opacity: 0.85;
+  transform: scale(1.3);
+}
+
+/* ألوان التوهج لكل باقة */
+.cat-pkg-roses .cat-pkg-glow { background: radial-gradient(circle, rgba(212,107,123,0.25) 0%, transparent 70%); }
+.cat-pkg-katb .cat-pkg-glow { background: radial-gradient(circle, rgba(201,161,91,0.25) 0%, transparent 70%); }
+.cat-pkg-frames .cat-pkg-glow { background: radial-gradient(circle, rgba(108,92,231,0.22) 0%, transparent 70%); }
+.cat-pkg-crowns .cat-pkg-glow { background: radial-gradient(circle, rgba(212,175,55,0.28) 0%, transparent 70%); }
+.cat-pkg-bags .cat-pkg-glow { background: radial-gradient(circle, rgba(39,174,96,0.22) 0%, transparent 70%); }
+
+/* جسيمات متحركة */
+.cat-pkg-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cat-particle {
+  position: absolute;
+  font-size: 1rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.cat-pkg-card:hover .cat-particle {
+  animation: pkgParticleFloat 2.5s ease-in-out infinite;
+}
+
+.cat-particle.p1 { top: 15%; left: 12%; animation-delay: 0s; }
+.cat-particle.p2 { top: 30%; right: 10%; animation-delay: 0.5s; }
+.cat-particle.p3 { bottom: 25%; left: 18%; animation-delay: 1s; }
+.cat-particle.p4 { bottom: 35%; right: 20%; animation-delay: 1.5s; }
+
+@keyframes pkgParticleFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  30% { opacity: 0.8; transform: translateY(-8px) scale(1); }
+  70% { opacity: 0.5; transform: translateY(-16px) scale(0.9); }
+  100% { opacity: 0; transform: translateY(-24px) scale(0.5); }
+}
+
+.cat-pkg-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* أيقونة الباقة */
+.cat-pkg-icon-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  margin-bottom: 18px;
+  transition: all 0.35s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.cat-pkg-roses .cat-pkg-icon-wrap { background: linear-gradient(135deg, #FFF0F2, #FFE4E7); border: 1.5px solid rgba(212,107,123,0.3); }
+.cat-pkg-katb .cat-pkg-icon-wrap { background: linear-gradient(135deg, #FFFBF0, #FFF4D8); border: 1.5px solid rgba(201,161,91,0.35); }
+.cat-pkg-frames .cat-pkg-icon-wrap { background: linear-gradient(135deg, #F3F5FC, #EBEFFE); border: 1.5px solid rgba(108,92,231,0.3); }
+.cat-pkg-crowns .cat-pkg-icon-wrap { background: linear-gradient(135deg, #FFFDF0, #FFF7D0); border: 1.5px solid rgba(212,175,55,0.4); }
+.cat-pkg-bags .cat-pkg-icon-wrap { background: linear-gradient(135deg, #F0FBF7, #E0F7EE); border: 1.5px solid rgba(39,174,96,0.3); }
+
+.cat-pkg-card:hover .cat-pkg-icon-wrap {
+  transform: scale(1.1) rotate(-4deg);
+}
+
+/* شارة الباقة */
+.cat-pkg-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  width: fit-content;
+  margin-bottom: 10px;
+  transition: all 0.25s;
+}
+
+.cat-pkg-roses .cat-pkg-badge { background: rgba(212,107,123,0.12); color: var(--primary-dark); }
+.cat-pkg-katb .cat-pkg-badge { background: rgba(201,161,91,0.15); color: #8A6421; }
+.cat-pkg-frames .cat-pkg-badge { background: rgba(108,92,231,0.12); color: #5142b8; }
+.cat-pkg-crowns .cat-pkg-badge { background: rgba(212,175,55,0.18); color: #7d5e0a; }
+.cat-pkg-bags .cat-pkg-badge { background: rgba(39,174,96,0.12); color: #1e824c; }
+
+/* عنوان ووصف الباقة */
+.cat-pkg-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+  margin: 0 0 8px;
+  line-height: 1.35;
+  transition: color 0.25s;
+}
+
+.cat-pkg-card:hover .cat-pkg-title {
+  color: var(--primary-pink);
+}
+
+.cat-pkg-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+/* شريط الإحصاءات المصغر */
+.cat-pkg-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px dashed var(--border-subtle);
+  border-bottom: 1px dashed var(--border-subtle);
+  margin-bottom: 16px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.cat-pkg-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cat-pkg-stats i {
+  color: var(--accent-gold);
+}
+
+/* زر الحث على الإجراء (CTA) */
+.cat-pkg-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  transition: all 0.25s ease;
+  padding-top: 4px;
+}
+
+.cat-pkg-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-subtle);
+  color: var(--primary-dark);
+}
+
+.cat-pkg-card:hover .cat-pkg-cta {
+  color: var(--primary-pink);
+}
+
+.cat-pkg-card:hover .cat-pkg-arrow {
+  background: var(--primary-pink);
+  color: #fff;
+  border-color: var(--primary-pink);
+  transform: translateX(-4px);
+}
+
+/* الوضع الداكن للبطاقات */
+[data-theme="dark"] .cat-pkg-card {
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .cat-pkg-card:hover {
+  border-color: var(--primary-pink);
+}
+
+[data-theme="dark"] .cat-pkg-roses .cat-pkg-icon-wrap { background: rgba(212,107,123,0.18); border-color: rgba(212,107,123,0.35); }
+[data-theme="dark"] .cat-pkg-katb .cat-pkg-icon-wrap { background: rgba(201,161,91,0.18); border-color: rgba(201,161,91,0.35); }
+[data-theme="dark"] .cat-pkg-frames .cat-pkg-icon-wrap { background: rgba(108,92,231,0.18); border-color: rgba(108,92,231,0.35); }
+[data-theme="dark"] .cat-pkg-crowns .cat-pkg-icon-wrap { background: rgba(212,175,55,0.18); border-color: rgba(212,175,55,0.35); }
+[data-theme="dark"] .cat-pkg-bags .cat-pkg-icon-wrap { background: rgba(39,174,96,0.18); border-color: rgba(39,174,96,0.35); }
+
+[data-theme="dark"] .cat-pkg-roses .cat-pkg-badge { background: rgba(212,107,123,0.22); color: #ffb8c2; }
+[data-theme="dark"] .cat-pkg-katb .cat-pkg-badge { background: rgba(201,161,91,0.22); color: #ffd680; }
+[data-theme="dark"] .cat-pkg-frames .cat-pkg-badge { background: rgba(108,92,231,0.22); color: #c4baff; }
+[data-theme="dark"] .cat-pkg-crowns .cat-pkg-badge { background: rgba(212,175,55,0.22); color: #ffe685; }
+[data-theme="dark"] .cat-pkg-bags .cat-pkg-badge { background: rgba(39,174,96,0.22); color: #7bed9f; }
+
+[data-theme="dark"] .cat-pkg-arrow {
+  background: var(--bg-surface);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   قائمة باكدجات الأقسام بتصميم Showcase الفاخر المطابق لباكدج العرسان
+   ========================================================================== */
+
+.category-packages-showcase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.pkg-showcase-card {
+  margin: 0;
+  grid-template-columns: 370px 1fr;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.pkg-showcase-card .wedding-box-image-col,
+.pkg-showcase-card .wedding-box-visual-frame {
+  min-height: 390px;
+}
+
+.pkg-showcase-card .wedding-box-content {
+  padding: 26px 28px;
+}
+
+.pkg-showcase-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 45px rgba(104, 48, 54, 0.12), 0 0 30px rgba(212, 107, 123, 0.12);
+}
+
+/* تحسين حجم الباكدجات في التابلت والهواتف ليصبح رشيقاً ومريحاً في التصفح */
+@media (max-width: 860px) {
+  .category-packages-showcase-list {
+    gap: 20px;
+  }
+
+  .pkg-showcase-card {
+    grid-template-columns: 1fr;
+    border-radius: var(--radius-lg);
+  }
+
+  .pkg-showcase-card .wedding-box-image-col {
+    min-height: 220px;
+    max-height: 250px;
+    height: 230px;
+    padding: 0;
+  }
+
+  .pkg-showcase-card .wedding-box-visual-frame {
+    min-height: 220px;
+    max-height: 250px;
+    height: 230px;
+  }
+
+  .pkg-showcase-card .wedding-box-img {
+    object-position: center center;
+  }
+
+  .pkg-showcase-card .wedding-box-floating-pill {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    justify-content: center;
+  }
+
+  .pkg-showcase-card .wedding-box-content {
+    padding: 16px 15px 18px;
+  }
+
+  .pkg-showcase-card .wedding-box-badge-row {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .pkg-showcase-card .wedding-box-badge,
+  .pkg-showcase-card .wedding-box-save-badge {
+    font-size: 0.74rem;
+    padding: 4px 9px;
+  }
+
+  .pkg-showcase-card .wedding-box-title {
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+
+  .pkg-showcase-card .wedding-box-highlight {
+    font-size: 0.82rem;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .pkg-showcase-card .wedding-box-desc {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .pkg-showcase-card .wedding-box-items-preview {
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 14px;
+  }
+
+  .pkg-showcase-card .wb-preview-pill {
+    padding: 6px 9px;
+    font-size: 0.78rem;
+    border-radius: 8px;
+  }
+
+  .pkg-showcase-card .wb-pill-icon {
+    font-size: 0.92rem;
+  }
+
+  .pkg-showcase-card .wedding-box-actions {
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .pkg-showcase-card .btn-wedding-box-enter {
+    padding: 9px 14px;
+    font-size: 0.86rem;
+  }
+
+  .pkg-showcase-card .btn-wedding-box-enter .btn-box-texts strong {
+    font-size: 0.88rem;
+  }
+
+  .pkg-showcase-card .btn-wedding-box-enter .btn-box-texts span {
+    font-size: 0.74rem;
+  }
+
+  .pkg-showcase-card .btn-wedding-box-whatsapp {
+    padding: 8px 12px;
+    font-size: 0.82rem;
+  }
+}
+
+/* تحسين إضافي للشاشات الصغيرة جداً للهواتف */
+@media (max-width: 480px) {
+  .category-packages-showcase-list {
+    gap: 16px;
+  }
+
+  .pkg-showcase-card .wedding-box-image-col,
+  .pkg-showcase-card .wedding-box-visual-frame {
+    min-height: 190px;
+    max-height: 220px;
+    height: 195px;
+  }
+
+  .pkg-showcase-card .wedding-box-content {
+    padding: 14px 12px 16px;
+  }
+
+  .pkg-showcase-card .wedding-box-title {
+    font-size: 1.05rem;
+  }
+
+  .pkg-showcase-card .wedding-box-items-preview {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .pkg-showcase-card .wb-preview-pill {
+    padding: 5px 8px;
+    font-size: 0.76rem;
+  }
+}
 
