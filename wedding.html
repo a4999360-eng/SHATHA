@@ -1239,5 +1239,39 @@
   <!-- ملفات الجافاسكريبت -->
   <script src="assets/js/products-data.js"></script>
   <script src="assets/js/app.js"></script>
+
+  <!-- حماية أزرار المالك: تظهر فقط لحساب a4999360@gmail.com -->
+  <script>
+    // دالة تُحدّث ظهور أزرار التعديل والحذف في الكروت الثابتة
+    function updateStaticAdminBadges() {
+      const isOwner = (typeof isCurrentUserOwner === 'function') && isCurrentUserOwner();
+      // إظهار أو إخفاء جميع أزرار المالك في الكروت الثابتة
+      document.querySelectorAll('.card-3d-admin-badge').forEach(function(el) {
+        el.style.display = isOwner ? 'flex' : 'none';
+      });
+      // إظهار أو إخفاء زر إضافة منتج للصندوق
+      var ownerAddBtn = document.getElementById('ownerAddBoxItemBtn');
+      if (ownerAddBtn) ownerAddBtn.style.display = isOwner ? 'inline-flex' : 'none';
+    }
+
+    // تشغيل عند تحميل الصفحة وبعد تهيئة app.js
+    document.addEventListener('DOMContentLoaded', function() {
+      // نجري الفحص بعد تأخير قصير لضمان تحميل app.js وتهيئة المستخدم
+      setTimeout(updateStaticAdminBadges, 300);
+      setTimeout(updateStaticAdminBadges, 900);
+    });
+
+    // إعادة الفحص عند أي تغيير في appState (نراقب بشكل دوري)
+    (function watchOwnerState() {
+      var lastOwnerState = null;
+      setInterval(function() {
+        var current = (typeof isCurrentUserOwner === 'function') && isCurrentUserOwner();
+        if (current !== lastOwnerState) {
+          lastOwnerState = current;
+          updateStaticAdminBadges();
+        }
+      }, 800);
+    })();
+  </script>
 </body>
 </html>

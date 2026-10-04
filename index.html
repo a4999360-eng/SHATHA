@@ -2150,5 +2150,37 @@
   <!-- ملفات الجافاسكريبت -->
   <script src="assets/js/products-data.js"></script>
   <script src="assets/js/app.js"></script>
+
+  <!-- فتح لوحة إضافة/تعديل المنتجات تلقائياً عند الوصول من صفحة باكدج -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var hash = window.location.hash;
+      var isBoxMode   = (hash === '#open-add-wedding-box');
+      var isAddMode   = (hash === '#open-add-product');
+      var editMatch   = hash.match(/^#edit-product-(.+)$/);
+      var editId      = editMatch ? editMatch[1] : null;
+
+      if (isBoxMode || isAddMode || editId) {
+        var attempts = 0;
+        var tryOpen = setInterval(function() {
+          attempts++;
+          if (typeof isCurrentUserOwner === 'function' && isCurrentUserOwner()) {
+            clearInterval(tryOpen);
+            history.replaceState(null, null, window.location.pathname);
+            setTimeout(function() {
+              if (editId && typeof openEditProductModal === 'function') {
+                openEditProductModal(editId);
+              } else if (isBoxMode && typeof openAddProductModalForWeddingBox === 'function') {
+                openAddProductModalForWeddingBox();
+              } else if (typeof openAddProductModal === 'function') {
+                openAddProductModal();
+              }
+            }, 300);
+          }
+          if (attempts > 15) clearInterval(tryOpen);
+        }, 800);
+      }
+    });
+  </script>
 </body>
 </html>

@@ -68,24 +68,18 @@ function saveCartToStorage() {
   }
 }
 
-// التحقق من هوية مالك المتجر
+// التحقق من هوية مالك المتجر — يعتمد فقط على البريد الإلكتروني الرسمي للمالك
 function isCurrentUserOwner() {
-  if (localStorage.getItem('shatha_owner_session') === 'true') return true;
+  // المتطلب الأساسي: يجب أن يكون المستخدم مسجلاً بحساب فعلي
   if (!appState.currentUser) return false;
-  
+
   const user = appState.currentUser;
-  if (user.isOwner === true) return true;
-  
   const cleanEmail = (user.email || "").toLowerCase().trim();
   const ownerEmail = SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+
+  // الطريقة الوحيدة الصارمة للتحقق: البريد الإلكتروني للمالك فقط
   if (cleanEmail && cleanEmail === ownerEmail) return true;
-  
-  const cleanPhone = (user.phone || "").replace(/\D/g, '');
-  const ownerPhone = SHATHA_CONFIG.whatsappNumber.replace(/\D/g, '');
-  if (cleanPhone && (cleanPhone === ownerPhone || cleanPhone === '01102541236' || cleanPhone.endsWith('1102541236'))) {
-    return true;
-  }
-  
+
   return false;
 }
 
@@ -1777,30 +1771,26 @@ function loadCurrentUser() {
         saveRegisteredAccount(user);
         localStorage.setItem('shatha_google_user', JSON.stringify(user));
       }
-      // التحقق من هوية المالك وتثبيتها
+      // التحقق الصارم من هوية المالك: البريد الإلكتروني فقط
       const cleanEmail = (user.email || "").toLowerCase().trim();
-      const cleanPhone = (user.phone || "").replace(/\D/g, '');
-      if (cleanEmail === SHATHA_CONFIG.ownerEmail.toLowerCase().trim() || cleanPhone === '01102541236' || cleanPhone.endsWith('1102541236')) {
+      if (cleanEmail === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()) {
         user.isOwner = true;
         localStorage.setItem('shatha_owner_session', 'true');
+      } else {
+        // إذا لم يكن مالكاً، أزل أي صلاحيات مالك قد تكون مخزنة
+        user.isOwner = false;
+        localStorage.removeItem('shatha_owner_session');
       }
       appState.currentUser = user;
-    } else if (localStorage.getItem('shatha_owner_session') === 'true') {
-      appState.currentUser = {
-        id: 'owner_shatha_direct',
-        name: 'مالك متجر شذى',
-        email: SHATHA_CONFIG.ownerEmail,
-        phone: SHATHA_CONFIG.whatsappNumber,
-        picture: 'assets/images/logo.jpg',
-        isOwner: true,
-        couponCode: 'SHATHA-OWNER',
-        couponUsed: false
-      };
+    } else {
+      // لا توجد جلسة محفوظة — أزل أي بقايا صلاحيات المالك
+      localStorage.removeItem('shatha_owner_session');
     }
   } catch (e) {
     console.warn("Error loading user:", e);
   }
 }
+
 
 /**
  * تهيئة Google Identity Services وأزرار الدخول
@@ -1947,6 +1937,15 @@ function registerOrLoginUser({ name, email, phone, picture, googleId, fromGoogle
     if (picture && picture !== "assets/images/logo.jpg") existingUser.picture = picture;
     if (!existingUser.secretPassword) existingUser.secretPassword = generateSecretPassword();
 
+    // التحقق من هوية المالك بالبريد الإلكتروني فقط
+    if (existingUser.email && existingUser.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()) {
+      existingUser.isOwner = true;
+      localStorage.setItem('shatha_owner_session', 'true');
+    } else {
+      existingUser.isOwner = false;
+      localStorage.removeItem('shatha_owner_session');
+    }
+
     saveRegisteredAccount(existingUser);
     appState.currentUser = existingUser;
     localStorage.setItem('shatha_google_user', JSON.stringify(existingUser));
@@ -2038,8 +2037,8 @@ function handleLoginSubmit(e) {
   const cleanPhone = identifier.replace(/\D/g, '');
   const cleanPass = password.toUpperCase();
 
-  const isOwnerId = (cleanId === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()) || 
-                    (cleanPhone && (cleanPhone === '01102541236' || cleanPhone === '201102541236' || cleanPhone.endsWith('1102541236')));
+  // التحقق من هوية المالك بالبريد الإلكتروني فقط (لا يُقبل رقم الهاتف للدخول كمالك)
+  const isOwnerId = (cleanId === SHATHA_CONFIG.ownerEmail.toLowerCase().trim());
 
   const accounts = getRegisteredAccounts();
 
@@ -2050,7 +2049,7 @@ function handleLoginSubmit(e) {
     return (phoneMatch || emailMatch);
   });
 
-  // إذا كان المستخدم هو مالك المتجر
+  // إذا كان المستخدم هو مالك المتجر (بالبريد الإلكتروني فقط)
   if (isOwnerId) {
     if (!matched) {
       matched = {
@@ -2087,7 +2086,9 @@ function handleLoginSubmit(e) {
     return;
   }
 
-  // تم التحقق بنجاح
+  // تم التحقق بنجاح — تأكد من إزالة صلاحيات المالك لأي حساب آخر
+  matched.isOwner = false;
+  localStorage.removeItem('shatha_owner_session');
   appState.currentUser = matched;
   localStorage.setItem('shatha_google_user', JSON.stringify(matched));
 
@@ -2100,6 +2101,7 @@ function handleLoginSubmit(e) {
     applyCouponCode(matched.couponCode);
   }
 }
+
 
 // دوال متوافقة مع كافة النماذج بصفحات المتجر
 function handleManualLoginSubmit(e) {
@@ -2581,6 +2583,7 @@ function handleGoogleSignOut() {
 
   appState.currentUser = null;
   localStorage.removeItem('shatha_google_user');
+  localStorage.removeItem('shatha_owner_session');
   
   appState.appliedCoupon = null;
   localStorage.removeItem('shatha_applied_coupon');
@@ -2593,6 +2596,7 @@ function handleGoogleSignOut() {
 
   showToast("تم تسجيل الخروج بنجاح. أهلاً بك دائماً في شذى 🌸", "info");
 }
+
 
 /* ==========================================================================
    نظام إضافة المنتجات الذكي والمباشر لشذى (In-Page Product Wizard)
@@ -2613,7 +2617,15 @@ function openAddProductModal() {
 
   const modal = document.getElementById("addProductModal");
   const backdrop = document.getElementById("modalBackdrop");
-  if (!modal) return;
+
+  // لو الـ modal غير موجود في هذه الصفحة (مثل صفحات الباكدجات)، انتقل للصفحة الرئيسية وافتحه هناك
+  if (!modal) {
+    showToast("جاري الانتقال للصفحة الرئيسية لفتح لوحة إضافة المنتجات...", "info");
+    setTimeout(() => {
+      window.location.href = "index.html#open-add-product";
+    }, 600);
+    return;
+  }
 
   // إعادة ضبط وضع الإضافة
   const editInput = document.getElementById("editingProductId");
@@ -2648,6 +2660,7 @@ function openAddProductModal() {
   document.body.style.overflow = "hidden";
 }
 
+
 // فتح نافذة إضافة منتج جديد خصيصاً لداخل صندوق العرسان الدوار للمالك
 function openAddProductModalForWeddingBox() {
   const isOwner = isCurrentUserOwner();
@@ -2656,6 +2669,14 @@ function openAddProductModalForWeddingBox() {
     openAccountOrAuthModal();
     return;
   }
+
+  // لو الـ modal غير موجود (مثل wedding.html)، انتقل للصفحة الرئيسية مع hash خاص بالصندوق
+  if (!document.getElementById("addProductModal")) {
+    showToast("جاري الانتقال للصفحة الرئيسية لفتح لوحة إضافة منتج الصندوق...", "info");
+    setTimeout(() => { window.location.href = "index.html#open-add-wedding-box"; }, 600);
+    return;
+  }
+
   openAddProductModal();
   window._isAddingForWeddingBox = true;
 
@@ -2677,14 +2698,35 @@ function openAddProductModalForWeddingBox() {
 }
 
 // فتح نافذة إضافة منتج جديد لقسم العرسان العام
-function openAddProductModalForWedding() {
+function openAddProductModalForWedding(defaultDept) {
+  const isOwner = isCurrentUserOwner();
+  if (!isOwner) {
+    showToast("عذراً، إضافة المنتجات متاحة فقط لمالك المتجر شذى.", "error");
+    openAccountOrAuthModal();
+    return;
+  }
+
+  // لو الـ modal غير موجود، انتقل للصفحة الرئيسية
+  if (!document.getElementById("addProductModal")) {
+    showToast("جاري الانتقال للصفحة الرئيسية لفتح لوحة الإضافة...", "info");
+    setTimeout(() => { window.location.href = "index.html#open-add-product"; }, 600);
+    return;
+  }
+
   openAddProductModal();
   window._isAddingForWeddingBox = false;
   const isWeddingCb = document.getElementById("wIsWeddingProduct");
   const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
+  const weddingCatSelect = document.getElementById("wWeddingCategory");
   if (isWeddingCb) isWeddingCb.checked = true;
   if (weddingCatGroup) weddingCatGroup.style.display = "block";
+
+  const targetDept = (defaultDept && defaultDept !== 'all') 
+    ? defaultDept 
+    : (appState.activeWeddingDept !== 'all' ? appState.activeWeddingDept : 'bridal_bouquet');
+  if (weddingCatSelect) weddingCatSelect.value = targetDept;
 }
+
 
 // فتح نافذة تعديل باقة قائمة للمالك
 function openEditProductModal(productId) {
@@ -2704,7 +2746,16 @@ function openEditProductModal(productId) {
 
   const modal = document.getElementById("addProductModal");
   const backdrop = document.getElementById("modalBackdrop");
-  if (!modal) return;
+
+  // لو الـ modal غير موجود في هذه الصفحة، انتقل للصفحة الرئيسية لفتح التعديل هناك
+  if (!modal) {
+    showToast("جاري الانتقال للصفحة الرئيسية لتعديل المنتج...", "info");
+    setTimeout(() => {
+      window.location.href = `index.html#edit-product-${productId}`;
+    }, 600);
+    return;
+  }
+
 
   // وضع معرّف المنتج قيد التعديل
   const editInput = document.getElementById("editingProductId");
@@ -2984,6 +3035,12 @@ function addWizardSizeRow() {
 // حفظ ونشر المنتج وإدراجه فوراً في المتجر والسحابة
 function handleWizardProductSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
+
+  // التحقق من صلاحية المالك قبل الحفظ
+  if (!isCurrentUserOwner()) {
+    showToast("عذراً، حفظ ونشر الباقات متاح فقط لمالك المتجر شذى.", "error");
+    return;
+  }
 
   const name = document.getElementById("wName")?.value.trim();
   const basePriceInput = document.getElementById("wBasePrice")?.value || document.getElementById("wPrice")?.value;
