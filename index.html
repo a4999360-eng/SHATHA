@@ -166,7 +166,14 @@
 
         <div class="hero-visual">
           <div class="hero-main-card">
-            <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.16.00 AM.jpeg" alt="بوكيه شذى الستان الملكي الهاندميد">
+            <img src="FLOURS/WhatsApp Image 2026-09-09 at 12.16.00 AM.jpeg" alt="بوكيه شذى الستان الملكي الهاندميد" id="heroBouquetImg">
+            <!-- أداة المالك لتعديل صورة البوكيه الرئيسي بالواجهة (خاصة بحساب a4999360@gmail.com) -->
+            <div class="hero-owner-image-tool" id="heroOwnerImageTool" style="display: none;" onclick="event.stopPropagation()">
+              <button type="button" class="btn-owner-change-img" onclick="triggerChangeHeroBouquetImage()" title="تغيير صورة البوكيه الرئيسي (المالك)">
+                <i class="fas fa-camera"></i> <span>تغيير صورة البوكيه (المالك)</span>
+              </button>
+              <input type="file" id="ownerHeroFileInput" style="display: none;" accept="image/*" onchange="handleOwnerHeroBouquetFileChosen(this.files)">
+            </div>
           </div>
           <div class="floating-badge badge-top">
             <div class="badge-icon"><i class="fas fa-gift"></i></div>
@@ -1309,6 +1316,19 @@
           <div class="form-group" style="grid-column: 1 / -1;">
             <label><span style="color: #E74C3C;">*</span> وصف الباقة ومكوناتها:</label>
             <textarea id="wShortDesc" class="form-control" rows="3" placeholder="اكتب وصفاً مفصلاً يوضح الخامات ولون الستان وطريقة التغليف..."></textarea>
+          </div>
+
+          <!-- اختيار قسم المتجر الأساسي -->
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label style="font-weight: 700; color: var(--primary-dark);">قسم المتجر التابع له المنتج:</label>
+            <select id="wMainDepartment" class="form-control" style="font-size: 0.9rem;">
+              <option value="general" selected>🌸 المعرض الرئيسي العام</option>
+              <option value="bouquets">💐 بوكيهات الورد والستان</option>
+              <option value="frames">🖼️ البراويز التذكارية وكتب الكتاب</option>
+              <option value="crowns">👑 الأطواق والتيجان الملكية</option>
+              <option value="katb_ketab">📜 كتب الكتاب والمنديل والبصمة</option>
+              <option value="bags">🎁 الشنط والبوكسات والهدايا وعلب الفلوس</option>
+            </select>
           </div>
 
           <!-- خيار تخصيص المنتج داخل باكدج العرسان والأفراح -->

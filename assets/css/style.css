@@ -6657,24 +6657,9 @@ html.theme-transitioning *::after {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
 }
 
-/* تأثير الإضاءة المحيطة الخلفية */
+/* تأثير الإضاءة المحيطة الخلفية - تم إلغاؤه لمنع أي تشاش */
 .wedding-stage-light-aura {
-  position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.22) 0%, rgba(191, 114, 121, 0.12) 40%, transparent 70%);
-  border-radius: 50%;
-  filter: blur(40px);
-  pointer-events: none;
-  animation: stagePulse 4s infinite alternate;
-}
-
-@keyframes stagePulse {
-  0% { transform: translateX(-50%) scale(0.9); opacity: 0.6; }
-  100% { transform: translateX(-50%) scale(1.2); opacity: 1; }
+  display: none !important;
 }
 
 .wedding-stage-header {
@@ -6763,42 +6748,43 @@ html.theme-transitioning *::after {
   height: 100%;
   object-fit: contain;
   cursor: pointer;
-  filter: drop-shadow(0 30px 45px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 35px rgba(212, 175, 55, 0.35));
   animation: boxLevitate 4s ease-in-out infinite;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
   -webkit-user-drag: none;
+  background: transparent !important;
 }
 
-/* قص الخلفية تلقائياً حتى يظهر الصندوق عائماً بدون خلفية */
-#mysteryBox3dImg:not(.bg-removed) {
+/* قص الخلفية باحترافية تامة لإزالة أي تشاش أو بقايا خلفية وردية خاصة من أسفل اليسار */
+#mysteryBox3dImg {
   clip-path: polygon(
-    69% 33.5%, 
-    96.5% 45.2%, 
-    96% 53.5%, 
-    93.8% 82.5%, 
-    68% 88%, 
-    57% 88.5%, 
-    50% 84%, 
-    27.5% 90%, 
-    9.5% 59%, 
-    7.8% 45.5%, 
-    7.5% 37.2%
+    68.5% 34.2%, 
+    96.2% 45.5%, 
+    95.6% 54.8%, 
+    92.5% 84.0%, 
+    67.5% 88.0%, 
+    57.0% 89.0%, 
+    52.0% 89.2%, 
+    50.0% 83.5%, 
+    27.5% 92.5%, 
+    18.0% 81.0%, 
+    12.5% 73.0%, 
+    9.2% 56.5%, 
+    7.6% 46.8%, 
+    7.3% 38.0%
   );
   transform: scale(1.62) translateY(-4%);
 }
 
 #mysteryBox3dImg.bg-removed {
-  clip-path: none;
-  transform: none;
+  transform: scale(1.62) translateY(-4%);
 }
 
 .mystery-box-closed-view:hover .mystery-box-3d-model {
-  transform: scale(1.06) translateY(-8px) rotate(1deg);
-  filter: drop-shadow(0 40px 60px rgba(212, 175, 55, 0.6)) drop-shadow(0 15px 35px rgba(0, 0, 0, 0.5));
+  transform: scale(1.7) translateY(-10px) rotate(1deg);
 }
 
-#mysteryBox3dImg:not(.bg-removed):hover {
+#mysteryBox3dImg.bg-removed:hover {
   transform: scale(1.7) translateY(-10px) rotate(1deg);
 }
 
@@ -6807,7 +6793,7 @@ html.theme-transitioning *::after {
   50% { transform: translateY(-16px) rotate(-1deg); }
 }
 
-/* ظل الأرضية الواقعي ثلاثي الأبعاد تحت الصندوق العائم */
+/* ظل الأرضية الواقعي ثلاثي الأبعاد تحت الصندوق العائم بدون أي تشاش */
 .mystery-box-floor-shadow {
   position: absolute;
   bottom: 0px;
@@ -6815,7 +6801,7 @@ html.theme-transitioning *::after {
   transform: translateX(-50%);
   width: 65%;
   height: 24px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.12) 50%, transparent 75%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.08) 50%, transparent 75%);
   border-radius: 50%;
   filter: blur(8px);
   pointer-events: none;
@@ -6827,16 +6813,9 @@ html.theme-transitioning *::after {
   50% { transform: translateX(-50%) scale(0.8); opacity: 0.45; }
 }
 
-/* حلقة الوهج خلف الصندوق */
+/* حلقة الوهج - تم إلغاء التشاش تماماً ليبقى الصندوق نقياً عائماً */
 .mystery-box-radial-aura {
-  position: absolute;
-  width: 120%;
-  height: 120%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.38) 0%, rgba(212, 175, 55, 0.1) 50%, transparent 75%);
-  filter: blur(25px);
-  pointer-events: none;
-  animation: auraRotate 10s linear infinite;
+  display: none !important;
 }
 
 @keyframes auraRotate {
@@ -7700,7 +7679,38 @@ html.theme-transitioning *::after {
   .btn-owner-add-box-item {
     font-size: 0.74rem;
     padding: 5px 10px;
-  }
+}
+}
+
+/* أداة تغيير صورة البوكيه الرئيسي بالواجهة للمالك */
+.hero-owner-image-tool {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 25;
+}
+
+.btn-owner-change-img {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(191,114,121,0.92);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(191,114,121,0.4);
+  transition: var(--transition);
+  font-family: var(--font-arabic);
+}
+.btn-owner-change-img:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(104,48,54,0.4);
 }
 
 /* ==========================================================================

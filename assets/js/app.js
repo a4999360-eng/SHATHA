@@ -488,7 +488,24 @@ function renderProducts() {
 
   // فلتر اختياري خاص بصفحات الأقسام والتصنيفات المستقلة
   if (Array.isArray(window.SHATHA_CATEGORY_FILTER) && window.SHATHA_CATEGORY_FILTER.length > 0) {
-    filtered = filtered.filter(p => window.SHATHA_CATEGORY_FILTER.includes(p.id));
+    const dept = (window.SHATHA_CURRENT_DEPT || '').toLowerCase().trim();
+    filtered = filtered.filter(p => {
+      // 1. إذا كان المعرف موجوداً في القائمة المحددة مسبقاً
+      if (window.SHATHA_CATEGORY_FILTER.includes(p.id)) return true;
+      // 2. إذا كان المنتج مخصصاً (custom) أو له تصنيف يطابق القسم الحالي
+      if (dept && (p.isCustom || p.category || p.dept || p.weddingCategory)) {
+        const pDept = (p.category || p.dept || '').toLowerCase().trim();
+        const wCat = (p.weddingCategory || '').toLowerCase().trim();
+        if (pDept && pDept === dept) return true;
+        // مطابقة بالكلمات المفتاحية لأسماء الأقسام والتصنيفات
+        if (dept === 'bouquets' && (pDept.includes('bouquet') || pDept.includes('بوكيه') || pDept.includes('ورد') || wCat === 'bridal_bouquet')) return true;
+        if (dept === 'frames' && (pDept.includes('frame') || pDept.includes('برواز') || pDept.includes('إطار') || wCat === 'frames')) return true;
+        if (dept === 'crowns' && (pDept.includes('crown') || pDept.includes('طوق') || pDept.includes('عقد') || wCat === 'crowns')) return true;
+        if (dept === 'katb_ketab' && (pDept.includes('katb') || pDept.includes('كتب') || pDept.includes('بصمة') || pDept.includes('fingerprint') || pDept.includes('mandil') || wCat === 'katb_ketab' || wCat === 'mandil_fingerprint')) return true;
+        if (dept === 'bags' && (pDept.includes('bag') || pDept.includes('حقيبة') || pDept.includes('علبة') || pDept.includes('هدية') || pDept.includes('كاندي') || pDept.includes('فلوس') || pDept.includes('money') || wCat === 'favors' || wCat === 'mandil_fingerprint')) return true;
+      }
+      return false;
+    });
   }
   if (appState.searchQuery) {
     filtered = filtered.filter(p => 
@@ -695,8 +712,12 @@ function openProductModal(productId) {
       ownerTools.style.display = "flex";
       ownerTools.innerHTML = `
         <span style="font-weight: 700; color: #D35400; font-size: 0.85rem;"><i class="fas fa-crown"></i> إدارة الباقة (المالك):</span>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn-modal-admin edit" onclick="openEditProductModal('${product.id}')"><i class="fas fa-pen"></i> تعديل محتوى الباقة</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn-modal-admin edit" onclick="openEditProductModal('${product.id}')"><i class="fas fa-pen"></i> تعديل بيانات الباقة</button>
+          <label class="btn-modal-admin edit" style="cursor:pointer; background: #2980B9;" title="تغيير الصورة الرئيسية فوراً">
+            <i class="fas fa-camera"></i> تغيير الصورة
+            <input type="file" accept="image/*" style="display:none;" onchange="handleModalProductImageChange('${product.id}', this.files)">
+          </label>
           <button type="button" class="btn-modal-admin delete" onclick="deleteProductById('${product.id}')"><i class="fas fa-trash-alt"></i> حذف الباقة</button>
         </div>
       `;
@@ -721,6 +742,12 @@ function openProductModal(productId) {
 
   const descEl = document.getElementById("modalProductDesc");
   if (descEl) descEl.innerText = product.shortDesc || "تنفيذ يدوي ملكي فاخر بأرقى الخامات لتدوم ليلة العمر للأبد.";
+
+  const priceInitEl = document.getElementById("modalCurrentPrice");
+  if (priceInitEl) {
+    const initPrice = (product.sizes && product.sizes[0] && product.sizes[0].price) ? product.sizes[0].price : (product.basePrice || 0);
+    priceInitEl.innerHTML = `${initPrice} <span class="currency">ج.م</span>`;
+  }
 
   // الخامات والتصنيع
   const materialsBox = document.getElementById("modalMaterialsText");
@@ -788,6 +815,51 @@ function closeProductModal() {
 }
 window.openProductModal = openProductModal;
 window.closeProductModal = closeProductModal;
+
+/**
+ * تغيير الصورة الرئيسية لأي منتج مباشرةً من نافذة التفاصيل (المالك فقط)
+ */
+function handleModalProductImageChange(productId, files) {
+  if (!isCurrentUserOwner() || !files || files.length === 0) return;
+  const file = files[0];
+  if (!file.type.startsWith("image/")) {
+    showToast("يرجى اختيار ملف صورة صالح", "error");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const dataUrl = e.target.result;
+
+      // تحديث المنتج في appState
+      const prod = appState.products.find(p => p.id === productId);
+      if (prod) {
+        prod.images = [dataUrl, ...(prod.images.slice(1))];
+        // تحديث الصورة الرئيسية في المودال فوراً
+        const mainImg = document.getElementById("modalMainImg");
+        if (mainImg) mainImg.src = dataUrl;
+        // تحديث الـ thumbnails
+        const thumbsContainer = document.getElementById("modalThumbnailsContainer");
+        if (thumbsContainer && prod.images.length > 1) {
+          thumbsContainer.innerHTML = prod.images.map((img, idx) => `
+            <div class="modal-thumb ${idx === 0 ? 'active' : ''}" onclick="switchModalImage('${img}', this)">
+              <img src="${img}" alt="زاوية ${idx + 1}">
+            </div>
+          `).join('');
+        }
+        // حفظ وتحديث الشبكة
+        saveAllProductsToStorage();
+        renderProducts();
+        showToast("✅ تم تحديث صورة الباقة بنجاح!", "success");
+      }
+    } catch(err) {
+      showToast("حدث خطأ أثناء معالجة الصورة", "error");
+    }
+  };
+  reader.readAsDataURL(file);
+}
+window.handleModalProductImageChange = handleModalProductImageChange;
 
 // تبديل زوايا وصور المعرض
 function switchModalImage(imgSrc, thumbElement) {
@@ -2549,6 +2621,7 @@ function updateAuthUI() {
   renderWeddingSection();
   if (typeof renderWeddingBoxCards === 'function') renderWeddingBoxCards();
   if (typeof initWeddingBoxShowcase === 'function') initWeddingBoxShowcase();
+  if (typeof initHeroBouquetShowcase === 'function') initHeroBouquetShowcase();
 }
 
 /**
@@ -3168,6 +3241,13 @@ function handleWizardProductSubmit(e) {
     isWedding: isWedding,
     isWeddingBox: isWeddingBox,
     weddingCategory: weddingCategory,
+    // حفظ القسم المختار أو الحالي لكي يظهر المنتج في صفحته الصحيحة تلقائياً
+    category: (document.getElementById("wMainDepartment")?.value && document.getElementById("wMainDepartment")?.value !== 'auto') 
+      ? document.getElementById("wMainDepartment").value 
+      : ((window.SHATHA_CURRENT_DEPT || '').toLowerCase().trim() || (isWedding ? 'wedding' : 'general')),
+    dept: (document.getElementById("wMainDepartment")?.value && document.getElementById("wMainDepartment")?.value !== 'auto') 
+      ? document.getElementById("wMainDepartment").value 
+      : ((window.SHATHA_CURRENT_DEPT || '').toLowerCase().trim() || (isWedding ? 'wedding' : 'general')),
     basePrice: basePrice,
     oldPrice: oldPrice,
     rating: 5.0,
@@ -3185,6 +3265,11 @@ function handleWizardProductSubmit(e) {
     ],
     isCustom: true
   };
+
+  // تحديث قائمة فلتر الصفحة الحالية لتشمل المنتج الجديد فوراً
+  if (Array.isArray(window.SHATHA_CATEGORY_FILTER) && newProduct.id) {
+    window.SHATHA_CATEGORY_FILTER.push(newProduct.id);
+  }
 
   try {
     appState.products.unshift(newProduct);
@@ -4402,8 +4487,8 @@ function setupCarouselInteractions() {
     const currentX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
     const deltaX = currentX - weddingBoxState.startX;
 
-    // تمييز السحب الحقيقي فقط (فوق 15 بكسل) لتفادي تعطيل اللمسات السريعة على الهواتف
-    if (Math.abs(deltaX) > 15) {
+    // تمييز السحب الحقيقي فقط (فوق 35 بكسل) لتفادي تعطيل اللمسات السريعة على الهواتف
+    if (Math.abs(deltaX) > 35) {
       weddingBoxState.hasDragged = true;
     }
 
@@ -4425,7 +4510,7 @@ function setupCarouselInteractions() {
 
     setTimeout(() => {
       weddingBoxState.hasDragged = false;
-    }, 120);
+    }, 50);
   };
 
   viewport.addEventListener("mousedown", onPointerDown);
@@ -4453,92 +4538,19 @@ function initMysteryBox3D() {
   const boxImg = document.getElementById("mysteryBox3dImg");
   if (!boxImg) return;
 
-  const CACHE_KEY = "shatha_box_closed_trans_v3";
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached && cached.startsWith("data:image/png")) {
-    boxImg.src = cached;
-    boxImg.classList.add("bg-removed");
-    return;
-  }
+  // مسح أي نسخ مخزنة قديمة من الكانفاس (v1, v2, v3) لتجنب ظهور الخلفية مجدداً
+  ['shatha_box_closed_trans_v1','shatha_box_closed_trans_v2','shatha_box_closed_trans_v3'].forEach(k => {
+    try { localStorage.removeItem(k); } catch(e) {}
+  });
 
-  const removeBgAndCrop = () => {
-    try {
-      const w = boxImg.naturalWidth || boxImg.width;
-      const h = boxImg.naturalHeight || boxImg.height;
-      if (!w || !h) return;
+  // إزالة كلاس bg-removed حتى لا يتعارض مع CSS clip-path في style.css
+  boxImg.classList.remove("bg-removed");
 
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      ctx.drawImage(boxImg, 0, 0, w, h);
-
-      const imgData = ctx.getImageData(0, 0, w, h);
-      const d = imgData.data;
-
-      let minX = w, minY = h, maxX = 0, maxY = 0;
-      let hasBoxPixel = false;
-
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i];
-        const g = d[i + 1];
-        const b = d[i + 2];
-        const x = (i / 4) % w;
-        const y = Math.floor((i / 4) / w);
-
-        const isBoxDark = (r < 115 && g < 115 && b < 120);
-        const isBoxRed = (r > 70 && g < 90 && b < 105);
-        const isBoxGold = (r > 140 && g > 110 && b < 165 && (r - b) > 18);
-
-        if (isBoxDark || isBoxRed || isBoxGold) {
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-          hasBoxPixel = true;
-        } else {
-          d[i + 3] = 0;
-        }
-      }
-
-      if (!hasBoxPixel) return;
-
-      ctx.putImageData(imgData, 0, 0);
-
-      const pad = 10;
-      minX = Math.max(0, minX - pad);
-      minY = Math.max(0, minY - pad);
-      maxX = Math.min(w, maxX + pad);
-      maxY = Math.min(h, maxY + pad);
-
-      const cropW = maxX - minX;
-      const cropH = maxY - minY;
-
-      if (cropW > 50 && cropH > 50) {
-        const cropCanvas = document.createElement("canvas");
-        cropCanvas.width = cropW;
-        cropCanvas.height = cropH;
-        const cropCtx = cropCanvas.getContext("2d");
-        cropCtx.drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
-
-        const transPng = cropCanvas.toDataURL("image/png");
-        boxImg.src = transPng;
-        boxImg.classList.add("bg-removed");
-        try {
-          localStorage.setItem(CACHE_KEY, transPng);
-        } catch(e) {}
-      }
-    } catch (err) {
-      console.log("Floating box using CSS vector cutout fallback:", err && err.message);
-    }
-  };
-
-  if (boxImg.complete && boxImg.naturalWidth > 0) {
-    removeBgAndCrop();
-  } else {
-    boxImg.addEventListener("load", removeBgAndCrop);
-  }
+  // الاعتماد الكامل على CSS polygon clip-path المعرّف في #mysteryBox3dImg بـ style.css
+  // (تم تعريفه ليقطع الخلفية بدقة ويجعل الصندوق يطوف بدون أي خلفية)
+  console.log("Mystery box: using CSS polygon clip-path for clean floating effect");
 }
+
 
 /* ==========================================================================
    إدارة وتحديث صورة واجهة صندوق العرسان لمالك المتجر (Showcase Image Controls)
@@ -4732,14 +4744,102 @@ async function syncWeddingBoxFromCloud() {
         if (imgEl) imgEl.src = pkgImg;
       }
     }
+
+    // 4. مزامنة صورة البوكيه الرئيسي من السحابة (hero bouquet)
+    const cloudHeroImg = await SHATHA_CLOUD.get('hero_bouquet_img');
+    if (cloudHeroImg && typeof cloudHeroImg === 'string' && cloudHeroImg.length > 50) {
+      localStorage.setItem('shatha_hero_bouquet_img', cloudHeroImg);
+      const heroImg = document.getElementById("heroBouquetImg");
+      if (heroImg) heroImg.src = cloudHeroImg;
+    }
   } catch(e) {
     console.warn("Wedding box cloud sync note:", e);
   }
 }
 
+/* ==========================================================================
+   إدارة صورة البوكيه الرئيسي في واجهة الموقع (Hero Bouquet Image) — للمالك فقط
+   ========================================================================== */
+
+/**
+ * تهيئة أداة تغيير صورة البوكيه الرئيسي في الصفحة الرئيسية
+ * تُظهر الزر للمالك فقط وتُحمّل الصورة المخزّنة
+ */
+function initHeroBouquetShowcase() {
+  const heroImg = document.getElementById("heroBouquetImg");
+  const ownerTool = document.getElementById("heroOwnerImageTool");
+  const isOwner = isCurrentUserOwner();
+
+  // تحميل الصورة المخصصة المحفوظة للبوكيه الرئيسي
+  const savedImg = localStorage.getItem('shatha_hero_bouquet_img');
+  if (heroImg && savedImg && savedImg.length > 50) {
+    heroImg.src = savedImg;
+  }
+
+  // إظهار أو إخفاء زر تعديل الصورة حسب هوية المستخدم
+  if (ownerTool) {
+    ownerTool.style.display = isOwner ? "block" : "none";
+  }
+}
+
+/**
+ * فتح نافذة اختيار صورة البوكيه الرئيسي (المالك فقط)
+ */
+function triggerChangeHeroBouquetImage() {
+  if (!isCurrentUserOwner()) {
+    showToast("هذه الخاصية متاحة لمالك المتجر فقط", "error");
+    return;
+  }
+  const input = document.getElementById("ownerHeroFileInput");
+  if (input) input.click();
+}
+
+/**
+ * معالجة الصورة الجديدة للبوكيه الرئيسي بعد اختيارها
+ */
+function handleOwnerHeroBouquetFileChosen(files) {
+  if (!isCurrentUserOwner() || !files || files.length === 0) return;
+  const file = files[0];
+  if (!file.type.startsWith("image/")) {
+    showToast("يرجى اختيار ملف صورة صالح (JPG, PNG, WebP)", "error");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const dataUrl = e.target.result;
+      const heroImg = document.getElementById("heroBouquetImg");
+      if (heroImg) heroImg.src = dataUrl;
+
+      // حفظ الصورة محلياً ومزامنتها سحابياً
+      try {
+        localStorage.setItem('shatha_hero_bouquet_img', dataUrl);
+      } catch(storErr) {
+        console.warn("Hero img localStorage full, storing compressed:", storErr);
+      }
+
+      // مزامنة سحابية مع Firebase
+      SHATHA_CLOUD.set('hero_bouquet_img', dataUrl).then(() => {
+        showToast("✅ تم تحديث صورة البوكيه الرئيسي بنجاح ومزامنتها على جميع الأجهزة!", "success");
+      }).catch(() => {
+        showToast("✅ تم تحديث صورة البوكيه الرئيسي محلياً (جارٍ المزامنة...)", "success");
+      });
+    } catch(err) {
+      showToast("حدث خطأ أثناء معالجة الصورة، يرجى المحاولة بصورة أصغر", "error");
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+window.triggerChangeHeroBouquetImage = triggerChangeHeroBouquetImage;
+window.handleOwnerHeroBouquetFileChosen = handleOwnerHeroBouquetFileChosen;
+window.initHeroBouquetShowcase = initHeroBouquetShowcase;
+
 // فحص فتح الصندوق تلقائياً وتهيئة الواجهة
 document.addEventListener("DOMContentLoaded", () => {
   initWeddingBoxShowcase();
+  initHeroBouquetShowcase();
   initMysteryBox3D();
   syncWeddingBoxFromCloud();
 
