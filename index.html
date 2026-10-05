@@ -198,28 +198,28 @@
   <section class="trust-bar-section">
     <div class="container">
       <div class="trust-features-grid">
-        <div class="trust-card">
+        <div class="trust-card" onclick="openPolicyModal('guarantee')" style="cursor: pointer;" title="اضغط لعرض تفاصيل ضمان الجودة والإتقان">
           <div class="trust-icon-box"><i class="fas fa-hand-sparkles"></i></div>
           <div class="trust-text">
             <h4>صناعة يدوية 100%</h4>
             <p>شغل يدوي متقن وخامات أصلية فاخرة</p>
           </div>
         </div>
-        <div class="trust-card">
+        <div class="trust-card" onclick="openPolicyModal('guarantee')" style="cursor: pointer;" title="اضغط لعرض تفاصيل ضمان الجودة">
           <div class="trust-icon-box"><i class="fas fa-infinity"></i></div>
           <div class="trust-text">
             <h4>يدوم للأبد ولا يذبل</h4>
             <p>ورد ستان فاخر وتنسيقات نقود استثنائية</p>
           </div>
         </div>
-        <div class="trust-card">
+        <div class="trust-card" onclick="openPolicyModal('privacy')" style="cursor: pointer;" title="اضغط لعرض سياسة الخصوصية وسرية الإهداء">
           <div class="trust-icon-box"><i class="fas fa-envelope-open-text"></i></div>
           <div class="trust-text">
             <h4>كارت إهداء مذهب</h4>
             <p>تجهيز وطباعة رسالتك الخاصة مجاناً</p>
           </div>
         </div>
-        <div class="trust-card">
+        <div class="trust-card" onclick="openPolicyModal('guarantee')" style="cursor: pointer;" title="اضغط لعرض ضمان الجودة والإتقان">
           <div class="trust-icon-box"><i class="fas fa-shield-halved"></i></div>
           <div class="trust-text">
             <h4>ضمان الجودة والإتقان</h4>
@@ -1680,72 +1680,295 @@
     </div>
   </section>
 
-  <!-- مودالات السياسات والشروط -->
+  <!-- ===================================================
+       مودالات السياسات والثقة — تصميم احترافي
+       =================================================== -->
+
   <!-- 1. ضمان الجودة والإتقان -->
-  <section class="policy-modal" id="policyModal-guarantee" aria-label="ضمان الجودة والإتقان">
-    <button class="product-modal-close" onclick="closePolicyModal('guarantee')"><i class="fas fa-times"></i></button>
-    <h3>🌸 ضمان الجودة والإتقان التام من شذى</h3>
-    <div class="policy-content">
-      <h5>صناعة يدوية عالية الجودة 100%:</h5>
-      <p>نضمن لعملائنا الكرام في "شذى" أن كافة الباقات مصنوعة يدوياً بحرفية ودقة متناهية من أجود أشرطة الستان التركي الأصلي وخامات التغليف الكورية الفاخرة.</p>
-      <h5>تعيش معاك العمر كلو:</h5>
-      <p>ورد الستان لا يذبل ولا يتلف ولا يحتاج إلى ماء أو شمس، ليظل تذكاراً دائماً يحتفظ ببريقه وجماله لسنوات طويلة.</p>
-      <h5>أمان الأوراق النقدية في بوكيهات الفلوس:</h5>
-      <p>نتبع تقنية طي هندسية دقيقة تحافظ على الأوراق النقدية دون استخدام أي مواد لاصقة ضارة، مما يتيح فك النقود لاحقاً بكل سهولة وأمان تام.</p>
+  <section class="policy-modal" id="policyModal-guarantee" aria-label="ضمان الجودة والإتقان" role="dialog" aria-modal="true">
+    <div class="policy-modal-header">
+      <div class="policy-modal-icon gold"><i class="fas fa-award"></i></div>
+      <div class="policy-modal-header-text">
+        <h3>ضمان الجودة والإتقان</h3>
+        <span class="policy-updated">آخر تحديث: أكتوبر ٢٠٢٦</span>
+      </div>
+      <button class="policy-modal-close-btn" onclick="closePolicyModal('guarantee')" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="policy-modal-body">
+
+      <div class="policy-alert-box green">
+        <i class="fas fa-shield-alt" style="color:#1A8C4E"></i>
+        <p>كل قطعة تصدر من شذى تمر بفحص جودة يدوي دقيق قبل تغليفها وتسليمها. نلتزم بأعلى معايير الإتقان أو نُعيد التنفيذ على نفقتنا الكاملة.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-hand-sparkles"></i> صناعة يدوية 100% مضمونة</div>
+        <p>جميع منتجات شذى — من بوكيهات الستان إلى صناديق العرسان والبراويز — تُنفَّذ يدوياً بحرفية كاملة من قِبَل صانعات متخصصات. لا يوجد أي تصنيع آلي في أي مرحلة.</p>
+        <p>نستخدم أجود أشرطة الستان التركي الأصيل، وأقمشة اللؤلؤ والشيفون، والمعادن المطلية بالذهب والفضة، وخامات كورية وأوروبية مختارة يدوياً.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-infinity"></i> يدوم مدى الحياة — ضمان بلا تاريخ انتهاء</div>
+        <p>ورد الستان لا يذبل ولا يتلف ولا يحتاج ماءً أو ضوءاً. الضمان سارٍ طالما الباقة محفوظة في ظروف جافة بعيدة عن الرطوبة العالية.</p>
+        <p><strong>ما لا يشمله الضمان:</strong> التلف الناتج عن سوء التخزين أو التعرض للماء أو الضغط الشديد بعد الاستلام.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-money-bill-wave"></i> ضمان أمان الأوراق النقدية</div>
+        <p>في بوكيهات الفلوس، نتبع تقنية طي هندسية مبتكرة تحافظ على الأوراق النقدية دون استخدام أي مواد لاصقة. يمكن فك النقود بسهولة وأمان تام في أي وقت.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-camera"></i> التحقق من الجودة قبل الشحن</div>
+        <p>نلتزم بإرسال صورة للمنتج النهائي على واتساب قبل التسليم لمنحك الثقة الكاملة في مطابقته للمواصفات. رفضك للصورة يعني إعادة التنفيذ فوراً.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-redo"></i> ماذا لو لم تكن راضياً؟</div>
+        <p>إذا وصل المنتج بأي خلل في التنفيذ أو تلف ناتج عن الشحن، تواصل معنا خلال <strong>24 ساعة من الاستلام</strong> بصورة واضحة وسنقوم باستبداله أو إصلاحه فوراً دون أي تساؤلات.</p>
+        <a href="https://wa.me/201102541236?text=مرحباً، أريد الإبلاغ عن مشكلة في جودة المنتج" target="_blank" class="policy-wa-btn">
+          <i class="fab fa-whatsapp"></i> تواصل معنا فوراً
+        </a>
+      </div>
+
     </div>
   </section>
 
   <!-- 2. سياسة الشحن والتوصيل -->
-  <section class="policy-modal" id="policyModal-delivery" aria-label="سياسة الشحن">
-    <button class="product-modal-close" onclick="closePolicyModal('delivery')"><i class="fas fa-times"></i></button>
-    <h3>🚚 سياسة الشحن والتوصيل السريع</h3>
-    <div class="policy-content">
-      <h5>سرعة التوصيل:</h5>
-      <p>توصيل في نفس اليوم خلال 3 إلى 5 ساعات داخل جميع أحياء ومناطق القاهرة والجيزة والتجمع والشيخ زايد وأكتوبر.</p>
-      <h5>توصيل المحافظات:</h5>
-      <p>نشحن للإسكندرية وكافة المحافظات مع عناية خاصة لتصل الباقة متماسكة وبكامل أناقتها.</p>
-      <h5>سرية التوصيل والمفاجآت:</h5>
-      <p>في حال كان البوكيه مفاجأة أو إهداء لشخص آخر، يلتزم مندوبنا بعدم ذكر تفاصيل الهدية أو السعر للمستلم لضمان فرحة المفاجأة.</p>
+  <section class="policy-modal" id="policyModal-delivery" aria-label="سياسة الشحن والتوصيل" role="dialog" aria-modal="true">
+    <div class="policy-modal-header">
+      <div class="policy-modal-icon blue"><i class="fas fa-truck-fast"></i></div>
+      <div class="policy-modal-header-text">
+        <h3>سياسة الشحن والتوصيل</h3>
+        <span class="policy-updated">آخر تحديث: أكتوبر ٢٠٢٦</span>
+      </div>
+      <button class="policy-modal-close-btn" onclick="closePolicyModal('delivery')" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="policy-modal-body">
+
+      <div class="policy-alert-box info">
+        <i class="fas fa-info-circle" style="color:#2980B9"></i>
+        <p>يُحسب وقت التوصيل من لحظة تأكيد الطلب وسداد الدفعة — لا من وقت التواصل الأولي.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-bolt"></i> التوصيل داخل القاهرة والجيزة</div>
+        <table class="policy-table">
+          <tr><th>المنطقة</th><th>مدة التوصيل</th><th>ملاحظة</th></tr>
+          <tr><td>التجمع الأول / الخامس — القاهرة الجديدة</td><td>٢–٤ ساعات</td><td>نفس اليوم</td></tr>
+          <tr><td>مدينة نصر — الرحاب — المقطم</td><td>٣–٥ ساعات</td><td>نفس اليوم</td></tr>
+          <tr><td>هليوبوليس — مصر الجديدة — النزهة</td><td>٣–٥ ساعات</td><td>نفس اليوم</td></tr>
+          <tr><td>وسط القاهرة — الدقي — المهندسين</td><td>٣–٥ ساعات</td><td>نفس اليوم</td></tr>
+          <tr><td>الشيخ زايد — أكتوبر — حدائق الأهرام</td><td>٤–٦ ساعات</td><td>نفس اليوم</td></tr>
+          <tr><td>الإسكندرية والمحافظات</td><td>٢–٤ أيام عمل</td><td>شحن مأمون</td></tr>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-box-open"></i> التغليف للشحن</div>
+        <p>تُغلَّف كل طلبات الشحن الخارجي في صناديق كرتونية مقواة مبطنة بالفوم والورق الكريمي لضمان وصول المنتج سليماً بالكامل، بصرف النظر عن وقت النقل.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-user-secret"></i> سرية التوصيل للمفاجآت</div>
+        <p>إذا كانت الهدية مفاجأة، يلتزم مندوبنا بعدم ذكر اسم المرسِل أو قيمة الهدية. يكفي أن تذكر ذلك عند تأكيد الطلب.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-exclamation-triangle"></i> شروط مهمة يجب معرفتها</div>
+        <ul>
+          <li>التوصيل في نفس اليوم يشترط تأكيد الطلب قبل الساعة ٥ مساءً.</li>
+          <li>في أيام الذروة (الجمعة والأعياد ورأس السنة) قد تمتد المدة ساعة إضافية.</li>
+          <li>في حال تعذّر الوصول للعنوان بعد محاولتين يتواصل معك المندوب — إذا لم يُرَد الهاتف يُعاد الطلب للمخزن ويُعاد الجدولة بتكلفة توصيل إضافية.</li>
+          <li>شذى غير مسؤولة عن تأخير شركات الشحن الخارجي بعد تسليم الطلب للشركة.</li>
+        </ul>
+      </div>
+
     </div>
   </section>
 
-  <!-- 3. سياسة الاستبدال والتعديل -->
-  <section class="policy-modal" id="policyModal-refund" aria-label="سياسة الاستبدال">
-    <button class="product-modal-close" onclick="closePolicyModal('refund')"><i class="fas fa-times"></i></button>
-    <h3>🔄 سياسة الاستبدال والتعديل</h3>
-    <div class="policy-content">
-      <h5>مطابقة التنفيذ للصورة:</h5>
-      <p>نحرص على مطابقة كل باقة للصورة والتفاصيل المختارة. في حال وجود أي ملاحظة عند الاستلام مع المندوب يمكنك التواصل معنا فوراً ونلتزم بتعديلها أو استبدالها بما يرضيك تماماً.</p>
-      <h5>تعديل الطلب:</h5>
-      <p>يمكنك تعديل أي تفاصيل في الطلب أو نص كارت الإهداء بالتواصل المباشر معنا عبر الواتساب قبل خروج الأوردر للتوصيل.</p>
+  <!-- 3. سياسة الاستبدال والاسترجاع -->
+  <section class="policy-modal" id="policyModal-refund" aria-label="سياسة الاستبدال والاسترجاع" role="dialog" aria-modal="true">
+    <div class="policy-modal-header">
+      <div class="policy-modal-icon green"><i class="fas fa-exchange-alt"></i></div>
+      <div class="policy-modal-header-text">
+        <h3>سياسة الاستبدال والاسترجاع</h3>
+        <span class="policy-updated">آخر تحديث: أكتوبر ٢٠٢٦</span>
+      </div>
+      <button class="policy-modal-close-btn" onclick="closePolicyModal('refund')" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="policy-modal-body">
+
+      <div class="policy-alert-box">
+        <i class="fas fa-exclamation-triangle" style="color:#C9A13B"></i>
+        <p>نظراً لأن جميع منتجاتنا تُنفَّذ يدوياً حسب الطلب، لا يُقبل الاسترجاع لأسباب تتعلق بتغيير الرأي. الاستبدال متاح فقط في الحالات الموضحة أدناه.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-check-circle"></i> حالات الاستبدال المقبولة</div>
+        <ul>
+          <li><strong>تلف ناتج عن الشحن:</strong> يُبلَّغ عنه خلال ٢٤ ساعة من الاستلام مع صورة واضحة.</li>
+          <li><strong>خطأ في التنفيذ:</strong> كون المنتج لا يطابق المواصفات المؤكدة في الطلب (لون مختلف، حجم مختلف، نص خاطئ).</li>
+          <li><strong>عيب في الصنعة:</strong> تفكك أو خلل واضح في الهيكل قبل الاستخدام.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-times-circle"></i> حالات لا يُقبل فيها الاسترجاع</div>
+        <ul>
+          <li>تغيير الرأي أو عدم الرغبة في المنتج بعد استلامه.</li>
+          <li>اختيار اللون أو الحجم بشكل غير صحيح من قِبَل العميل.</li>
+          <li>التلف الناتج عن سوء التخزين أو التعرض للماء أو الضغط بعد الاستلام.</li>
+          <li>الإبلاغ بعد مرور أكثر من ٢٤ ساعة من الاستلام.</li>
+          <li>المنتجات المخصصة بأسماء أو تواريخ أو نصوص إهداء شخصية.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-clipboard-list"></i> خطوات طلب الاستبدال</div>
+        <ul>
+          <li>تواصل معنا عبر واتساب خلال ٢٤ ساعة من الاستلام.</li>
+          <li>أرسل صورة واضحة للمنتج وللمشكلة المذكورة.</li>
+          <li>سيراجع فريقنا الطلب خلال ٢ ساعة عمل.</li>
+          <li>في حال القبول: يُجدَّد الطلب ويُسلَّم خلال نفس فترة التوصيل المعتادة.</li>
+        </ul>
+        <a href="https://wa.me/201102541236?text=مرحباً، أود طلب استبدال منتج" target="_blank" class="policy-wa-btn">
+          <i class="fab fa-whatsapp"></i> ابدأ طلب الاستبدال
+        </a>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-pen"></i> تعديل الطلب قبل التنفيذ</div>
+        <p>يمكنك تعديل أي تفاصيل (لون — حجم — نص الكارت) عبر واتساب <strong>قبل بدء التنفيذ فقط</strong>. بمجرد الشروع في التنفيذ لا يمكن تعديل الطلب.</p>
+      </div>
+
     </div>
   </section>
 
   <!-- 4. الشروط والأحكام -->
-  <section class="policy-modal" id="policyModal-terms" aria-label="الشروط والأحكام">
-    <button class="product-modal-close" onclick="closePolicyModal('terms')"><i class="fas fa-times"></i></button>
-    <h3>📜 الشروط والأحكام</h3>
-    <div class="policy-content">
-      <p>أهلاً بكم في متجر شذى. استخدامك للموقع وتأكيدك للطلبات يعني موافقتك على شروط الخدمة الموضحة أدناه:</p>
-      <h5>توفر ألوان الستان وخامات التغليف:</h5>
-      <p>تُصنع كافة الباقات والورود يدوياً بعناية وإتقان فائق. وفي حالات نادرة جداً عند نفاد درجة لونية محددة من أشرطة الستان أو خامات التغليف الفاخرة، يلتزم فريقنا بالتواصل معكِ فوراً لاعتماد درجة بديلة مماثلة أو تفوقها في الفخامة والجمال دون أي تكلفة إضافية.</p>
-      <h5>الأسعار والضرائب:</h5>
-      <p>كافة الأسعار المعروضة بالجنيه المصري وتشمل التغليف الفاخر وكارت الإهداء المطبوع مجاناً.</p>
+  <section class="policy-modal" id="policyModal-terms" aria-label="الشروط والأحكام" role="dialog" aria-modal="true">
+    <div class="policy-modal-header">
+      <div class="policy-modal-icon purple"><i class="fas fa-file-contract"></i></div>
+      <div class="policy-modal-header-text">
+        <h3>الشروط والأحكام</h3>
+        <span class="policy-updated">آخر تحديث: أكتوبر ٢٠٢٦ — يُرجى قراءتها بعناية قبل الطلب</span>
+      </div>
+      <button class="policy-modal-close-btn" onclick="closePolicyModal('terms')" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="policy-modal-body">
+
+      <div class="policy-alert-box">
+        <i class="fas fa-gavel" style="color:#C9A13B"></i>
+        <p>باستخدامك للموقع وتأكيدك لأي طلب، فإنك تقرّ بقراءة هذه الشروط وموافقتك الكاملة عليها. إذا كنت لا توافق، يُرجى عدم إتمام الطلب.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-store"></i> ١. عن متجر شذى</div>
+        <p>«شذى» هي علامة تجارية متخصصة في الهدايا اليدوية الفاخرة ومستلزمات المناسبات. المتجر مسجّل في جمهورية مصر العربية ويخضع للقانون المصري.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-shopping-cart"></i> ٢. تأكيد الطلب</div>
+        <p>يُعتبر الطلب مؤكداً فقط عند استلام رسالة تأكيد من فريق شذى عبر واتساب، أو عند إتمام الدفع الإلكتروني. مجرد التواصل الأولي أو استفسار السعر لا يُعدّ تأكيداً.</p>
+        <p>تحتفظ شذى بالحق في رفض أي طلب دون إبداء الأسباب في حال وجود مخاوف تتعلق بالتحقق من الهوية أو صحة المعلومات.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-tags"></i> ٣. الأسعار والدفع</div>
+        <ul>
+          <li>جميع الأسعار بالجنيه المصري وتشمل التغليف وكارت الإهداء.</li>
+          <li>لا تشمل الأسعار رسوم التوصيل التي تُحدَّد حسب المنطقة الجغرافية.</li>
+          <li>الأسعار قابلة للتغيير دون إشعار مسبق. السعر المعتمد هو السعر وقت تأكيد الطلب.</li>
+          <li>الدفع المقدم (كلياً أو جزئياً) شرط لبدء التنفيذ في جميع الطلبات.</li>
+          <li>لا يُقبل أي طلب بدون دفعة مقدمة لا تقل عن ٥٠٪ من قيمة الطلب.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-palette"></i> ٤. الخامات والألوان</div>
+        <p>قد تختلف درجات الألوان قليلاً عما يظهر في الصور بسبب اختلاف إعدادات الشاشات. في حال نفاد لون محدد، يتواصل معك فريقنا لاختيار بديل مماثل أو أفضل.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-clock"></i> ٥. مواعيد التسليم</div>
+        <p>مواعيد التسليم تقديرية وغير ملزِمة قانونياً في حالات القوة القاهرة (ظروف جوية — أعطال — احتجازات أمنية). نلتزم بالإخطار الفوري في حال التأخر.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-copyright"></i> ٦. الملكية الفكرية</div>
+        <p>جميع الصور والتصاميم والمحتوى على موقع شذى ملكية حصرية للمتجر. يُحظر نسخها أو إعادة نشرها أو استخدامها تجارياً دون إذن خطي مسبق.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-balance-scale"></i> ٧. القانون المطبّق</div>
+        <p>تخضع هذه الشروط لقوانين جمهورية مصر العربية. أي نزاع يُحسم أمام المحاكم المصرية المختصة.</p>
+      </div>
+
     </div>
   </section>
 
   <!-- 5. سياسة الخصوصية -->
-  <section class="policy-modal" id="policyModal-privacy" aria-label="سياسة الخصوصية">
-    <button class="product-modal-close" onclick="closePolicyModal('privacy')"><i class="fas fa-times"></i></button>
-    <h3>🔒 سياسة الخصوصية والأمان</h3>
-    <div class="policy-content">
-      <p>نولي في "شذى" سرية بيانات عملائنا ورسائل إهدائهم أعلى درجات العناية والأمان:</p>
-      <h5>حماية البيانات:</h5>
-      <p>بياناتك الشخصية (الاسم، رقم الهاتف، العنوان، نص كارت الإهداء) تُستخدم فقط لأغراض تجهيز وتوصيل طلبك ولا تتم مشاركتها إطلاقاً مع أي طرف ثالث.</p>
-      <h5>رسائل الإهداء:</h5>
-      <p>يتم التعامل مع نصوص الإهداء الخاصة بسرية وأمانة تامة ويتم طباعتها وتغليفها مباشرة داخل أظرف مغلقة.</p>
+  <section class="policy-modal" id="policyModal-privacy" aria-label="سياسة الخصوصية" role="dialog" aria-modal="true">
+    <div class="policy-modal-header">
+      <div class="policy-modal-icon red"><i class="fas fa-lock"></i></div>
+      <div class="policy-modal-header-text">
+        <h3>سياسة الخصوصية وحماية البيانات</h3>
+        <span class="policy-updated">آخر تحديث: أكتوبر ٢٠٢٦ — متوافقة مع معايير حماية البيانات</span>
+      </div>
+      <button class="policy-modal-close-btn" onclick="closePolicyModal('privacy')" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="policy-modal-body">
+
+      <div class="policy-alert-box green">
+        <i class="fas fa-shield-alt" style="color:#1A8C4E"></i>
+        <p>شذى لا تبيع بياناتك ولا تشاركها مع أي طرف ثالث لأغراض تسويقية. بياناتك تُستخدم فقط لتلبية طلبك.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-database"></i> ١. البيانات التي نجمعها</div>
+        <ul>
+          <li>الاسم ورقم الهاتف وعنوان التوصيل — لإتمام الطلب.</li>
+          <li>نص كارت الإهداء والملاحظات الخاصة — لتنفيذ طلبك بدقة.</li>
+          <li>بيانات الدفع (الرقم الأخير من البطاقة إذا دفعت إلكترونياً) — للتحقق فقط ولا نحتفظ بها.</li>
+          <li>سجل الرسائل على واتساب — لغرض الدعم وحل النزاعات.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-user-lock"></i> ٢. كيف نحمي بياناتك</div>
+        <p>بيانات العملاء محفوظة على أجهزة مشفرة ولا يصل إليها سوى أعضاء الفريق المعنيين بتنفيذ الطلبات مباشرةً. لا يحق لأي مندوب توصيل الاطلاع على بياناتك كاملةً سوى العنوان ورقم الهاتف.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-user-slash"></i> ٣. مشاركة البيانات</div>
+        <p>لا تتم مشاركة بياناتك مع أطراف ثالثة إلا في الحالات التالية:</p>
+        <ul>
+          <li>شركة الشحن — لغرض التوصيل فحسب (الاسم والهاتف والعنوان).</li>
+          <li>السلطات المختصة — إذا أوجب القانون ذلك.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-envelope-open-text"></i> ٤. رسائل الإهداء الشخصية</div>
+        <p>نتعامل مع نصوص الإهداء الخاصة بأمانة تامة. تُطبع وتُغلَّف داخل أظرف مغلقة ولا يطلع عليها المندوب أو أي طرف غير معني.</p>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-trash-alt"></i> ٥. حذف بياناتك</div>
+        <p>يمكنك طلب حذف بياناتك من سجلاتنا في أي وقت عبر التواصل معنا على واتساب. سنلبي طلبك خلال ٧ أيام عمل ما لم تكن هناك التزامات قانونية تُوجب الاحتفاظ بها.</p>
+        <a href="https://wa.me/201102541236?text=مرحباً، أود طلب حذف بياناتي الشخصية من سجلات شذى" target="_blank" class="policy-wa-btn">
+          <i class="fab fa-whatsapp"></i> طلب حذف بياناتي
+        </a>
+      </div>
+
+      <div class="policy-section">
+        <div class="policy-section-title"><i class="fas fa-cookie-bite"></i> ٦. ملفات الكوكيز</div>
+        <p>يستخدم الموقع ملفات كوكيز تقنية أساسية فقط (لا تتبع، لا إعلانات). لا يتم تحليل سلوكك على الموقع لأغراض تجارية.</p>
+      </div>
+
     </div>
   </section>
+
 
   <!-- ========================================================
        مودال باكدج العرسان الملكي المتكامل (Wedding Bundle Modal)

@@ -626,10 +626,10 @@ function openProductModal(productId) {
   if (!product) {
     console.warn("Product not found by ID, checking default box items:", productId);
     const boxMap = {
-      "shatha-wedding-ivory-bridal": { name: "بوكيه ورد كبير للعروسة ستان ملكي ولؤلؤ", basePrice: 650, oldPrice: 790, shortDesc: "بوكيه عروسة أسطوري مشغول يدوياً من ورد الستان الأوف وايت العاجي اللامع، مرصع بقلب كل وردة بحبات اللؤلؤ والكريستال النقي ليدوم مدى الحياة." },
-      "shatha-wedding-frame-glass": { name: "برواز الفرح وكتب الكتاب التذكاري الزجاجي الفاخر", basePrice: 420, oldPrice: 520, shortDesc: "برواز زجاجي مزدوج فاخر مصمم لحفظ وثيقة كتب الكتاب أو دعوة الفرح، محاط بورود ستان صغيرة مجففة وتطريز ليزر بأسماء العروسين." },
-      "shatha-wedding-bridal-necklace": { name: "طقم وعقد العروسة الملكي باللؤلؤ والزركون", basePrice: 490, oldPrice: 650, shortDesc: "عقد زفاف ملكي ساحر مرصع باللؤلؤ العاجي النقي وأحجار الزركون اللامعة بقطع الألماس، مطلي بالذهب ومصحوب بعلبة مخملية بيضاء فاخرة." },
-      "shatha-wedding-fingerprint-tree": { name: "لوحة بصمة كتب الكتاب التذكارية مع استاند وحبر", basePrice: 390, oldPrice: 490, shortDesc: "لوحة كانفاس فاخرة بتصميم شجرة الفرح تطبع عليها بصمات وتوقيعات المعازيم كأوراق شجر ملونة، مرفقة بإطار ذهبي وعلبة أحبار ملونة واستاند." }
+      "shatha-wedding-ivory-bridal": { name: "بوكيه ورد كبير للعروسة ستان ملكي ولؤلؤ", basePrice: 650, oldPrice: 790, image: "FLOURS/WhatsApp Image 2026-09-09 at 12.15.58 AM.jpeg", shortDesc: "بوكيه عروسة أسطوري مشغول يدوياً من ورد الستان الأوف وايت العاجي اللامع، مرصع بقلب كل وردة بحبات اللؤلؤ والكريستال النقي ليدوم مدى الحياة." },
+      "shatha-wedding-frame-glass": { name: "برواز الفرح وكتب الكتاب التذكاري الزجاجي الفاخر", basePrice: 420, oldPrice: 520, image: "FLOURS/WhatsApp Image 2026-09-09 at 12.15.54 AM.jpeg", shortDesc: "برواز زجاجي مزدوج فاخر مصمم لحفظ وثيقة كتب الكتاب أو دعوة الفرح، محاط بورود ستان صغيرة مجففة وتطريز ليزر بأسماء العروسين." },
+      "shatha-wedding-bridal-necklace": { name: "طقم وعقد العروسة الملكي باللؤلؤ والزركون", basePrice: 490, oldPrice: 650, image: "assets/images/bridal-necklace.jpg", shortDesc: "عقد زفاف ملكي ساحر مرصع باللؤلؤ العاجي النقي وأحجار الزركون اللامعة بقطع الألماس، مطلي بالذهب ومصحوب بعلبة مخملية بيضاء فاخرة." },
+      "shatha-wedding-fingerprint-tree": { name: "لوحة بصمة كتب الكتاب التذكارية مع استاند وحبر", basePrice: 390, oldPrice: 490, image: "FLOURS/WhatsApp Image 2026-09-09 at 12.15.59 AM.jpeg", shortDesc: "لوحة كانفاس فاخرة بتصميم شجرة الفرح تطبع عليها بصمات وتوقيعات المعازيم كأوراق شجر ملونة، مرفقة بإطار ذهبي وعلبة أحبار ملونة واستاند." }
     };
     if (boxMap[productId] || boxMap[normId]) {
       const fallback = boxMap[productId] || boxMap[normId];
@@ -639,7 +639,7 @@ function openProductModal(productId) {
         basePrice: fallback.basePrice,
         oldPrice: fallback.oldPrice,
         shortDesc: fallback.shortDesc,
-        images: ["assets/images/logo.jpg"],
+        images: [fallback.image || "assets/images/logo.jpg"],
         sizes: [{ id: "standard", name: "القطعة الأساسية الملكية", price: fallback.basePrice, stems: "شغل هاندميد متقن", sizeLabel: "المقاس القياسي" }]
       };
     } else {
@@ -921,8 +921,14 @@ function renderModalReviews(product) {
 
   const userEmail = (appState.currentUser && appState.currentUser.email) ? String(appState.currentUser.email).toLowerCase().trim() : null;
 
-  container.innerHTML = product.reviews.map((rev, idx) => {
-    if (!rev) return '';
+  container.innerHTML = product.reviews.map((rawRev, idx) => {
+    if (!rawRev) return '';
+    let rev = rawRev;
+    if (typeof rawRev === 'string') {
+      rev = { id: `pr_${product.id}_${idx}`, author: 'عروس شذى', comment: rawRev, rating: 5, date: 'مؤخراً' };
+    } else if (typeof rawRev === 'object') {
+      rev = { ...rawRev };
+    }
     if (!rev.id) {
       rev.id = `pr_${product.id}_${idx}`;
     }
@@ -1716,23 +1722,422 @@ function closeSuccessModal() {
   document.body.style.overflow = "";
 }
 
-function openPolicyModal(policyType) {
-  closeAllModals();
-  const modal = document.getElementById(`policyModal-${policyType}`);
-  const backdrop = document.getElementById("modalBackdrop");
-  if (modal) {
-    modal.classList.add("active");
-    backdrop?.classList.add("active");
-    document.body.style.overflow = "hidden";
+/* ==========================================================================
+   إدارة وعرض نوافذ السياسات والثقة المتكاملة (Universal Policies System)
+   ========================================================================== */
+
+const SHATHA_POLICIES_DATA = {
+  guarantee: {
+    id: "guarantee",
+    title: "ضمان الجودة والإتقان الملكي",
+    icon: "fa-award",
+    colorClass: "gold",
+    badgeText: "ضمان شذى الذهبي 100%",
+    updatedDate: "أكتوبر ٢٠٢٦",
+    alertType: "green",
+    alertIcon: "fa-shield-alt",
+    alertColor: "#1A8C4E",
+    alertText: "كل باقة أو قطعة تخرج من أتيليه شذى تمر بفحص جودة يدوي دقيق بموجب معايير فنية صارمة. نضمن أعلى درجات الإتقان أو نلتزم بإعادة التنفيذ الفوري على نفقتنا الكاملة.",
+    sections: [
+      {
+        title: "صناعة يدوية فاخرة 100% (Handcrafted with Passion)",
+        icon: "fa-hand-sparkles",
+        content: `
+          <p>كافة باقات الورد الستان، والبراويز التذكارية، وصناديق العرسان، ومستلزمات عقد القران تُنفذ يدوياً بحرفية متقنة على أيدي صانعات متخصصات. لا نعتمد على أي ماكينات أو خطوط تجميع آلية لضمان تفرد كل قطعة بلمستها الراقية.</p>
+          <p>ننتقي خاماتنا من أندر درجات أشرطة الستان التركي الحريري فائق النعومة واللمعان، واللؤلؤ العاجي، والكريستال والزركون النقي، ومعادن مطلية لا تصدأ ولا يتغير بريقها مع مرور السنين.</p>
+        `
+      },
+      {
+        title: "يدوم للأبد ولا يذبل (Eternal Quality)",
+        icon: "fa-infinity",
+        content: `
+          <p>ورد الستان الفاخر لا يذبل، لا يتعفن، ولا يحتاج لأي ماء أو إضاءة شمسية، صُمم خصيصاً ليخلد ذكرى ليلة العمر كتحفة فنية تحتفظ بكامل بهائها لعشرات السنين طالما حُفظ في بيئة جافة ومعتدلة.</p>
+          <p><strong>استثناءات الضمان:</strong> لا يشمل الضمان التلف الناتج عن الغمر المباشر بالماء، أو التعرض للنيران أو السقوط والدهس المتعمد بعد استلام الطلب.</p>
+        `
+      },
+      {
+        title: "أمان الأوراق النقدية بنسبة 100% في باقات الفلوس",
+        icon: "fa-money-bill-wave",
+        content: `
+          <p>نبتكر تقنية طي هندسية معتمدة لحفظ الأوراق النقدية بدون أي استخدام للمواد اللاصقة الكيميائية أو الدبابيس الحادة التي قد تمزق الورق، مما يتيح للعميل استخراج وفك النقود واستخدامها لاحقاً بكل سهولة وسلاسة دون فقدان مليمتر واحد من الورقة النقدية.</p>
+        `
+      },
+      {
+        title: "التوثيق والتصوير قبل الشحن",
+        icon: "fa-camera",
+        content: `
+          <p>لضمان راحة بالك التامة، يقوم فريق خدمة العملاء بإرسال صور وفيديو عالي الدقة للمنتج النهائي بعد تجهيزه وتطريزه عبر واتساب لاعتماده قبل انطلاق المندوب. في حال وجود أي ملاحظة نعدلها فوراً قبل الشحن.</p>
+        `
+      },
+      {
+        title: "التزام الاستبدال السريع في حالات العيوب",
+        icon: "fa-redo",
+        content: `
+          <p>في حال وصول المنتج بأي عيب مصنعي أو تلف ناتج عن نقل الشحنة، نتحمل كامل التكاليف ونقوم بإعادة التنفيذ الفوري وإرسال الباقة مجاناً خلال نفس اليوم أو اليوم التالي مباشرة.</p>
+          <a href="https://wa.me/201102541236?text=مرحباً فريق شذى، لدي استفسار بخصوص ضمان الجودة والإتقان" target="_blank" class="policy-wa-btn">
+            <i class="fab fa-whatsapp"></i> تواصل مع قسم الجودة عبر واتساب
+          </a>
+        `
+      }
+    ]
+  },
+  delivery: {
+    id: "delivery",
+    title: "سياسة الشحن والتوصيل السريع",
+    icon: "fa-truck-fast",
+    colorClass: "blue",
+    badgeText: "توصيل آمن لنفس اليوم",
+    updatedDate: "أكتوبر ٢٠٢٦",
+    alertType: "info",
+    alertIcon: "fa-info-circle",
+    alertColor: "#2980B9",
+    alertText: "تُحسب مدة التوصيل بدقة بدءاً من لحظة اعتماد الطلب وسداد الدفعة المسبقة عبر القنوات المعتمدة، وليس من وقت الاستفسار الأولي.",
+    sections: [
+      {
+        title: "مواعيد التوصيل في نفس اليوم (القاهرة الكبرى)",
+        icon: "fa-bolt",
+        content: `
+          <p>نوفر خدمة التوصيل السريع بواسطة مناديب شذى المعتمدين والمجهزين بحوامل مخصصة لحمل باقات الورد والهدايا دون تعرضها لأي اهتزاز:</p>
+          <table class="policy-table">
+            <thead>
+              <tr><th>المنطقة الجغرافية</th><th>مدة التوصيل المعتادة</th><th>نوع الخدمة</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>التجمع، الرحاب، القاهرة الجديدة، مدينتي</td><td>٢ - ٤ ساعات</td><td>نفس اليوم (VIP)</td></tr>
+              <tr><td>مدينة نصر، مصر الجديدة، النزهة، المقطم</td><td>٣ - ٥ ساعات</td><td>نفس اليوم</td></tr>
+              <tr><td>وسط البلد، الدقي، المهندسين، المعادي</td><td>٣ - ٥ ساعات</td><td>نفس اليوم</td></tr>
+              <tr><td>الشيخ زايد، 6 أكتوبر، حدائق الأهرام</td><td>٤ - ٦ ساعات</td><td>نفس اليوم</td></tr>
+              <tr><td>الإسكندرية، طنطا، المنصورة، وباقي المحافظات</td><td>٢٤ - ٤٨ ساعة</td><td>شحن مصفح آمن</td></tr>
+            </tbody>
+          </table>
+        `
+      },
+      {
+        title: "التغليف المصفح ضد الصدمات للشحن الخارجي",
+        icon: "fa-box-open",
+        content: `
+          <p>كافة الطلبات المشحونة للمحافظات تُوضع داخل صناديق كرتونية مضلعة خماسية الطبقات (5-Ply Heavy Duty) مبطنة بطبقات من الفوم الهوائي لامتصاص الصدمات وحماية الورود والبراويز الزجاجية من أي اهتزاز أثناء الطريق.</p>
+        `
+      },
+      {
+        title: "سرية التوصيل والمفاجآت الخاصة",
+        icon: "fa-user-secret",
+        content: `
+          <p>في حال كان الطلب هدية أو مفاجأة لشخص آخر، يلتزم المندوب بالسرية التامة بعدم ذكر السعر أو اسم المرسل للمستلم إلا إذا رغب العميل بذلك، لضمان فرحة المفاجأة التامة لمتلقي الهدية.</p>
+        `
+      },
+      {
+        title: "شروط وإرشادات التسليم الحازمة",
+        icon: "fa-exclamation-triangle",
+        content: `
+          <ul>
+            <li>يشترط لخدمة التوصيل بنفس اليوم تأكيد الطلب قبل الساعة ٥:٠٠ مساءً.</li>
+            <li>يقوم المندوب بالتواصل مع المستلم هاتفياً قبل التحرك بنصف ساعة لتأكيد التواجد.</li>
+            <li>في حال تعذر الوصول للعنوان أو عدم الرد على اتصالات المندوب بعد محاولتين، يُعاد الأوردر لمقر المتجر ويتم تحديد موعد تسليم جديد مع احتساب رسوم مشوار شحن إضافية للمندوب.</li>
+            <li>يرجى فحص مظهر الباقة الخارجي أمام المندوب مباشرة قبل مغادرته والتوقيع على إشعار الاستلام.</li>
+          </ul>
+        `
+      }
+    ]
+  },
+  refund: {
+    id: "refund",
+    title: "سياسة الاستبدال والاسترجاع الحازمة",
+    icon: "fa-exchange-alt",
+    colorClass: "green",
+    badgeText: "سياسة عادلة وحازمة",
+    updatedDate: "أكتوبر ٢٠٢٦",
+    alertType: "red",
+    alertIcon: "fa-exclamation-triangle",
+    alertColor: "#C0392B",
+    alertText: "نظراً لأن جميع منتجات شذى تُصنع وتُخصص يدوياً خصيصاً لكل عميل حسب رغبته (Custom Handmade)، لا يُقبل الإلغاء أو استرجاع المبالغ النقدية لمجرد تغيير الرأي بعد بدء التصنيع.",
+    sections: [
+      {
+        title: "الحالات المعتمدة للاستبدال الفوري",
+        icon: "fa-check-circle",
+        content: `
+          <p>يحق للعميل طلب الاستبدال المجاني الفوري في الحالات التالية حصراً:</p>
+          <ul>
+            <li><strong>تلف أو كسر ناتج عن الشحن:</strong> يُخطر به المتجر خلال ٢٤ ساعة كحد أقصى من وقت الاستلام مرفقاً بصور أو فيديو واضح.</li>
+            <li><strong>عدم مطابقة المواصفات المعتمدة:</strong> في حال وجود خطأ في اللون أو الحجم أو التطريز مخالف لما تم توثيقه في رسائل التأكيد على واتساب.</li>
+            <li><strong>عيب مصنعي واضح:</strong> وجود خلل أو تفكك في تثبيت الباقة أو هيكل الصندوق قبل أي استخدام.</li>
+          </ul>
+        `
+      },
+      {
+        title: "الحالات التي لا يُقبل فيها الاستبدال أو الإرجاع",
+        icon: "fa-times-circle",
+        content: `
+          <ul>
+            <li>تراجع العميل أو تغيير رأيه بعد بدء التصنيع والقص الفعلي للخامات.</li>
+            <li>اختيار المقاس أو اللون غير المناسب بمعرفة العميل رغم مطابقة المنتج لطلبه.</li>
+            <li>المنتجات المطرزة بأسماء مخصصة أو تواريخ عقد قران أو نصوص إهداء شخصية.</li>
+            <li>التلف الناتج عن سوء التخزين، أو التعرض للماء أو الحرارة، أو فك الأجزاء بعد الاستلام.</li>
+            <li>مرور أكثر من ٢٤ ساعة على استلام الطلب دون إشعار خدمة العملاء.</li>
+          </ul>
+        `
+      },
+      {
+        title: "إجراءات وخطوات تقديم طلب الاستبدال",
+        icon: "fa-clipboard-list",
+        content: `
+          <p>تتم مراجعة طلبات الاستبدال بمنتهى الشفافية والسرعة وفق الخطوات التالية:</p>
+          <ul>
+            <li>إرسال رقم الطلب وصورة واضحة للمنتج والمشكلة إلى رقم خدمة العملاء عبر واتساب.</li>
+            <li>يقوم المشرف المختص بفحص الطلب والرد خلال ساعتي عمل كحد أقصى.</li>
+            <li>عند الموافقة على الاستبدال، يتم إرسال مندوب لاستلام القطعة المعيبة وتسليم القطعة الجديدة فوراً دون أي تكلفة شحن إضافية.</li>
+          </ul>
+          <a href="https://wa.me/201102541236?text=مرحباً، أود تقديم طلب استبدال لمنتج مستلم" target="_blank" class="policy-wa-btn">
+            <i class="fab fa-whatsapp"></i> فتح تذكرة استبدال سريعة
+          </a>
+        `
+      },
+      {
+        title: "إمكانية التعديل قبل بدء التنفيذ",
+        icon: "fa-pen",
+        content: `
+          <p>يحق لكِ تعديل أي تفاصيل في الطلب (نص كارت الإهداء، لون شريطة التغليف) مجاناً عبر الواتساب خلال ساعتين من تأكيد الطلب، وقبل دخول الطلب لخط القص والتنفيذ الفعلي.</p>
+        `
+      }
+    ]
+  },
+  terms: {
+    id: "terms",
+    title: "الشروط والأحكام واتفاقية الاستخدام",
+    icon: "fa-file-contract",
+    colorClass: "purple",
+    badgeText: "اتفاقية قانونية ملزمة",
+    updatedDate: "أكتوبر ٢٠٢٦",
+    alertType: "info",
+    alertIcon: "fa-gavel",
+    alertColor: "#7D3C98",
+    alertText: "استخدامك لموقع شذى أو إرسالك لأي طلب شراء عبر الموقع أو الواتساب يُعد إقراراً وموافقة قانونية ملزمة وكاملة على كافة البنود والسياسات الموضحة أدناه.",
+    sections: [
+      {
+        title: "١. التعريف بالعلامة التجارية",
+        icon: "fa-store",
+        content: `
+          <p>«متجر شَـذى 🌸» علامة تجارية مصرية رائدة مسجلة متخصصة في صناعة وتصميم الهدايا اليدوية الفاخرة، بوكيهات الورد الستان، تجهيزات العرسان وكتب الكتاب. يخضع المتجر لكافة القوانين والتشريعات التجارية المعمول بها في جمهورية مصر العربية.</p>
+        `
+      },
+      {
+        title: "٢. آلية اعتماد وتأكيد الطلبات",
+        icon: "fa-shopping-cart",
+        content: `
+          <p>يُعتبر الطلب مؤكداً ومدرجاً في جدول العمل فقط بعد إتمام العميل لسداد الدفعة المقدمة (العربون) بنسبة لا تقل عن ٥٠٪ من إجمالي القيمة عبر المحافظ الإلكترونية المعتمدة (إنستاباي / فودافون كاش / بطاقات بنكية) وتلقي رسالة تأكيد رسمية من فريق خدمة عملاء شذى.</p>
+          <p>يحتفظ المتجر بالحق في الاعتذار عن قبول أي طلب في حال تعذر توفير الموعد المطلوب أو عدم وضوح بيانات العميل.</p>
+        `
+      },
+      {
+        title: "٣. سياسة الأسعار والرسوم",
+        icon: "fa-tags",
+        content: `
+          <ul>
+            <li>جميع الأسعار المعلنة بالجنيه المصري (EGP) وتشمل كارت الإهداء والتغليف الفاخر مجاناً.</li>
+            <li>تُحدد رسوم التوصيل بشكل منفصل وفقاً للمنطقة والمحافظة وتُوضح للعميل قبل السداد.</li>
+            <li>الأسعار سارية ومعتمدة وقت إتمام وتأكيد الحجز، ولا تسري عليها أي تحديثات سعرية لاحقة.</li>
+          </ul>
+        `
+      },
+      {
+        title: "٤. مطابقة الألوان والمواصفات اليدوية",
+        icon: "fa-palette",
+        content: `
+          <p>نظراً للطبيعة اليدوية الخالصة واختلاف إعدادات ودقة شاشات الهواتف، قد يطرأ فارق لوني طفيف جداً في درجات أشرطة الستان أو الإضاءة، ولا يُعد ذلك عيباً مصنعياً. نلتزم دائماً بالحفاظ على أرقى تناغم بصري ملكي معتمد في صور المعرض.</p>
+        `
+      },
+      {
+        title: "٥. حقوق الملكية الفكرية والعلامة التجارية",
+        icon: "fa-copyright",
+        content: `
+          <p>كافة الصور، الفيديوهات، النصوص، الهوية البصرية، وتصميمات الباقات والبراويز المنشورة على هذا الموقع مملوكة حصرياً لعلامة "شذى". يُحظر تماماً اقتباسها، أو إعادة نشرها، أو استخدامها في أغراض تجارية أو ترويجية دون موافقة خطية صريحة مسبقة.</p>
+        `
+      },
+      {
+        title: "٦. القانون المطبق وفض النزاعات",
+        icon: "fa-balance-scale",
+        content: `
+          <p>تخضع هذه الاتفاقية وتُفسر وفقاً لأحكام القوانين المصرية. ويختص القضاء المصري بالنظر في أي نزاع قد ينشأ بخصوص المعاملات المنفذة عبر المتجر.</p>
+        `
+      }
+    ]
+  },
+  privacy: {
+    id: "privacy",
+    title: "سياسة الخصوصية وأمان البيانات المشدد",
+    icon: "fa-lock",
+    colorClass: "red",
+    badgeText: "خصوصية وأمان 100%",
+    updatedDate: "أكتوبر ٢٠٢٦",
+    alertType: "green",
+    alertIcon: "fa-shield-halved",
+    alertColor: "#1A8C4E",
+    alertText: "نلتزم في متجر شذى بأقصى معايير السرية والأمان في التعامل مع بيانات عملائنا ورسائل إهدائهم الخاصة، ونضمن عدم مشاركتها أو بيعها لأي جهة تسويقية إطلاقاً.",
+    sections: [
+      {
+        title: "١. البيانات التي يتم جمعها والغرض منها",
+        icon: "fa-database",
+        content: `
+          <p>نقوم بجمع البيانات الضرورية فقط واللازمة لإنجاز وتوصيل طلبك:</p>
+          <ul>
+            <li><strong>بيانات العميل:</strong> الاسم، رقم الهاتف، عنوان التوصيل التفصيلي — للتنسيق والتسليم بواسطة المندوب.</li>
+            <li><strong>نصوص وتفاصيل الإهداء:</strong> رسائل كروت الإهداء، أسماء العروسين وتاريخ المناسبة — لطباعتها وتطريزها على المنتجات بدقة.</li>
+            <li><strong>سجل المحادثات:</strong> للاحتفاظ بسجل الطلب ومواصفاته لضمان حقوق العميل ومطابقة التنفيذ.</li>
+          </ul>
+        `
+      },
+      {
+        title: "٢. الأمان وحماية البيانات الحساسة",
+        icon: "fa-user-lock",
+        content: `
+          <p>تُخزن بيانات العملاء في بيئة رقمية محمية ومقفلة، ولا يُسمح بالوصول إليها إلا لمسؤول التجهيز والمندوب المختص بتوصيل الطلب فقط. لا نحتفظ أو نطلب أي أرقام بطاقات بنكية أو أرقام سرية إطلاقاً، وتتم المدفوعات عبر الروابط الرسمية المعتمدة.</p>
+        `
+      },
+      {
+        title: "٣. سرية رسائل ومناسبات العرسان",
+        icon: "fa-envelope-open-text",
+        content: `
+          <p>نولي مشاعر عملائنا ورسائلهم الخاصة حرمة تامة وأمانة مطلقة. تُطبع رسائل كروت الإهداء وتوضع داخل أظرف شمعية مغلقة ومختومة مباشرة في المعمل دون اطلاع المندوب أو أي طرف خارجي على محتواها.</p>
+        `
+      },
+      {
+        title: "٤. حق العميل في حذف وتعديل بياناته",
+        icon: "fa-trash-alt",
+        content: `
+          <p>يحق لأي عميل طلب مسح بياناته المسجلة وسجل أرقامه من سجلات المتجر فور استلام طلبه بنجاح، عن طريق توجيه طلب بسيط لخدمة العملاء عبر واتساب، ويتم تنفيذ المسح خلال ٢٤ ساعة عمل.</p>
+          <a href="https://wa.me/201102541236?text=مرحباً، أود طلب حذف بياناتي المسجلة من قاعدة بيانات شذى" target="_blank" class="policy-wa-btn">
+            <i class="fab fa-whatsapp"></i> طلب مسح بياناتي فوراً
+          </a>
+        `
+      },
+      {
+        title: "٥. ملفات تعريف الارتباط (Cookies)",
+        icon: "fa-cookie-bite",
+        content: `
+          <p>يستخدم الموقع ملفات تعريف ارتباط فنية فقط لحفظ المنتجات داخل سلة الشراء وتذكر تفضيلات المظهر (الوضع الليلي والنهاري)، ولا نستخدم أي برمجيات تتبع خبيثة أو إعلانات خارجية متطفلة.</p>
+        `
+      }
+    ]
   }
+};
+
+function openPolicyModal(policyType = "guarantee") {
+  closeAllModals();
+
+  const policy = SHATHA_POLICIES_DATA[policyType] || SHATHA_POLICIES_DATA.guarantee;
+
+  let modal = document.getElementById("universalPolicyModal");
+  if (!modal) {
+    modal = document.createElement("section");
+    modal.id = "universalPolicyModal";
+    modal.className = "policy-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    document.body.appendChild(modal);
+  }
+
+  let backdrop = document.getElementById("modalBackdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.id = "modalBackdrop";
+    backdrop.className = "modal-backdrop";
+    backdrop.onclick = closeUniversalPolicyModal;
+    document.body.appendChild(backdrop);
+  } else {
+    backdrop.onclick = closeUniversalPolicyModal;
+  }
+
+  // توليد أزرار التبويبات العلوية السريعة
+  const tabKeys = [
+    { key: "guarantee", label: "ضمان الجودة", icon: "fa-award" },
+    { key: "delivery", label: "الشحن والتوصيل", icon: "fa-truck-fast" },
+    { key: "refund", label: "الاستبدال والاسترجاع", icon: "fa-exchange-alt" },
+    { key: "terms", label: "الشروط والأحكام", icon: "fa-file-contract" },
+    { key: "privacy", label: "سياسة الخصوصية", icon: "fa-lock" }
+  ];
+
+  const tabsHtml = `
+    <div class="policy-tabs-nav" id="policyTabsNav">
+      ${tabKeys.map(t => `
+        <button type="button" class="policy-tab-btn ${t.key === policy.id ? 'active' : ''}" onclick="switchPolicyTab('${t.key}')">
+          <i class="fas ${t.icon}"></i> <span>${t.label}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  // توليد أقسام السياسة
+  const sectionsHtml = policy.sections.map(sec => `
+    <div class="policy-section">
+      <div class="policy-section-title">
+        <i class="fas ${sec.icon}"></i> <span>${sec.title}</span>
+      </div>
+      <div>${sec.content}</div>
+    </div>
+  `).join('');
+
+  modal.innerHTML = `
+    <div class="policy-modal-header">
+      <div class="policy-modal-icon ${policy.colorClass}">
+        <i class="fas ${policy.icon}"></i>
+      </div>
+      <div class="policy-modal-header-text">
+        <h3>${policy.title}</h3>
+        <span class="policy-updated">${policy.badgeText} • آخر تحديث: ${policy.updatedDate}</span>
+      </div>
+      <button type="button" class="policy-modal-close-btn" onclick="closeUniversalPolicyModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    ${tabsHtml}
+
+    <div class="policy-modal-body">
+      <div class="policy-alert-box ${policy.alertType}">
+        <i class="fas ${policy.alertIcon}" style="color: ${policy.alertColor}"></i>
+        <p>${policy.alertText}</p>
+      </div>
+
+      ${sectionsHtml}
+    </div>
+  `;
+
+  // إخفاء أي مودالات قديمة ثابتة في الصفحة لتفادي التداخل
+  ["guarantee", "delivery", "refund", "terms", "privacy"].forEach(p => {
+    const oldM = document.getElementById(`policyModal-${p}`);
+    if (oldM && oldM !== modal) oldM.style.display = "none";
+  });
+
+  modal.classList.add("active");
+  backdrop.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function switchPolicyTab(policyKey) {
+  openPolicyModal(policyKey);
+}
+
+function closeUniversalPolicyModal() {
+  const modal = document.getElementById("universalPolicyModal");
+  if (modal) modal.classList.remove("active");
+  const backdrop = document.getElementById("modalBackdrop");
+  if (backdrop) backdrop.classList.remove("active");
+  document.body.style.overflow = "";
+
+  ["guarantee", "delivery", "refund", "terms", "privacy"].forEach(p => {
+    const oldM = document.getElementById(`policyModal-${p}`);
+    if (oldM) oldM.classList.remove("active");
+  });
 }
 
 function closePolicyModal(policyType) {
-  const modal = document.getElementById(`policyModal-${policyType}`);
-  modal?.classList.remove("active");
-  document.getElementById("modalBackdrop")?.classList.remove("active");
-  document.body.style.overflow = "";
+  closeUniversalPolicyModal();
 }
+
+window.openPolicyModal = openPolicyModal;
+window.closePolicyModal = closePolicyModal;
+window.switchPolicyTab = switchPolicyTab;
+window.closeUniversalPolicyModal = closeUniversalPolicyModal;
 
 
 function showToast(message, type = "info") {
@@ -4447,17 +4852,21 @@ function jumpToCarouselItem(targetIndex) {
 
 // التعامل مع الضغط على أي كارت داخل الدائرة
 function handle3dCardClick(productId, cardIndex) {
-  // إذا كان المستخدم يقوم بسحب فعلي للدائرة، نتجاهل الفتح
+  // إذا كان المستخدم يقوم بسحب فعلي حقيقي للدائرة، نتجاهل الفتح
   if (weddingBoxState.hasDragged) {
     weddingBoxState.hasDragged = false;
     return;
   }
 
-  // محاذاة الكارت وفتح تفاصيل وسعر المنتج فوراً
-  if (typeof cardIndex === 'number') {
+  // محاذاة الكارت وفتح تفاصيل وسعر المنتج فوراً بدون أي تعليق
+  if (typeof cardIndex === 'number' && cardIndex !== weddingBoxState.currentIndex) {
     jumpToCarouselItem(cardIndex);
+    setTimeout(() => {
+      openProductModal(productId);
+    }, 120);
+  } else {
+    openProductModal(productId);
   }
-  openProductModal(productId);
 }
 
 // إعداد سحب وتدوير الدائرة بالماوس وعلى شاشات اللمس (Touch & Mouse Drag)
@@ -4469,7 +4878,7 @@ function setupCarouselInteractions() {
   viewport.dataset.dragBound = "true";
 
   const onPointerDown = (e) => {
-    // إذا كان النقر على زر أو رابط أو زر التفاصيل، لا نقوم بتشغيل وضع السحب حتى لا يتعطل النقر
+    // إذا كان النقر على زر أو رابط أو أداة المالك، لا نفعّل وضع السحب أبداً
     if (e.target.closest('button, a, .btn-card-3d-details, .btn-3d-admin-edit, .btn-3d-admin-delete, .carousel-nav-btn, .carousel-dot-btn')) {
       weddingBoxState.isDragging = false;
       return;
@@ -4477,30 +4886,43 @@ function setupCarouselInteractions() {
 
     weddingBoxState.isDragging = true;
     weddingBoxState.hasDragged = false;
-    weddingBoxState.startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    weddingBoxState.pointerDownTime = Date.now();
+    weddingBoxState.startX = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX) || 0;
+    weddingBoxState.startY = (e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY) || 0;
     weddingBoxState.dragStartAngle = weddingBoxState.currentAngle;
     if (ring) ring.classList.add("dragging");
   };
 
   const onPointerMove = (e) => {
     if (!weddingBoxState.isDragging) return;
-    const currentX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const currentX = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX) || 0;
+    const currentY = (e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY) || 0;
     const deltaX = currentX - weddingBoxState.startX;
+    const deltaY = currentY - weddingBoxState.startY;
 
-    // تمييز السحب الحقيقي فقط (فوق 35 بكسل) لتفادي تعطيل اللمسات السريعة على الهواتف
-    if (Math.abs(deltaX) > 35) {
+    // تمييز السحب الحقيقي فقط: مسافة أفقية واضحة أكبر من 25 بكسل وأكبر من الحركة الرأسية
+    if (Math.abs(deltaX) > 25 && Math.abs(deltaX) > Math.abs(deltaY)) {
       weddingBoxState.hasDragged = true;
     }
 
-    // تتبع فوري بحساسية انسيابية
-    weddingBoxState.currentAngle = weddingBoxState.dragStartAngle + (deltaX * 0.42);
-    if (ring) ring.style.transform = `rotateY(${weddingBoxState.currentAngle}deg)`;
+    if (weddingBoxState.hasDragged) {
+      // تتبع فوري بحساسية انسيابية
+      weddingBoxState.currentAngle = weddingBoxState.dragStartAngle + (deltaX * 0.42);
+      if (ring) ring.style.transform = `rotateY(${weddingBoxState.currentAngle}deg)`;
+    }
   };
 
   const onPointerUp = () => {
     if (!weddingBoxState.isDragging) return;
+    const elapsed = Date.now() - (weddingBoxState.pointerDownTime || 0);
     weddingBoxState.isDragging = false;
     if (ring) ring.classList.remove("dragging");
+
+    // إذا كانت لمسة سريعة أو لم يتم سحب كافٍ، لا نعتبره سحباً لكي تفتح تفاصيل المنتج فوراً
+    if (elapsed < 240 || !weddingBoxState.hasDragged) {
+      weddingBoxState.hasDragged = false;
+      return;
+    }
 
     // محاذاة تلقائية (Snap) لأقرب كارت بعد ترك السحب
     const count = weddingBoxState.itemsCount || 4;
@@ -4510,7 +4932,7 @@ function setupCarouselInteractions() {
 
     setTimeout(() => {
       weddingBoxState.hasDragged = false;
-    }, 50);
+    }, 40);
   };
 
   viewport.addEventListener("mousedown", onPointerDown);
@@ -4528,6 +4950,14 @@ function setupCarouselInteractions() {
       initCarousel3D();
     }
   });
+
+  // دعم إغلاق النوافذ بزر Escape
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" || e.key === "Esc") {
+      closeProductModal();
+      closeUniversalPolicyModal();
+    }
+  });
 }
 
 /* ==========================================================================
@@ -4538,17 +4968,129 @@ function initMysteryBox3D() {
   const boxImg = document.getElementById("mysteryBox3dImg");
   if (!boxImg) return;
 
-  // مسح أي نسخ مخزنة قديمة من الكانفاس (v1, v2, v3) لتجنب ظهور الخلفية مجدداً
-  ['shatha_box_closed_trans_v1','shatha_box_closed_trans_v2','shatha_box_closed_trans_v3'].forEach(k => {
-    try { localStorage.removeItem(k); } catch(e) {}
-  });
+  // تنظيف الكاش القديم دائماً لإجبار إعادة المعالجة
+  try {
+    ["v1","v2","v3","v4","v5","v6","v7"].forEach(v =>
+      localStorage.removeItem("shatha_box_clean_png_" + v)
+    );
+  } catch(e) {}
 
-  // إزالة كلاس bg-removed حتى لا يتعارض مع CSS clip-path في style.css
-  boxImg.classList.remove("bg-removed");
+  const CACHE_KEY = "shatha_box_clean_png_v9";
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached && cached.startsWith("data:image/png")) {
+    boxImg.src = cached;
+    boxImg.classList.add("bg-removed");
+    return;
+  }
 
-  // الاعتماد الكامل على CSS polygon clip-path المعرّف في #mysteryBox3dImg بـ style.css
-  // (تم تعريفه ليقطع الخلفية بدقة ويجعل الصندوق يطوف بدون أي خلفية)
-  console.log("Mystery box: using CSS polygon clip-path for clean floating effect");
+  const removeBg = () => {
+    try {
+      const w = boxImg.naturalWidth  || boxImg.width;
+      const h = boxImg.naturalHeight || boxImg.height;
+      if (!w || !h || w < 50 || h < 50) return;
+
+      const canvas = document.createElement("canvas");
+      canvas.width  = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(boxImg, 0, 0, w, h);
+
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const d = imgData.data;
+
+      /*
+       * الصورة: صندوق داكن (رمادي غامق + حواف ذهبية + فيونكة حمراء)
+       * على خلفية استوديو وردية فاتحة مع أضواء bokeh
+       *
+       * منطق الإزالة:
+       *   1. أي بكسل فاتح جداً (brightness > 160) مع نبرة وردية → خلفية
+       *   2. أي بكسل خارج حدود الصندوق الهندسية → شفاف
+       *   3. الصندوق نفسه داكن: r,g,b < 130 أو ذهبي r>g>b أو أحمر قطيفي
+       */
+
+      // نسمح بهامش بسيط حول الصندوق
+      const LEFT   = Math.floor(w * 0.04);
+      const RIGHT  = Math.floor(w * 0.97);
+      const TOP    = Math.floor(h * 0.28);
+      const BOTTOM = Math.floor(h * 0.93);
+
+      let minX = w, minY = h, maxX = 0, maxY = 0;
+      let kept = 0;
+
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i+1], b = d[i+2];
+        const x = (i / 4) % w;
+        const y = Math.floor((i / 4) / w);
+
+        // خارج الحدود → شفاف تماماً
+        if (x < LEFT || x > RIGHT || y < TOP || y > BOTTOM) {
+          d[i+3] = 0;
+          continue;
+        }
+
+        // كشف الخلفية الوردية/البيضاء بدقة:
+        // الخلفية لها: r > g > b، ولونها فاتح (r > 150)
+        const brightness = (r + g + b) / 3;
+        const isLight    = brightness > 155;
+        const isPinkish  = r > g && r > b && (r - b) > 20;   // أكثر أحمر من أزرق
+        const isWhitish  = r > 200 && g > 190 && b > 190;    // أبيض/رمادي فاتح جداً
+
+        // أضواء bokeh: دوائر وردية مضيئة جداً
+        const isBokeh    = brightness > 180 && isPinkish;
+
+        // هل هو لون الصندوق الداكن؟
+        const isDark     = r < 110 && g < 110 && b < 110;    // جسم الصندوق الداكن
+        const isGold     = r > 130 && g > 90  && b < 80 && (r - b) > 60; // حواف ذهبية
+        const isRed      = r > 120 && g < 80  && b < 80;     // فيونكة حمراء قطيفية
+        const isDarkGray = r < 130 && g < 130 && b < 130 && brightness < 130;
+
+        const isBox = isDark || isGold || isRed || isDarkGray;
+
+        if (!isBox && (isLight || isPinkish || isWhitish || isBokeh)) {
+          // خلفية → شفاف
+          d[i+3] = 0;
+        } else {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+          kept++;
+        }
+      }
+
+      if (kept < 100) return; // لم ننجح في الإزالة
+
+      ctx.putImageData(imgData, 0, 0);
+
+      // اقتصاص المنطقة المحتوية على الصندوق فقط
+      const pad = 5;
+      const cx = Math.max(0, minX - pad);
+      const cy = Math.max(0, minY - pad);
+      const cw = Math.min(w, maxX + pad) - cx;
+      const ch = Math.min(h, maxY + pad) - cy;
+
+      if (cw > 50 && ch > 50) {
+        const crop = document.createElement("canvas");
+        crop.width  = cw;
+        crop.height = ch;
+        crop.getContext("2d").drawImage(canvas, cx, cy, cw, ch, 0, 0, cw, ch);
+
+        const cleanPng = crop.toDataURL("image/png");
+        boxImg.src = cleanPng;
+        boxImg.classList.add("bg-removed");
+
+        try { localStorage.setItem(CACHE_KEY, cleanPng); } catch(e) {}
+      }
+    } catch(err) {
+      // ملف محلي أو تعطيل Canvas CORS → clip-path من CSS يعمل تلقائياً
+    }
+  };
+
+  if (boxImg.complete && boxImg.naturalWidth > 0) {
+    removeBg();
+  } else {
+    boxImg.addEventListener("load", removeBg);
+  }
 }
 
 

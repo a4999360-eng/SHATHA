@@ -474,28 +474,28 @@
 
       <!-- شريط إحصائيات ومزايا تجهيز العرائس -->
       <div class="wedding-stats-ribbon">
-        <div class="wedding-stat-box">
+        <div class="wedding-stat-box" onclick="openPolicyModal('guarantee')" style="cursor: pointer;" title="عرض ضمان الجودة والإتقان">
           <div class="wedding-stat-icon"><i class="fas fa-infinity"></i></div>
           <div class="wedding-stat-info">
             <h5>ذكرى تدوم للأبد</h5>
             <p>خامات ستان لا تذبل أو تتغير</p>
           </div>
         </div>
-        <div class="wedding-stat-box">
+        <div class="wedding-stat-box" onclick="openPolicyModal('guarantee')" style="cursor: pointer;" title="عرض ضمان الإتقان والتطريز">
           <div class="wedding-stat-icon"><i class="fas fa-feather-alt"></i></div>
           <div class="wedding-stat-info">
             <h5>تطريز مخصص بالأسماء</h5>
             <p>على المنديل والأشرطة والبراويز</p>
           </div>
         </div>
-        <div class="wedding-stat-box">
+        <div class="wedding-stat-box" onclick="openWeddingBundleModal()" style="cursor: pointer;" title="عرض خصم الصندوق المتكامل">
           <div class="wedding-stat-icon"><i class="fas fa-percent"></i></div>
           <div class="wedding-stat-info">
             <h5>وفر 20% فوري</h5>
             <p>عند طلب الصندوق المتكامل</p>
           </div>
         </div>
-        <div class="wedding-stat-box">
+        <div class="wedding-stat-box" onclick="openPolicyModal('delivery')" style="cursor: pointer;" title="عرض سياسة الشحن والتوصيل">
           <div class="wedding-stat-icon"><i class="fas fa-truck-fast"></i></div>
           <div class="wedding-stat-info">
             <h5>توصيل لجميع المحافظات</h5>
@@ -547,6 +547,17 @@
             <li><a href="javascript:void(0)" onclick="openWeddingBoxInteractive(); jumpToCarouselItem(1);">🖼️ برواز كتب الكتاب الزجاجي</a></li>
             <li><a href="javascript:void(0)" onclick="openWeddingBoxInteractive(); jumpToCarouselItem(2);">👑 طقم وعقد العروسة الملكي</a></li>
             <li><a href="javascript:void(0)" onclick="openWeddingBoxInteractive(); jumpToCarouselItem(3);">📜 لوحة بصمة كتب الكتاب</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading" style="cursor: pointer;" onclick="openPolicyModal('guarantee')">السياسات والثقة</h4>
+          <ul class="footer-links">
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('guarantee')"><i class="fas fa-angle-left"></i> ضمان الجودة والإتقان</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('delivery')"><i class="fas fa-angle-left"></i> سياسة الشحن والتوصيل</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('refund')"><i class="fas fa-angle-left"></i> الاستبدال والاسترجاع</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('terms')"><i class="fas fa-angle-left"></i> الشروط والأحكام</a></li>
+            <li><a href="javascript:void(0)" onclick="openPolicyModal('privacy')"><i class="fas fa-angle-left"></i> سياسة الخصوصية</a></li>
           </ul>
         </div>
 
@@ -770,7 +781,7 @@
 
   <!-- نافذة تفاصيل المنتج المتقدمة (Product Modal) -->
   <section class="product-modal" id="productDetailsModal" aria-label="تفاصيل الباقة">
-    <button class="product-modal-close" id="closeProductModal" onclick="closeProductModal()" aria-label="إغلاق النافذة">
+    <button class="product-modal-close" id="btnProductModalClose" onclick="closeProductModal()" aria-label="إغلاق النافذة">
       <i class="fas fa-times"></i>
     </button>
     <div class="modal-grid">

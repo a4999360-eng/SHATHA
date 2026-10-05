@@ -1439,7 +1439,7 @@ button {
   inset: 0;
   background: rgba(39, 34, 36, 0.6);
   backdrop-filter: blur(4px);
-  z-index: 1000;
+  z-index: 100040;
   opacity: 0;
   visibility: hidden;
   transition: var(--transition);
@@ -1832,7 +1832,7 @@ button {
   max-height: 90vh;
   background: #FFFFFF;
   border-radius: var(--radius-lg);
-  z-index: 1005;
+  z-index: 100050;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   display: block;
@@ -2335,50 +2335,324 @@ button {
   margin-bottom: 25px;
 }
 
-/* نوافذ السياسات (Policy Modals) */
+/* ===================================================
+   نوافذ السياسات والثقة — تصميم احترافي
+   =================================================== */
 .policy-modal {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  width: 90%;
-  max-width: 640px;
-  max-height: 85vh;
+  transform: translate(-50%, -50%) scale(0.96);
+  width: 92%;
+  max-width: 720px;
+  max-height: 88vh;
   background: #FFFFFF;
-  border-radius: var(--radius-lg);
-  z-index: 1002;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  display: none;
+  border-radius: 18px;
+  z-index: 100050;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.22), 0 8px 25px rgba(0,0,0,0.1);
   opacity: 0;
-  transition: var(--transition);
-  padding: 30px;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
 }
 
 .policy-modal.active {
-  display: block;
   opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
   transform: translate(-50%, -50%) scale(1);
 }
 
-.policy-modal h3 {
-  font-size: 1.4rem;
+/* رأس النافذة */
+.policy-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 26px 18px;
+  border-bottom: 1.5px solid #F0EDE8;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: #FFFFFF;
+  z-index: 2;
+}
+
+[data-theme="dark"] .policy-modal-header {
+  background: #101014;
+  border-bottom-color: #24242C;
+}
+
+.policy-modal-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.policy-modal-icon.gold   { background: #FEF6E6; color: #C9A13B; }
+.policy-modal-icon.blue   { background: #E8F4FF; color: #2980B9; }
+.policy-modal-icon.green  { background: #EAFAF1; color: #1A8C4E; }
+.policy-modal-icon.purple { background: #F4EEFF; color: #7D3C98; }
+.policy-modal-icon.red    { background: #FDEDEC; color: #C0392B; }
+
+.policy-modal-header-text { flex: 1; }
+
+.policy-modal-header-text h3 {
+  font-size: 1.18rem;
   font-weight: 800;
   color: var(--primary-dark);
-  margin-bottom: 15px;
+  margin: 0 0 2px;
+  line-height: 1.3;
 }
 
-.policy-content {
-  font-size: 0.92rem;
+.policy-modal-header-text .policy-updated {
+  font-size: 0.72rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.policy-modal-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-body);
+  border: 1.5px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.policy-modal-close-btn:hover {
+  background: var(--primary-pink);
+  color: #fff;
+  border-color: var(--primary-pink);
+}
+
+/* شريط تبويبات السياسات السريع */
+.policy-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--bg-body);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+  flex-shrink: 0;
+}
+
+.policy-tab-btn {
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.policy-tab-btn:hover {
+  border-color: var(--primary-pink);
+  color: var(--primary-pink);
+}
+
+.policy-tab-btn.active {
+  background: var(--primary-pink);
+  color: #FFFFFF !important;
+  border-color: var(--primary-pink);
+  box-shadow: 0 4px 12px rgba(224, 86, 126, 0.25);
+}
+
+[data-theme="dark"] .policy-tabs-nav {
+  background: #141418;
+  border-bottom-color: #24242C;
+}
+
+[data-theme="dark"] .policy-tab-btn {
+  background: #1C1C22;
+  border-color: #2E2E38;
+  color: #C0C0D0;
+}
+
+[data-theme="dark"] .policy-tab-btn.active {
+  background: var(--primary-pink);
+  color: #FFFFFF !important;
+  border-color: var(--primary-pink);
+}
+
+/* محتوى النافذة — قابل للتمرير */
+.policy-modal-body {
+  overflow-y: auto;
+  padding: 24px 26px 30px;
+  flex: 1;
+}
+
+/* بادج التحذير / الحازم */
+.policy-alert-box {
+  background: #FFF8E6;
+  border: 1.5px solid #F0C040;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.policy-alert-box.info  { background: #EBF5FB; border-color: #5DADE2; }
+.policy-alert-box.green { background: #EAFAF1; border-color: #2ECC71; }
+.policy-alert-box.red   { background: #FDEDEC; border-color: #E74C3C; }
+
+.policy-alert-box i { font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
+.policy-alert-box p { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--text-main); font-weight: 600; }
+
+/* أقسام السياسة */
+.policy-section {
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.policy-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.policy-section-title {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.policy-section-title i {
+  color: var(--primary-pink);
+  font-size: 0.88rem;
+}
+
+.policy-section p {
+  font-size: 0.885rem;
   color: var(--text-muted);
   line-height: 1.85;
+  margin: 0 0 8px;
 }
 
-.policy-content h5 {
-  font-size: 1rem;
-  color: var(--text-main);
-  margin-top: 15px;
-  margin-bottom: 6px;
+.policy-section p:last-child { margin-bottom: 0; }
+
+.policy-section ul {
+  padding-right: 18px;
+  margin: 6px 0;
+}
+
+.policy-section ul li {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+/* بطاقة الجدول */
+.policy-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 0.85rem;
+}
+
+.policy-table th {
+  background: var(--bg-body);
+  color: var(--primary-dark);
+  font-weight: 700;
+  padding: 9px 12px;
+  text-align: right;
+  border: 1px solid var(--border-subtle);
+}
+
+.policy-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  vertical-align: top;
+}
+
+.policy-table tr:nth-child(even) td { background: var(--bg-body); }
+
+/* زر واتساب في نهاية السياسة */
+.policy-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #25D366;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 999px;
+  text-decoration: none;
+  margin-top: 18px;
+  transition: background 0.2s;
+}
+
+.policy-wa-btn:hover { background: #1da84e; }
+
+/* Dark mode */
+[data-theme="dark"] .policy-modal {
+  background: #101014;
+  border: 1px solid #24242C;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+}
+
+[data-theme="dark"] .policy-modal-header-text h3,
+[data-theme="dark"] .policy-section-title { color: #FFFFFF; }
+
+[data-theme="dark"] .policy-section p,
+[data-theme="dark"] .policy-section ul li { color: #B8B8C8; }
+
+[data-theme="dark"] .policy-modal-close-btn {
+  background: #18181D;
+  border-color: #2A2A34;
+  color: #AAAABC;
+}
+
+[data-theme="dark"] .policy-table th { background: #18181D; color: #FFFFFF; border-color: #2A2A34; }
+[data-theme="dark"] .policy-table td { border-color: #2A2A34; color: #B0B0C0; }
+[data-theme="dark"] .policy-table tr:nth-child(even) td { background: #14141A; }
+
+[data-theme="dark"] .policy-alert-box { background: #1C1C22; border-color: #3A3A4A; }
+[data-theme="dark"] .policy-alert-box p { color: #D0D0E0; }
+
+/* موبايل */
+@media (max-width: 650px) {
+  .policy-modal { width: 96% !important; max-height: 92vh !important; border-radius: 14px; }
+  .policy-modal-header { padding: 16px 18px 14px; }
+  .policy-modal-body  { padding: 18px 18px 24px; }
+  .policy-modal-icon  { width: 40px; height: 40px; font-size: 1.1rem; }
+  .policy-modal-header-text h3 { font-size: 1.02rem; }
+  .policy-table { font-size: 0.78rem; }
 }
 
 /* تنبيهات التوست المنبثقة (Toast Notification) */
@@ -6732,7 +7006,7 @@ html.theme-transitioning *::after {
 
 .mystery-box-hero-anchor {
   position: relative;
-  width: 460px;
+  width: 480px;
   height: 460px;
   max-width: 92vw;
   display: flex;
@@ -6749,61 +7023,97 @@ html.theme-transitioning *::after {
   object-fit: contain;
   cursor: pointer;
   animation: boxLevitate 4s ease-in-out infinite;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
   user-select: none;
   -webkit-user-drag: none;
   background: transparent !important;
 }
 
-/* قص الخلفية باحترافية تامة لإزالة أي تشاش أو بقايا خلفية وردية خاصة من أسفل اليسار */
+/*
+  ===================================================
+  قص دقيق يقطع الخلفية البينك تماماً ويُبقي الصندوق
+  الأبعاد مستخرجة يدوياً من الصورة الأصلية
+  الصورة عمودية (portrait) بأبعاد ~554 × 994 بكسل
+  الصندوق يبدأ من:
+    الأعلى   ≈ 30%
+    الأسفل   ≈ 90%
+    اليمين   ≈ 96%
+    اليسار   ≈ 5%
+  ===================================================
+*/
 #mysteryBox3dImg {
+  /* نقطع بدقة: غطاء الصندوق ثلاثي الأبعاد + جسم الصندوق + الفيونكة */
   clip-path: polygon(
-    68.5% 34.2%, 
-    96.2% 45.5%, 
-    95.6% 54.8%, 
-    92.5% 84.0%, 
-    67.5% 88.0%, 
-    57.0% 89.0%, 
-    52.0% 89.2%, 
-    50.0% 83.5%, 
-    27.5% 92.5%, 
-    18.0% 81.0%, 
-    12.5% 73.0%, 
-    9.2% 56.5%, 
-    7.6% 46.8%, 
-    7.3% 38.0%
+    /* بداية الحافة اليسارية العلوية للغطاء */
+    5%  30%,
+    /* منتصف الغطاء (الجزء الخلفي المرتفع) */
+    68% 26%,
+    /* الزاوية اليمينية العلوية للغطاء */
+    96% 38%,
+    /* الزاوية اليمينية السفلية للغطاء */
+    96% 53%,
+    /* الحافة اليمينية لجسم الصندوق */
+    93% 82%,
+    /* الزاوية اليمينية السفلية + الفيونكة */
+    73% 86%,
+    /* أسفل الفيونكة يمين */
+    60% 88%,
+    /* أسفل الفيونكة يسار */
+    47% 90%,
+    /* الزاوية اليسارية السفلية */
+    5%  90%,
+    /* الحافة اليسارية لجسم الصندوق */
+    5%  44%
   );
-  transform: scale(1.62) translateY(-4%);
+  transform: scale(1.42) translateY(-6%);
+  filter: drop-shadow(0 18px 35px rgba(0, 0, 0, 0.38));
 }
 
+/* بعد إزالة الخلفية برمجياً بالكانفاس، نزيل clip-path ونعرض الصورة نقية */
 #mysteryBox3dImg.bg-removed {
-  transform: scale(1.62) translateY(-4%);
+  clip-path: none !important;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.15) translateY(-1%);
+  filter: drop-shadow(0 20px 42px rgba(0, 0, 0, 0.38));
 }
 
-.mystery-box-closed-view:hover .mystery-box-3d-model {
-  transform: scale(1.7) translateY(-10px) rotate(1deg);
+.mystery-box-closed-view:hover #mysteryBox3dImg {
+  transform: scale(1.52) translateY(-14px) rotate(0.8deg);
+  filter: drop-shadow(0 25px 50px rgba(212, 175, 55, 0.35)) drop-shadow(0 18px 35px rgba(0, 0, 0, 0.42));
 }
 
-#mysteryBox3dImg.bg-removed:hover {
-  transform: scale(1.7) translateY(-10px) rotate(1deg);
+.mystery-box-closed-view:hover #mysteryBox3dImg.bg-removed {
+  transform: scale(1.22) translateY(-12px) rotate(0.8deg);
+  filter: drop-shadow(0 25px 50px rgba(212, 175, 55, 0.35)) drop-shadow(0 18px 35px rgba(0, 0, 0, 0.42));
 }
 
 @keyframes boxLevitate {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-16px) rotate(-1deg); }
+  0%, 100% { transform: scale(1.42) translateY(-6%) rotate(0deg); }
+  50%       { transform: scale(1.42) translateY(-11%) rotate(-0.6deg); }
 }
 
-/* ظل الأرضية الواقعي ثلاثي الأبعاد تحت الصندوق العائم بدون أي تشاش */
+#mysteryBox3dImg.bg-removed {
+  animation: boxLevitateBgRemoved 4s ease-in-out infinite;
+}
+
+@keyframes boxLevitateBgRemoved {
+  0%, 100% { transform: scale(1.15) translateY(-1%) rotate(0deg); }
+  50%       { transform: scale(1.15) translateY(-5%) rotate(-0.6deg); }
+}
+
+/* ظل الأرضية الواقعي ثلاثي الأبعاد تحت الصندوق العائم الكبير */
 .mystery-box-floor-shadow {
   position: absolute;
   bottom: 0px;
   left: 50%;
   transform: translateX(-50%);
-  width: 65%;
-  height: 24px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.08) 50%, transparent 75%);
+  width: 75%;
+  height: 28px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0.09) 50%, transparent 75%);
   border-radius: 50%;
-  filter: blur(8px);
+  filter: blur(10px);
   pointer-events: none;
   animation: shadowPulse 4s ease-in-out infinite;
 }
@@ -7034,6 +7344,8 @@ html.theme-transitioning *::after {
   overflow: hidden;
   cursor: pointer;
   backface-visibility: visible;
+  pointer-events: auto;
+  z-index: 2;
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
 }
 
@@ -7047,6 +7359,7 @@ html.theme-transitioning *::after {
   border-color: #D4AF37;
   border-width: 2.5px;
   box-shadow: 0 20px 50px rgba(212, 175, 55, 0.45);
+  z-index: 10;
 }
 
 .card-3d-thumb-wrap {
@@ -7414,13 +7727,13 @@ html.theme-transitioning *::after {
 /* استجابة الهواتف المحمولة: حجم كروت مدمج وصغير مثل كروت المتجر الخارجية */
 @media (max-width: 650px) {
   .mystery-box-hero-anchor {
-    width: 330px !important;
-    height: 330px !important;
-    max-width: 90vw !important;
+    width: 360px !important;
+    height: 350px !important;
+    max-width: 92vw !important;
   }
 
   .carousel-3d-stage-viewport {
-    height: 330px !important;
+    height: 340px !important;
   }
 
   .carousel-3d-ring {
@@ -7534,8 +7847,8 @@ html.theme-transitioning *::after {
   }
 
   .mystery-box-hero-anchor {
-    width: 320px !important;
-    height: 320px !important;
+    width: 300px !important;
+    height: 290px !important;
     max-width: 90vw !important;
   }
 
