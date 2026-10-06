@@ -248,7 +248,7 @@
                 <span>تم فتح الصندوق بنجاح! حرك الدائرة يميناً ويساراً لاستعراض القطع 💍</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <button type="button" class="btn-owner-add-box-item" id="ownerAddBoxItemBtn" style="display: none;" onclick="openAddProductModalForWeddingBox()" title="إضافة منتج جديد لداخل الصندوق">
+                <button type="button" class="btn-owner-add-box-item" id="ownerAddBoxItemBtn" style="display: inline-flex;" onclick="openAddProductModalForWeddingBox()" title="إضافة منتج جديد لداخل الصندوق">
                   <i class="fas fa-plus-circle"></i>
                   <span>إضافة منتج للصندوق (المالك) 🎁</span>
                 </button>
@@ -776,8 +776,6 @@
     </div>
   </section>
 
-  <!-- طبقة التعتيم (Modal Backdrop) -->
-  <div class="modal-backdrop" id="modalBackdrop" onclick="closeProductModal()"></div>
 
   <!-- نافذة تفاصيل المنتج المتقدمة (Product Modal) -->
   <section class="product-modal" id="productDetailsModal" aria-label="تفاصيل الباقة">

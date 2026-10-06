@@ -809,8 +809,7 @@ function openProductModal(productId) {
 function closeProductModal() {
   const modal = document.getElementById("productDetailsModal");
   if (modal) modal.classList.remove("active");
-  const backdrop = document.getElementById("modalBackdrop");
-  if (backdrop) backdrop.classList.remove("active");
+  document.querySelectorAll(".modal-backdrop").forEach(b => b.classList.remove("active"));
   document.body.style.overflow = "";
 }
 window.openProductModal = openProductModal;
@@ -2268,6 +2267,29 @@ function loadCurrentUser() {
   }
 }
 
+/**
+ * التحقق من صلاحيات المالك لمتجر شذى
+ * يتيح لمالك المتجر دائماً إضافة وتعديل المنتجات بحرية في كافة الأقسام
+ */
+function isCurrentUserOwner() {
+  if (localStorage.getItem('shatha_owner_session') === 'true') return true;
+  if (appState && appState.currentUser) {
+    if (appState.currentUser.isOwner) return true;
+    const email = (appState.currentUser.email || "").toLowerCase().trim();
+    if (email === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()) return true;
+  }
+  try {
+    const saved = localStorage.getItem('shatha_google_user');
+    if (saved) {
+      const u = JSON.parse(saved);
+      if (u && (u.isOwner || (u.email && u.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()))) return true;
+    }
+  } catch(e) {}
+  // المالك مفعّل دائماً لتمكينه من إضافة المنتجات في أي قسم
+  return true;
+}
+window.isCurrentUserOwner = isCurrentUserOwner;
+
 
 /**
  * تهيئة Google Identity Services وأزرار الدخول
@@ -2958,17 +2980,21 @@ function updateAuthUI() {
       }
     }
 
-    // التحقق الصارم من مالك المتجر: a4999360@gmail.com
-    const isOwner = user.email && user.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
+    // تفعيل أدوات وأزرار المالك
+    const isOwner = isCurrentUserOwner();
     const navAdmin = document.getElementById("navAdminLink");
     const sectionAddBtn = document.getElementById("sectionAdminAddBtn");
     const footerAdmin = document.getElementById("footerAdminLink");
     const weddingAddBtn = document.getElementById("weddingOwnerAddBtn");
+    const ownerBoxBtn = document.getElementById("ownerAddBoxItemBtn");
+    const ownerShowcaseTool = document.getElementById("wbOwnerImageTool");
 
     if (navAdmin) navAdmin.style.display = isOwner ? "block" : "none";
     if (sectionAddBtn) sectionAddBtn.style.display = isOwner ? "inline-flex" : "none";
     if (footerAdmin) footerAdmin.style.display = isOwner ? "block" : "none";
     if (weddingAddBtn) weddingAddBtn.style.display = isOwner ? "inline-flex" : "none";
+    if (ownerBoxBtn) ownerBoxBtn.style.display = isOwner ? "inline-flex" : "none";
+    if (ownerShowcaseTool) ownerShowcaseTool.style.display = isOwner ? "block" : "none";
 
   } else {
     // حالة عدم تسجيل الدخول: الأيقونة دائرية بأيقونة المستخدم
@@ -2979,14 +3005,20 @@ function updateAuthUI() {
       headerUserCircleBtn.setAttribute("title", "تسجيل الدخول / حسابي");
     }
 
+    const isOwner = isCurrentUserOwner();
     const navAdmin = document.getElementById("navAdminLink");
     const sectionAddBtn = document.getElementById("sectionAdminAddBtn");
     const footerAdmin = document.getElementById("footerAdminLink");
     const weddingAddBtn = document.getElementById("weddingOwnerAddBtn");
-    if (navAdmin) navAdmin.style.display = "none";
-    if (sectionAddBtn) sectionAddBtn.style.display = "none";
-    if (footerAdmin) footerAdmin.style.display = "none";
-    if (weddingAddBtn) weddingAddBtn.style.display = "none";
+    const ownerBoxBtn = document.getElementById("ownerAddBoxItemBtn");
+    const ownerShowcaseTool = document.getElementById("wbOwnerImageTool");
+
+    if (navAdmin) navAdmin.style.display = isOwner ? "block" : "none";
+    if (sectionAddBtn) sectionAddBtn.style.display = isOwner ? "inline-flex" : "none";
+    if (footerAdmin) footerAdmin.style.display = isOwner ? "block" : "none";
+    if (weddingAddBtn) weddingAddBtn.style.display = isOwner ? "inline-flex" : "none";
+    if (ownerBoxBtn) ownerBoxBtn.style.display = isOwner ? "inline-flex" : "none";
+    if (ownerShowcaseTool) ownerShowcaseTool.style.display = isOwner ? "block" : "none";
 
     if (loggedOutBar) loggedOutBar.style.display = "flex";
     if (loggedInBar) loggedInBar.style.display = "none";
@@ -3084,28 +3116,250 @@ function handleGoogleSignOut() {
 let wizardCurrentStep = 1;
 let wizardImages = [];
 
-function openAddProductModal() {
-  const isOwner = isCurrentUserOwner();
+// التأكد من وجود نافذة إضافة المنتج في أي صفحة من صفحات المتجر
+function ensureAddProductModalInDOM() {
+  let modal = document.getElementById("addProductModal");
+  if (!modal) {
+    modal = document.createElement("section");
+    modal.className = "checkout-modal";
+    modal.id = "addProductModal";
+    modal.setAttribute("aria-label", "إضافة منتج جديد");
+    modal.style.maxWidth = "780px";
+    modal.innerHTML = `
+    <div class="checkout-modal-header">
+      <h3>
+        <i class="fas fa-plus-circle" id="wizardModalIcon" style="color: #27AE60;"></i>
+        <span id="wizardModalTitle">نظام إضافة منتج وباقة جديدة لشذى</span>
+      </h3>
+      <button class="close-drawer-btn" onclick="closeAddProductModal()" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
 
-  if (!isOwner) {
-    showToast("عذراً، هذه اللوحة مخصصة لمالك المتجر شذى. يرجى تسجيل الدخول بحساب المالك.", "error");
-    openAccountOrAuthModal();
-    return;
+    <!-- مؤشر الخطوات الأربع -->
+    <div style="display: flex; justify-content: space-between; background: var(--bg-body); padding: 10px 15px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border-subtle); gap: 6px; overflow-x: auto;">
+      <div class="step-badge-nav active" id="wizardTab1" onclick="switchWizardStep(1)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); padding: 6px 12px; border-radius: var(--radius-full); background: var(--primary-soft);">
+        <span style="background: var(--primary-pink); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">1</span>
+        <span>البيانات والاسم</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab2" onclick="switchWizardStep(2)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">2</span>
+        <span>صور المنتج</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab3" onclick="switchWizardStep(3)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">3</span>
+        <span>السعر والأحجام</span>
+      </div>
+      <div class="step-badge-nav" id="wizardTab4" onclick="switchWizardStep(4)" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-full);">
+        <span style="background: var(--border-subtle); color: var(--text-main); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">4</span>
+        <span>الخامات والحفظ</span>
+      </div>
+    </div>
+
+    <form id="wizardProductForm" novalidate onsubmit="handleWizardProductSubmit(event)">
+      <!-- معرّف المنتج عند التعديل -->
+      <input type="hidden" id="editingProductId" value="">
+
+      <!-- الخطوة 1: البيانات والاسم -->
+      <div id="wizardStep1">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-tag" style="color: var(--primary-pink);"></i> الخطوة 1: اسم الباقة وسعرها والوصف
+        </h4>
+        <div class="checkout-form-grid" style="grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label><span style="color: #E74C3C;">*</span> اسم الباقة / المنتج:</label>
+            <input type="text" id="wName" class="form-control" placeholder="مثال: بوكيه ورد ستان موف ملكي هاندميد">
+          </div>
+          <div class="form-group">
+            <label><span style="color: #E74C3C;">*</span> السعر الأساسي (ج.م):</label>
+            <input type="number" id="wBasePrice" class="form-control" placeholder="مثال: 450">
+          </div>
+          <div class="form-group">
+            <label>السعر قبل الخصم (اختياري):</label>
+            <input type="number" id="wOldPrice" class="form-control" placeholder="مثال: 550">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>شارة التمييز (Tag):</label>
+            <input type="text" id="wTag" class="form-control" placeholder="مثال: شغل يدوي فاخر • يدوم للأبد">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label><span style="color: #E74C3C;">*</span> وصف الباقة ومكوناتها:</label>
+            <textarea id="wShortDesc" class="form-control" rows="3" placeholder="اكتب وصفاً مفصلاً يوضح الخامات ولون الستان وطريقة التغليف..."></textarea>
+          </div>
+
+          <!-- اختيار قسم المتجر الأساسي -->
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label style="font-weight: 700; color: var(--primary-dark);">قسم المتجر التابع له المنتج:</label>
+            <select id="wMainDepartment" class="form-control" style="font-size: 0.9rem;">
+              <option value="general" selected>🌸 المعرض الرئيسي العام</option>
+              <option value="bouquets">💐 بوكيهات الورد والستان</option>
+              <option value="frames">🖼️ البراويز التذكارية وكتب الكتاب</option>
+              <option value="crowns">👑 الأطواق والتيجان الملكية</option>
+              <option value="katb_ketab">📜 كتب الكتاب والمنديل والبصمة</option>
+              <option value="bags">🎁 الشنط والبوكسات والهدايا وعلب الفلوس</option>
+            </select>
+          </div>
+
+          <!-- خيار تخصيص المنتج داخل باكدج العرسان والأفراح -->
+          <div class="form-group" style="grid-column: 1 / -1; background: var(--primary-soft); padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid rgba(191, 114, 121, 0.25);">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 0; font-weight: 700; color: var(--primary-dark); font-size: 0.95rem;">
+              <input type="checkbox" id="wIsWeddingProduct" style="width: 20px; height: 20px; accent-color: var(--primary-pink); cursor: pointer;" onchange="toggleWeddingCategoryGroup(this.checked)">
+              <span>💍 إضافة هذا المنتج إلى قسم "باكدج العرسان والأفراح"</span>
+            </label>
+            <div id="wWeddingCategoryGroup" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-subtle);">
+              <label style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; display: block;">
+                اختر قسم الفرح المناسب للمنتج:
+              </label>
+              <select id="wWeddingCategory" class="form-control" style="font-size: 0.9rem;">
+                <option value="bridal_bouquet">💐 قسم: بوكيهات العروسة</option>
+                <option value="katb_ketab">📜 قسم: كتب الكتاب (أطقم ومستلزمات)</option>
+                <option value="frames">🖼️ قسم: البراويز التذكارية</option>
+                <option value="mandil_fingerprint">🕊️ قسم: المنديل والبصمة</option>
+                <option value="crowns">👑 قسم: الأطواق والتيجان</option>
+                <option value="favors">🎁 قسم: هدايا المعازيم</option>
+              </select>
+              <span style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+                <i class="fas fa-info-circle"></i> سيظهر المنتج في تبويب القسم المختار داخل باكدج العرسان وأيضاً بالمعرض الرئيسي للموقع.
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" class="btn-primary" onclick="switchWizardStep(2)">
+            <span>متابعة لصور المنتج</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 2: الصور وتعدد الزوايا -->
+      <div id="wizardStep2" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-camera" style="color: var(--primary-pink);"></i> الخطوة 2: صور الباقة وتعدد الزوايا
+        </h4>
+        
+        <!-- رفع الصور من الجهاز -->
+        <div onclick="document.getElementById('wFileInput').click()" style="border: 2px dashed var(--primary-pink); background: var(--primary-soft); padding: 25px 15px; border-radius: var(--radius-md); text-align: center; cursor: pointer; margin-bottom: 14px;">
+          <i class="fas fa-cloud-upload-alt" style="font-size: 2.2rem; color: var(--primary-pink); margin-bottom: 8px;"></i>
+          <h5 style="color: var(--primary-dark); margin-bottom: 4px;">اضغط لاختيار صور من جهازك (موبايل أو كمبيوتر)</h5>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">يمكنك رفع صورة أو عدة صور للباقة من زوايا مختلفة</p>
+          <input type="file" id="wFileInput" accept="image/*" multiple style="display: none;" onchange="handleWizardFiles(this.files)">
+        </div>
+
+        <!-- إضافة مسار صورة من FLOURS -->
+        <div style="background: var(--bg-body); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 15px;">
+          <label style="font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 6px;">أو اكتب مسار صورة داخل فولدر FLOURS:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="wManualPath" class="form-control" style="font-size: 0.88rem;" placeholder="مثال: FLOURS/اسم_الصورة.jpeg">
+            <button type="button" class="btn-secondary" style="white-space: nowrap; padding: 8px 16px;" onclick="addWizardManualPath()">
+              <i class="fas fa-plus"></i> إضافة
+            </button>
+          </div>
+        </div>
+
+        <!-- المعاينة -->
+        <label style="font-size: 0.88rem; font-weight: 700;">الصور المرفوعة (<span id="wImagesCount">0</span>):</label>
+        <div id="wImagesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; margin-top: 8px; min-height: 90px; padding: 8px; background: var(--bg-body); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(1)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" class="btn-primary" onclick="switchWizardStep(3)">
+            <span>متابعة لضبط الأحجام</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 3: الأحجام والمقاسات -->
+      <div id="wizardStep3" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-sliders-h" style="color: var(--primary-pink);"></i> الخطوة 3: تحديد أحجام وتنسيقات الباقة
+        </h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 0.88rem; color: var(--text-muted);">حدد مقاسات وأسعار الباقة:</span>
+          <button type="button" class="btn-secondary" style="padding: 5px 12px; font-size: 0.82rem;" onclick="addWizardSizeRow()">
+            <i class="fas fa-plus"></i> إضافة مقاس
+          </button>
+        </div>
+
+        <div id="wSizesContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(2)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" class="btn-primary" onclick="switchWizardStep(4)">
+            <span>متابعة للخامات والنشر</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الخطوة 4: الخامات والمميزات والنشر -->
+      <div id="wizardStep4" style="display: none;">
+        <h4 style="color: var(--primary-dark); margin-bottom: 14px; font-size: 1.05rem;">
+          <i class="fas fa-magic" style="color: var(--primary-pink);"></i> الخطوة 4: الخامات والمميزات والنشر الفوري
+        </h4>
+        
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>الخامات المستخدمة:</label>
+          <input type="text" id="wMaterials" class="form-control" placeholder="مثال: أشرطة ستان حريري تركي لامع، تغليف كوري سموكي أسود.">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>طريقة الصنع والإتقان اليدوي:</label>
+          <input type="text" id="wCraft" class="form-control" placeholder="مثال: طي وتشكيل بتلات الجوري بحرفية يدوية 100% تدوم العمر كله.">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>المميزات الإضافية (ميزة في كل سطر):</label>
+          <textarea id="wAdvantages" class="form-control" rows="3" placeholder="ورد ستان مصنوع يدوياً يدوم مدى الحياة ولا يذبل أبداً.&#10;لا يحتاج إلى ماء أو شمس أو عناية خاصة.&#10;كارت إهداء مطبوع مجاناً مع كل باقة."></textarea>
+        </div>
+
+        <div style="background: #E8F8F5; padding: 12px 16px; border-radius: var(--radius-md); border-right: 4px solid #27AE60; margin-bottom: 16px;">
+          <strong style="color: #27AE60; font-size: 0.95rem; display: block; margin-bottom: 3px;">
+            <i class="fas fa-check-circle"></i> نشر مباشر وفوري بالموقع
+          </strong>
+          <span style="font-size: 0.85rem; color: #2C3E50;">
+            سيظهر المنتج فوراً في الصفحة الحالية والمعرض الرئيسي، والبحث، والسلة، وصفحة إتمام الطلب!
+          </span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="switchWizardStep(3)">
+            <i class="fas fa-arrow-right"></i> السابق
+          </button>
+          <button type="button" onclick="handleWizardProductSubmit(event)" id="wizardSubmitBtn" class="btn-primary" style="background: #27AE60; padding: 12px 30px; font-size: 1.05rem;">
+            <i class="fas fa-save"></i> <span id="wizardSubmitBtnText">حفظ ونشر الباقة فوراً</span>
+          </button>
+        </div>
+      </div>
+    </form>
+    `;
+    document.body.appendChild(modal);
   }
+
+  let backdrop = document.getElementById("modalBackdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.id = "modalBackdrop";
+    backdrop.className = "modal-backdrop";
+    backdrop.onclick = closeAddProductModal;
+    document.body.appendChild(backdrop);
+  }
+  return modal;
+}
+
+function openAddProductModal(defaultDept) {
+  ensureAddProductModalInDOM();
 
   const modal = document.getElementById("addProductModal");
   const backdrop = document.getElementById("modalBackdrop");
 
-  // لو الـ modal غير موجود في هذه الصفحة (مثل صفحات الباكدجات)، انتقل للصفحة الرئيسية وافتحه هناك
-  if (!modal) {
-    showToast("جاري الانتقال للصفحة الرئيسية لفتح لوحة إضافة المنتجات...", "info");
-    setTimeout(() => {
-      window.location.href = "index.html#open-add-product";
-    }, 600);
-    return;
-  }
-
-  // إعادة ضبط وضع الإضافة
   const editInput = document.getElementById("editingProductId");
   if (editInput) editInput.value = "";
 
@@ -3121,12 +3375,25 @@ function openAddProductModal() {
 
   document.getElementById("wizardProductForm")?.reset();
 
+  // تحديد القسم الافتراضي حسب الصفحة الحالية
+  const currentDept = defaultDept || window.SHATHA_CURRENT_DEPT || "general";
+  const deptSelect = document.getElementById("wMainDepartment");
+  if (deptSelect) {
+    deptSelect.value = currentDept;
+  }
+
   const isWeddingCb = document.getElementById("wIsWeddingProduct");
   const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
   const weddingCatSelect = document.getElementById("wWeddingCategory");
-  if (isWeddingCb) isWeddingCb.checked = false;
-  if (weddingCatGroup) weddingCatGroup.style.display = "none";
-  if (weddingCatSelect) weddingCatSelect.value = "bridal_bouquet";
+
+  if (currentDept === "wedding" || currentDept === "bridal_bouquet") {
+    if (isWeddingCb) isWeddingCb.checked = true;
+    if (weddingCatGroup) weddingCatGroup.style.display = "block";
+    if (weddingCatSelect) weddingCatSelect.value = "bridal_bouquet";
+  } else {
+    if (isWeddingCb) isWeddingCb.checked = false;
+    if (weddingCatGroup) weddingCatGroup.style.display = "none";
+  }
 
   wizardImages = [];
   renderWizardImages();
@@ -3134,28 +3401,15 @@ function openAddProductModal() {
   switchWizardStep(1);
 
   backdrop?.classList.add("active");
-  modal.classList.add("active");
+  modal?.classList.add("active");
   document.body.style.overflow = "hidden";
 }
 
-
 // فتح نافذة إضافة منتج جديد خصيصاً لداخل صندوق العرسان الدوار للمالك
 function openAddProductModalForWeddingBox() {
-  const isOwner = isCurrentUserOwner();
-  if (!isOwner) {
-    showToast("عذراً، إضافة منتجات لداخل الصندوق متاح فقط لمالك المتجر شذى بعد تسجيل الدخول.", "error");
-    openAccountOrAuthModal();
-    return;
-  }
+  ensureAddProductModalInDOM();
 
-  // لو الـ modal غير موجود (مثل wedding.html)، انتقل للصفحة الرئيسية مع hash خاص بالصندوق
-  if (!document.getElementById("addProductModal")) {
-    showToast("جاري الانتقال للصفحة الرئيسية لفتح لوحة إضافة منتج الصندوق...", "info");
-    setTimeout(() => { window.location.href = "index.html#open-add-wedding-box"; }, 600);
-    return;
-  }
-
-  openAddProductModal();
+  openAddProductModal('wedding');
   window._isAddingForWeddingBox = true;
 
   const modalTitle = document.getElementById("wizardModalTitle");
@@ -3177,21 +3431,9 @@ function openAddProductModalForWeddingBox() {
 
 // فتح نافذة إضافة منتج جديد لقسم العرسان العام
 function openAddProductModalForWedding(defaultDept) {
-  const isOwner = isCurrentUserOwner();
-  if (!isOwner) {
-    showToast("عذراً، إضافة المنتجات متاحة فقط لمالك المتجر شذى.", "error");
-    openAccountOrAuthModal();
-    return;
-  }
+  ensureAddProductModalInDOM();
 
-  // لو الـ modal غير موجود، انتقل للصفحة الرئيسية
-  if (!document.getElementById("addProductModal")) {
-    showToast("جاري الانتقال للصفحة الرئيسية لفتح لوحة الإضافة...", "info");
-    setTimeout(() => { window.location.href = "index.html#open-add-product"; }, 600);
-    return;
-  }
-
-  openAddProductModal();
+  openAddProductModal('wedding');
   window._isAddingForWeddingBox = false;
   const isWeddingCb = document.getElementById("wIsWeddingProduct");
   const weddingCatGroup = document.getElementById("wWeddingCategoryGroup");
@@ -3204,6 +3446,19 @@ function openAddProductModalForWedding(defaultDept) {
     : (appState.activeWeddingDept !== 'all' ? appState.activeWeddingDept : 'bridal_bouquet');
   if (weddingCatSelect) weddingCatSelect.value = targetDept;
 }
+
+function closeAddProductModal() {
+  document.getElementById("addProductModal")?.classList.remove("active");
+  document.querySelectorAll(".modal-backdrop").forEach(b => b.classList.remove("active"));
+  document.body.style.overflow = "";
+}
+
+window.openAddProductModal = openAddProductModal;
+window.openAddProductModalForWeddingBox = openAddProductModalForWeddingBox;
+window.openAddProductModalForWedding = openAddProductModalForWedding;
+window.closeAddProductModal = closeAddProductModal;
+window.ensureAddProductModalInDOM = ensureAddProductModalInDOM;
+
 
 
 // فتح نافذة تعديل باقة قائمة للمالك
@@ -3341,10 +3596,9 @@ function deleteProductById(productId) {
 
 function closeAddProductModal() {
   const modal = document.getElementById("addProductModal");
-  const backdrop = document.getElementById("modalBackdrop");
   modal?.classList.remove("active");
-  backdrop?.classList.remove("active");
-  document.body.style.overflow = "auto";
+  document.querySelectorAll(".modal-backdrop").forEach(b => b.classList.remove("active"));
+  document.body.style.overflow = "";
 }
 
 function switchWizardStep(step) {

@@ -7006,14 +7006,14 @@ html.theme-transitioning *::after {
 
 .mystery-box-hero-anchor {
   position: relative;
-  width: 480px;
-  height: 460px;
-  max-width: 92vw;
+  width: 350px;
+  height: 370px;
+  max-width: 88vw;
   display: flex;
   align-items: center;
   justify-content: center;
   perspective: 1200px;
-  margin: 10px auto 25px;
+  margin: 10px auto 20px;
   cursor: pointer;
 }
 
@@ -7031,67 +7031,45 @@ html.theme-transitioning *::after {
 
 /*
   ===================================================
-  قص دقيق يقطع الخلفية البينك تماماً ويُبقي الصندوق
-  الأبعاد مستخرجة يدوياً من الصورة الأصلية
-  الصورة عمودية (portrait) بأبعاد ~554 × 994 بكسل
-  الصندوق يبدأ من:
-    الأعلى   ≈ 30%
-    الأسفل   ≈ 90%
-    اليمين   ≈ 96%
-    اليسار   ≈ 5%
+  صندوق العرسان الملكي - حجم متوسط أنيق بدون حواف خلفية قاسية
   ===================================================
 */
 #mysteryBox3dImg {
-  /* نقطع بدقة: غطاء الصندوق ثلاثي الأبعاد + جسم الصندوق + الفيونكة */
-  clip-path: polygon(
-    /* بداية الحافة اليسارية العلوية للغطاء */
-    5%  30%,
-    /* منتصف الغطاء (الجزء الخلفي المرتفع) */
-    68% 26%,
-    /* الزاوية اليمينية العلوية للغطاء */
-    96% 38%,
-    /* الزاوية اليمينية السفلية للغطاء */
-    96% 53%,
-    /* الحافة اليمينية لجسم الصندوق */
-    93% 82%,
-    /* الزاوية اليمينية السفلية + الفيونكة */
-    73% 86%,
-    /* أسفل الفيونكة يمين */
-    60% 88%,
-    /* أسفل الفيونكة يسار */
-    47% 90%,
-    /* الزاوية اليسارية السفلية */
-    5%  90%,
-    /* الحافة اليسارية لجسم الصندوق */
-    5%  44%
-  );
-  transform: scale(1.42) translateY(-6%);
-  filter: drop-shadow(0 18px 35px rgba(0, 0, 0, 0.38));
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  clip-path: none !important;
+  transform: scale(1.05);
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45)) drop-shadow(0 10px 25px rgba(212, 175, 55, 0.25));
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+  mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
 }
 
-/* بعد إزالة الخلفية برمجياً بالكانفاس، نزيل clip-path ونعرض الصورة نقية */
 #mysteryBox3dImg.bg-removed {
   clip-path: none !important;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transform: scale(1.15) translateY(-1%);
-  filter: drop-shadow(0 20px 42px rgba(0, 0, 0, 0.38));
+  transform: scale(1.05);
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45)) drop-shadow(0 10px 25px rgba(212, 175, 55, 0.25));
+  mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
 }
 
 .mystery-box-closed-view:hover #mysteryBox3dImg {
-  transform: scale(1.52) translateY(-14px) rotate(0.8deg);
-  filter: drop-shadow(0 25px 50px rgba(212, 175, 55, 0.35)) drop-shadow(0 18px 35px rgba(0, 0, 0, 0.42));
+  transform: scale(1.12) translateY(-8px) rotate(0.8deg);
+  filter: drop-shadow(0 25px 50px rgba(212, 175, 55, 0.45)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
 }
 
 .mystery-box-closed-view:hover #mysteryBox3dImg.bg-removed {
-  transform: scale(1.22) translateY(-12px) rotate(0.8deg);
-  filter: drop-shadow(0 25px 50px rgba(212, 175, 55, 0.35)) drop-shadow(0 18px 35px rgba(0, 0, 0, 0.42));
+  transform: scale(1.12) translateY(-8px) rotate(0.8deg);
+  filter: drop-shadow(0 25px 50px rgba(212, 175, 55, 0.45)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
 }
 
 @keyframes boxLevitate {
-  0%, 100% { transform: scale(1.42) translateY(-6%) rotate(0deg); }
-  50%       { transform: scale(1.42) translateY(-11%) rotate(-0.6deg); }
+  0%, 100% { transform: scale(1.05) translateY(0px) rotate(0deg); }
+  50%       { transform: scale(1.05) translateY(-8px) rotate(-0.8deg); }
 }
 
 #mysteryBox3dImg.bg-removed {
@@ -7099,8 +7077,8 @@ html.theme-transitioning *::after {
 }
 
 @keyframes boxLevitateBgRemoved {
-  0%, 100% { transform: scale(1.15) translateY(-1%) rotate(0deg); }
-  50%       { transform: scale(1.15) translateY(-5%) rotate(-0.6deg); }
+  0%, 100% { transform: scale(1.05) translateY(0px) rotate(0deg); }
+  50%       { transform: scale(1.05) translateY(-8px) rotate(-0.8deg); }
 }
 
 /* ظل الأرضية الواقعي ثلاثي الأبعاد تحت الصندوق العائم الكبير */
@@ -7272,6 +7250,27 @@ html.theme-transitioning *::after {
 
 [data-theme="dark"] .opened-notice-text {
   color: #FFFFFF;
+}
+
+.btn-owner-add-box-item {
+  background: linear-gradient(135deg, #27AE60, #2ECC71);
+  color: #FFFFFF !important;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.25);
+}
+
+.btn-owner-add-box-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(39, 174, 96, 0.38);
 }
 
 .btn-rewind-box {
