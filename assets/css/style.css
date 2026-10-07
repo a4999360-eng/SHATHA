@@ -1439,7 +1439,7 @@ button {
   inset: 0;
   background: rgba(39, 34, 36, 0.6);
   backdrop-filter: blur(4px);
-  z-index: 100040;
+  z-index: 1050;
   opacity: 0;
   visibility: hidden;
   transition: var(--transition);
@@ -1459,7 +1459,7 @@ button {
   max-width: 440px;
   height: 100%;
   background: #FFFFFF;
-  z-index: 1001;
+  z-index: 2000;
   box-shadow: -10px 0 35px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
@@ -2153,7 +2153,7 @@ button {
   max-height: 90vh;
   background: #FFFFFF;
   border-radius: var(--radius-lg);
-  z-index: 1002;
+  z-index: 2000;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   display: none;
@@ -7042,8 +7042,6 @@ html.theme-transitioning *::after {
   transform: scale(1.05);
   filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45)) drop-shadow(0 10px 25px rgba(212, 175, 55, 0.25));
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
-  mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
 }
 
 #mysteryBox3dImg.bg-removed {
@@ -7053,8 +7051,6 @@ html.theme-transitioning *::after {
   object-fit: contain;
   transform: scale(1.05);
   filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45)) drop-shadow(0 10px 25px rgba(212, 175, 55, 0.25));
-  mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 64%, #000000 48%, rgba(0, 0, 0, 0.8) 58%, transparent 72%);
 }
 
 .mystery-box-closed-view:hover #mysteryBox3dImg {

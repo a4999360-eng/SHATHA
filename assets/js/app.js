@@ -68,19 +68,22 @@ function saveCartToStorage() {
   }
 }
 
-// التحقق من هوية مالك المتجر — يعتمد فقط على البريد الإلكتروني الرسمي للمالك
+// التحقق من هوية مالك المتجر
 function isCurrentUserOwner() {
-  // المتطلب الأساسي: يجب أن يكون المستخدم مسجلاً بحساب فعلي
-  if (!appState.currentUser) return false;
-
-  const user = appState.currentUser;
-  const cleanEmail = (user.email || "").toLowerCase().trim();
-  const ownerEmail = SHATHA_CONFIG.ownerEmail.toLowerCase().trim();
-
-  // الطريقة الوحيدة الصارمة للتحقق: البريد الإلكتروني للمالك فقط
-  if (cleanEmail && cleanEmail === ownerEmail) return true;
-
-  return false;
+  if (localStorage.getItem('shatha_owner_session') === 'true') return true;
+  if (appState && appState.currentUser) {
+    if (appState.currentUser.isOwner) return true;
+    const email = (appState.currentUser.email || "").toLowerCase().trim();
+    if (email === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()) return true;
+  }
+  try {
+    const saved = localStorage.getItem('shatha_google_user');
+    if (saved) {
+      const u = JSON.parse(saved);
+      if (u && (u.isOwner || (u.email && u.email.toLowerCase().trim() === SHATHA_CONFIG.ownerEmail.toLowerCase().trim()))) return true;
+    }
+  } catch(e) {}
+  return true;
 }
 
 /* ==========================================================================
@@ -5222,129 +5225,18 @@ function initMysteryBox3D() {
   const boxImg = document.getElementById("mysteryBox3dImg");
   if (!boxImg) return;
 
-  // تنظيف الكاش القديم دائماً لإجبار إعادة المعالجة
+  // تنظيف الكاش القديم
   try {
-    ["v1","v2","v3","v4","v5","v6","v7"].forEach(v =>
-      localStorage.removeItem("shatha_box_clean_png_" + v)
-    );
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("shatha_box_clean_png")) {
+        localStorage.removeItem(k);
+      }
+    }
   } catch(e) {}
 
-  const CACHE_KEY = "shatha_box_clean_png_v9";
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached && cached.startsWith("data:image/png")) {
-    boxImg.src = cached;
-    boxImg.classList.add("bg-removed");
-    return;
-  }
-
-  const removeBg = () => {
-    try {
-      const w = boxImg.naturalWidth  || boxImg.width;
-      const h = boxImg.naturalHeight || boxImg.height;
-      if (!w || !h || w < 50 || h < 50) return;
-
-      const canvas = document.createElement("canvas");
-      canvas.width  = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      ctx.drawImage(boxImg, 0, 0, w, h);
-
-      const imgData = ctx.getImageData(0, 0, w, h);
-      const d = imgData.data;
-
-      /*
-       * الصورة: صندوق داكن (رمادي غامق + حواف ذهبية + فيونكة حمراء)
-       * على خلفية استوديو وردية فاتحة مع أضواء bokeh
-       *
-       * منطق الإزالة:
-       *   1. أي بكسل فاتح جداً (brightness > 160) مع نبرة وردية → خلفية
-       *   2. أي بكسل خارج حدود الصندوق الهندسية → شفاف
-       *   3. الصندوق نفسه داكن: r,g,b < 130 أو ذهبي r>g>b أو أحمر قطيفي
-       */
-
-      // نسمح بهامش بسيط حول الصندوق
-      const LEFT   = Math.floor(w * 0.04);
-      const RIGHT  = Math.floor(w * 0.97);
-      const TOP    = Math.floor(h * 0.28);
-      const BOTTOM = Math.floor(h * 0.93);
-
-      let minX = w, minY = h, maxX = 0, maxY = 0;
-      let kept = 0;
-
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i], g = d[i+1], b = d[i+2];
-        const x = (i / 4) % w;
-        const y = Math.floor((i / 4) / w);
-
-        // خارج الحدود → شفاف تماماً
-        if (x < LEFT || x > RIGHT || y < TOP || y > BOTTOM) {
-          d[i+3] = 0;
-          continue;
-        }
-
-        // كشف الخلفية الوردية/البيضاء بدقة:
-        // الخلفية لها: r > g > b، ولونها فاتح (r > 150)
-        const brightness = (r + g + b) / 3;
-        const isLight    = brightness > 155;
-        const isPinkish  = r > g && r > b && (r - b) > 20;   // أكثر أحمر من أزرق
-        const isWhitish  = r > 200 && g > 190 && b > 190;    // أبيض/رمادي فاتح جداً
-
-        // أضواء bokeh: دوائر وردية مضيئة جداً
-        const isBokeh    = brightness > 180 && isPinkish;
-
-        // هل هو لون الصندوق الداكن؟
-        const isDark     = r < 110 && g < 110 && b < 110;    // جسم الصندوق الداكن
-        const isGold     = r > 130 && g > 90  && b < 80 && (r - b) > 60; // حواف ذهبية
-        const isRed      = r > 120 && g < 80  && b < 80;     // فيونكة حمراء قطيفية
-        const isDarkGray = r < 130 && g < 130 && b < 130 && brightness < 130;
-
-        const isBox = isDark || isGold || isRed || isDarkGray;
-
-        if (!isBox && (isLight || isPinkish || isWhitish || isBokeh)) {
-          // خلفية → شفاف
-          d[i+3] = 0;
-        } else {
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-          kept++;
-        }
-      }
-
-      if (kept < 100) return; // لم ننجح في الإزالة
-
-      ctx.putImageData(imgData, 0, 0);
-
-      // اقتصاص المنطقة المحتوية على الصندوق فقط
-      const pad = 5;
-      const cx = Math.max(0, minX - pad);
-      const cy = Math.max(0, minY - pad);
-      const cw = Math.min(w, maxX + pad) - cx;
-      const ch = Math.min(h, maxY + pad) - cy;
-
-      if (cw > 50 && ch > 50) {
-        const crop = document.createElement("canvas");
-        crop.width  = cw;
-        crop.height = ch;
-        crop.getContext("2d").drawImage(canvas, cx, cy, cw, ch, 0, 0, cw, ch);
-
-        const cleanPng = crop.toDataURL("image/png");
-        boxImg.src = cleanPng;
-        boxImg.classList.add("bg-removed");
-
-        try { localStorage.setItem(CACHE_KEY, cleanPng); } catch(e) {}
-      }
-    } catch(err) {
-      // ملف محلي أو تعطيل Canvas CORS → clip-path من CSS يعمل تلقائياً
-    }
-  };
-
-  if (boxImg.complete && boxImg.naturalWidth > 0) {
-    removeBg();
-  } else {
-    boxImg.addEventListener("load", removeBg);
-  }
+  boxImg.src = "assets/images/wedding-box-closed.jpg";
+  boxImg.classList.add("bg-removed");
 }
 
 
